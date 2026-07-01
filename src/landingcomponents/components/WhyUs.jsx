@@ -77,7 +77,6 @@ const WhyUs = () => (
         ))}
       </div>
       <iframe src="https://widgets.sociablekit.com/google-reviews/iframe/25687238" frameborder="0" width="100%" height="1000px"></iframe>
-      <iframe src="https://widgets.sociablekit.com/instagram-reels/iframe/25687241" frameborder="0" width="100%" height="1000px"></iframe>
     </div>
   </section>
 );
