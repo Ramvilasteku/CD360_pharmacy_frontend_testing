@@ -59,7 +59,6 @@ const Comparison = () => {
         <div className="container pricing-hero-container">
           <div className="pricing-content">
             <span className="pricing-badge"> CareDesk360 Pricing</span>
-
             <h1>
               Simple Pricing for
               <span> Modern Healthcare</span>
