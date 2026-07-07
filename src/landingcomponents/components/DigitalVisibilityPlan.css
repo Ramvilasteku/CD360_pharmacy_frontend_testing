@@ -1,4 +1,6 @@
-/* DigitalVisibilityPlan.css */
+/* ===========================
+   DIGITAL VISIBILITY PLAN
+=========================== */
 
 * {
   margin: 0;
@@ -6,241 +8,255 @@
   box-sizing: border-box;
 }
 
-body {
-  background: #f4f8fc;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Wrapper */
-
 .dvp-wrapper {
   width: 100%;
-  max-width: 1200px;
-  margin: auto;
-  padding: 30px 20px;
+  max-width: 1250px;
+  margin: 60px auto;
+  /* border: solid red 2px; */
+  border-radius: 20px;
+  font-family: "Poppins", sans-serif;
 }
 
-/* Header */
+/* ===========================
+   TITLE
+=========================== */
 
 .dvp-header-section {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 20px;
-  margin-bottom: 40px;
+  border-radius: 20px;
+  margin-bottom: 35px;
+  background: var(--white);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+  color: var(--navy);
 }
 
 .dvp-line {
   flex: 1;
-  max-width: 150px;
-  height: 3px;
-  background: #0084c7;
+  height: 2px;
+  background: var(--navy);
+  max-width: 200px;
 }
 
 .dvp-heading-content {
   text-align: center;
+  color: var(--navy);
 }
 
 .dvp-main-title {
-  font-size: 42px;
-  color: #0084c7;
+  color: var(--navy);
+  font-size: 38px;
   font-weight: 700;
+  margin: 20px 0;
+}
+
+.dvp-price {
+  color: var(--navy);
+  font-size: 30px;
+  margin-bottom: 5px;
+}
+
+.dvp-price span {
+  font-size: 18px;
+  color: var(--navy);
 }
 
 .dvp-sub-title {
-  margin-top: 10px;
-  font-size: 20px;
-  color: #555;
+  color: var(--navy);
+  font-size: 16px;
+  margin-top: 5px;
 }
 
-/* Pricing Layout */
+/* ===========================
+   INVESTMENT SECTION
+=========================== */
+
+.plan-card-dvp-price-layout {
+  display: grid;
+  grid-template-columns: 350px 2fr;
+  border: 2px solid var(--navy);
+  margin: 40px 0px;
+  border-radius: 20px;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+}
 
 .dvp-price-layout {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 35px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  grid-template-columns: 350px 2fr;
+  border: 2px solid var(--navy);
+  margin-bottom: 30px;
+  border-radius: 20px;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
 }
 
 .dvp-price-card {
-  background: linear-gradient(135deg, #0093d0, #005f98);
-  color: white;
-  padding: 40px 25px;
-  text-align: center;
+  background: var(--navy);
+  color: var(--white);
+  padding: 35px;
+  display: flex;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .dvp-price-heading {
-  font-size: 24px;
-  margin-bottom: 18px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 20px;
 }
 
 .dvp-price-amount {
-  font-size: 54px;
+  font-size: 52px;
+  color: var(--white);
   font-weight: bold;
 }
 
 .dvp-price-amount span {
-  font-size: 22px;
-}
-
-.dvp-price-duration {
-  margin-top: 12px;
-  font-size: 22px;
+  font-size: 30px;
 }
 
 .dvp-price-description {
   display: flex;
   align-items: center;
-  padding: 30px;
+  padding: 40px;
 }
 
 .dvp-price-description p {
-  font-size: 24px;
-  color: #333;
+  font-size: 22px;
   line-height: 1.7;
+  color: #333;
 }
 
-/* Grid */
+/* ===========================
+   GRID
+=========================== */
 
 .dvp-grid-layout {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+  gap: 20px;
 }
 
-/* Card */
+/* ===========================
+   CARD
+=========================== */
 
 .dvp-info-card {
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--navy);
+  border-radius: 20px;
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  background: var(--white);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
 }
 
 .dvp-card-top {
-  background: linear-gradient(135deg, #0093d0, #005f98);
-  padding: 24px;
-  color: white;
+  background: var(--navy);
+  color: var(--white);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 40px 20px;
   display: flex;
   align-items: center;
   gap: 18px;
 }
 
-.dvp-card-icon {
-  font-size: 42px;
-}
-
 .dvp-card-title {
-  font-size: 28px;
-  margin-bottom: 6px;
+  font-size: 25px;
+  color: var(--white);
+
+  font-weight: 700;
 }
 
 .dvp-card-subtext {
-  font-size: 16px;
+  margin-top: 5px;
+  font-size: 15px;
   line-height: 1.5;
 }
 
-/* Sections */
-
 .dvp-card-section {
-  padding: 25px;
-  border-bottom: 1px solid #ececec;
+  padding: 20px;
 }
 
-.dvp-card-section:last-child {
-  border-bottom: none;
+.dvp-card-section:not(:last-child) {
+  border-bottom: 1px solid #d8d8d8;
 }
 
 .dvp-section-heading {
-  color: #0084c7;
-  font-size: 24px;
-  margin-bottom: 20px;
-  line-height: 1.4;
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-transform: uppercase;
 }
 
+/* ===========================
+   LIST
+=========================== */
+
 .dvp-list {
-  padding-left: 20px;
+  padding-left: 22px;
 }
 
 .dvp-list li {
-  margin-bottom: 14px;
-  font-size: 18px;
-  color: #333;
+  font-size: 16px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: #222;
+}
+
+/* ===========================
+   ADDONS
+=========================== */
+
+.dvp-card-section p {
+  font-size: 16px;
   line-height: 1.6;
+  color: #444;
 }
 
-/* Check List */
+/* ===========================
+   RESPONSIVE
+=========================== */
 
-.dvp-check-list {
-  list-style: none;
-}
-
-.dvp-check-list li {
-  margin-bottom: 14px;
-  font-size: 18px;
-  color: #333;
-  line-height: 1.6;
-  position: relative;
-  padding-left: 28px;
-}
-
-.dvp-check-list li::before {
-  content: "✔";
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #0084c7;
-  font-weight: bold;
-}
-
-/* Footer */
-
-.dvp-footer-note {
-  margin-top: 40px;
-  background: linear-gradient(135deg, #0093d0, #005f98);
-  border-radius: 14px;
-  padding: 30px;
-  color: white;
-}
-
-.dvp-footer-note p {
-  margin-bottom: 14px;
-  font-size: 18px;
-  line-height: 1.7;
-}
-
-.dvp-footer-note p:last-child {
-  margin-bottom: 0;
-}
-
-/* Responsive */
-
-@media screen and (max-width: 992px) {
-  .dvp-grid-layout {
-    grid-template-columns: 1fr;
-  }
-
+@media (max-width: 992px) {
   .dvp-price-layout {
     grid-template-columns: 1fr;
   }
 
-  .dvp-main-title {
-    font-size: 34px;
+  .plan-card-dvp-price-layout {
+    grid-template-columns: 1fr;
   }
 
-  .dvp-price-amount {
-    font-size: 44px;
+  .dvp-grid-layout {
+    grid-template-columns: 1fr;
   }
 
-  .dvp-price-description p {
-    font-size: 20px;
+  .dvp-price-card {
+    text-align: center;
+    /* border-radius: 20px; */
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 20px;
+  }
+
+  .dvp-price-description {
+    padding: 30px;
+    text-align: center;
+    justify-content: center;
   }
 }
 
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
+  .dvp-wrapper {
+    padding: 15px;
+  }
+
   .dvp-header-section {
     flex-direction: column;
   }
@@ -250,11 +266,27 @@ body {
   }
 
   .dvp-main-title {
-    font-size: 28px;
+    font-size: 30px;
   }
 
-  .dvp-sub-title {
-    font-size: 16px;
+  .dvp-price {
+    font-size: 24px;
+  }
+
+  .dvp-price-card {
+    padding: 25px;
+  }
+
+  .dvp-price-heading {
+    font-size: 24px;
+  }
+
+  .dvp-price-amount {
+    font-size: 42px;
+  }
+
+  .dvp-price-description p {
+    font-size: 18px;
   }
 
   .dvp-card-top {
@@ -263,49 +295,14 @@ body {
   }
 
   .dvp-card-title {
-    font-size: 22px;
-  }
-
-  .dvp-section-heading {
     font-size: 20px;
   }
 
-  .dvp-list li,
-  .dvp-check-list li {
-    font-size: 16px;
-  }
-
-  .dvp-footer-note p {
-    font-size: 16px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .dvp-wrapper {
-    padding: 15px;
-  }
-
-  .dvp-price-card {
-    padding: 30px 20px;
-  }
-
-  .dvp-price-amount {
-    font-size: 36px;
-  }
-
-  .dvp-price-description {
-    padding: 20px;
-  }
-
-  .dvp-price-description p {
+  .dvp-section-heading {
     font-size: 18px;
   }
 
-  .dvp-card-top {
-    padding: 20px;
-  }
-
-  .dvp-card-section {
-    padding: 20px;
+  .dvp-list li {
+    font-size: 15px;
   }
 }

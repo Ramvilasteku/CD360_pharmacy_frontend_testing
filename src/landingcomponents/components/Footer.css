@@ -1,6 +1,35 @@
 .footer {
+  position: relative;
+  overflow: hidden;
   background: var(--navy);
   color: rgba(255, 255, 255, 0.75);
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../Assets/body-pattern.png") center
+    center;
+  /* background-size: cover; Full screen */
+  opacity: 1;
+  animation: bounceBg 3s ease-in-out infinite;
+  z-index: 0;
+}
+
+.footer > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes bounceBg {
+  0%,
+  100% {
+    transform:scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 .footer-top {
   padding: 60px 0 40px;
@@ -32,7 +61,6 @@
   margin-bottom: 16px;
 }
 .social-link {
-
   border-radius: 6px;
   background: #ffffff;
   display: flex;
@@ -69,9 +97,9 @@
   letter-spacing: 0.8px;
   margin-bottom: 14px;
   grid-template-columns: repeat(3, 1.4fr);
-
 }
 .footer-col ul {
+  padding-left: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -84,9 +112,21 @@
   color: rgba(255, 255, 255, 0.65);
   transition: color 0.2s;
   text-align: left;
-
+  cursor: pointer;
 }
 .footer-col a:hover {
+  color: white;
+}
+
+.footer-col li button {
+  background-color:transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.2s;
+  text-align: left;
+  cursor: pointer;
+}
+.footer-col li button:hover {
   color: white;
 }
 .footer-bottom {

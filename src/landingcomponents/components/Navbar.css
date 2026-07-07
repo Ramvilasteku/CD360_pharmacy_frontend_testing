@@ -81,6 +81,25 @@
 .mobile-toggle.active span:nth-child(3) {
   transform: rotate(-45deg) translate(6px, -6px);
 }
+
+.navbar-links a {
+  position: relative;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.navbar-links a.active {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+#services,
+#features,
+#about,
+#whyus {
+  scroll-margin-top: 100px; /* 80px navbar + 20px gap */
+}
+
 @media (max-width: 900px) {
   .mobile-toggle {
     display: flex;
@@ -143,10 +162,7 @@
     display: none; /* hide desktop buttons */
   }
 
-  .navbar-links {
-    border-radius: 0 0 14px 14px;
-    animation: slideDown 0.5s ease;
-  }
+
 
   .navbar-links li {
     padding: 6px 0;
@@ -157,14 +173,4 @@
   }
 }
 
-/* Smooth dropdown animation */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-60px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+

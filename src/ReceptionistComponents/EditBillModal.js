@@ -194,7 +194,8 @@ const EditBillModal = ({ open, bill, onClose, onUpdated }) => {
   const [consultations, setConsultations] = useState([]);
   const [medicines,     setMedicines]     = useState([]);
   const [tests,         setTests]         = useState([]);
-  const [tax,           setTax]           = useState(0);
+  const [discountPercentage, setDiscountPercentage] = useState(0);
+  const [taxPercentage, setTaxPercentage] = useState(0);
   const [notes,         setNotes]         = useState("");
   const [billStatus,    setBillStatus]    = useState("Pending");
   const [saving,        setSaving]        = useState(false);
@@ -207,7 +208,8 @@ const EditBillModal = ({ open, bill, onClose, onUpdated }) => {
     setConsultations(breakdown.consultations || []);
     setMedicines(breakdown.medicines         || []);
     setTests(breakdown.tests                 || []);
-    setTax(Number(bill.tax                   || 0));
+    setDiscountPercentage(Number(bill.discount_percentage || 0));
+    setTaxPercentage(Number(bill.tax_percentage || 0));
     setNotes(bill.notes                      || "");
     setBillStatus(bill.bill_status           || "Pending");
     setError("");
@@ -234,8 +236,19 @@ const EditBillModal = ({ open, bill, onClose, onUpdated }) => {
   const consultationTotal = consultations.reduce((s, c) => s + Number(c.cost || 0), 0);
   const medicineTotal     = medicines.reduce((s, m)     => s + Number(m.cost || 0), 0);
   const testTotal         = tests.reduce((s, t)         => s + Number(t.cost || 0), 0);
-  const subtotal          = consultationTotal + medicineTotal + testTotal;
-  const totalAmount       = subtotal + Number(tax || 0);
+  const subtotal = consultationTotal + medicineTotal + testTotal;
+
+  const discountAmount =
+  (subtotal * discountPercentage) / 100;
+
+  const taxableAmount =
+  subtotal - discountAmount;
+
+  const taxAmount =
+  (taxableAmount * taxPercentage) / 100;
+
+  const totalAmount =
+  taxableAmount + taxAmount;
 
   /* ── Submit ── */
   const handleSubmit = async () => {
@@ -245,12 +258,21 @@ const EditBillModal = ({ open, bill, onClose, onUpdated }) => {
       await axios.put(
         `${process.env.REACT_APP_URL}/bill/bills/${bill.bill_id}`,
         {
-          subtotal:           subtotal.toFixed(2),
-          tax:                Number(tax || 0),
-          total_amount:       totalAmount.toFixed(2),
-          bill_status:        billStatus,
+          subtotal: subtotal.toFixed(2),
+
+          discount_percentage: discountPercentage,
+
+          tax_percentage: taxPercentage,
+
           notes,
-          bill_breakdown_json: { consultations, medicines, tests },
+
+          bill_status:billStatus,
+
+          bill_breakdown_json: {
+              consultations,
+              medicines,
+              tests,
+          },
         },
         { withCredentials: true }
       );
@@ -359,14 +381,29 @@ const EditBillModal = ({ open, bill, onClose, onUpdated }) => {
               <Typography color="text.secondary">Subtotal</Typography>
               <Typography fontWeight={500}>Rs. {subtotal.toFixed(2)}</Typography>
             </Stack>
-            <Stack direction="row" alignItems="center" spacing={2} mb={1}>
-              <Typography color="text.secondary" sx={{ whiteSpace: "nowrap" }}>Tax</Typography>
-              <TextField
-                type="number" size="small" value={tax}
-                onChange={(e) => setTax(e.target.value)}
-                inputProps={{ min: 0 }} sx={{ width: 120 }}
-              />
-            </Stack>
+            <Stack direction="row" spacing={2}>
+
+                  <TextField
+                    label="Discount (%)"
+                    type="number"
+                    size="small"
+                    value={discountPercentage}
+                    onChange={(e) => setDiscountPercentage(Number(e.target.value))}
+                    inputProps={{ min: 0, max: 100 }}
+                    sx={{ width: 140 }}
+                  />
+
+                  <TextField
+                    label="GST (%)"
+                    type="number"
+                    size="small"
+                    value={taxPercentage}
+                    onChange={(e) => setTaxPercentage(Number(e.target.value))}
+                    inputProps={{ min: 0, max: 100 }}
+                    sx={{ width: 140 }}
+                  />
+
+                </Stack>
             <Box sx={{ borderTop: "1px solid #ddd", pt: 1, mt: 0.5 }}>
               <Stack direction="row" justifyContent="space-between">
                 <Typography fontWeight={700}>Total</Typography>

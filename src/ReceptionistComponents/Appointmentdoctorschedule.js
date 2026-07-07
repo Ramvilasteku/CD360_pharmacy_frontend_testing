@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import "../Styles/AppointmentDoctorsSchedule.css";
 import api from "./services/api";
-
+import { Skeleton } from "@mui/material";
+ 
 const DoctorSchedule = () => {
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -10,37 +11,37 @@ const DoctorSchedule = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [branch, setBranch] = useState("");
-
+ 
   // Filters
   const [week, setWeek] = useState(1);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [weeks, setWeeks] = useState([]);
-
+ 
   // Mobile popup
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [selectedSlotDetails, setSelectedSlotDetails] = useState(null);
-
-  
+ 
+ 
  // useEffect to update weeks and dates
 useEffect(() => {
   const generatedWeeks = generateWeeksForMonth(month, year);
   setWeeks(generatedWeeks);
-
+ 
   // Ensure selected week exists in this month
   const currentWeek = generatedWeeks.find((w) => w.value === week) || generatedWeeks[0];
   if (!currentWeek) return;
   if (currentWeek.value !== week) setWeek(currentWeek.value);
-
+ 
   // Set dates to only the selected week
   setDates(getDatesForWeek(currentWeek));
-
+ 
   // Fetch schedule
   fetchSchedule();
 }, [month, year, week]);
-
-
-
+ 
+ 
+ 
 // Get all dates of the current month ONLY
 const getAllDatesOfMonth = (month, year) => {
   const dates = [];
@@ -51,13 +52,13 @@ const getAllDatesOfMonth = (month, year) => {
   }
   return dates;
 };
-
+ 
 // Generate weeks for the month only (1-7, 8-14, etc.)
 const generateWeeksForMonth = (month, year) => {
   const weeks = [];
   const allDates = getAllDatesOfMonth(month, year);
   let weekNum = 1;
-
+ 
   for (let i = 0; i < allDates.length; i += 7) {
     const weekDates = allDates.slice(i, i + 7);
     weeks.push({
@@ -68,11 +69,11 @@ const generateWeeksForMonth = (month, year) => {
     });
     weekNum++;
   }
-
+ 
   return weeks;
 };
-
-
+ 
+ 
 // Get dates for selected week
 const getDatesForWeek = (weekObj) => {
   if (!weekObj) return [];
@@ -89,47 +90,51 @@ const getDatesForWeek = (weekObj) => {
   /* ===========================
      🔁 EFFECTS
      =========================== */
-
  
-
+ 
+ 
   // Generate dates + fetch schedule whenever week/month/year changes
  
   /* ===========================
      📡 API CALLS
      =========================== */
-
+ 
  const fetchSchedule = async () => {
   setLoading(true);
+ 
   try {
     const res = await api.get(
       `/schedule/schedule?week=${week}&month=${month}&year=${year}`
     );
+ 
     if (res.data.success) {
       const data = res.data.data;
-      setBranch(data.branch);
+ 
+      setBranch(data.branch || "");
       setDoctors(data.doctors || []);
       setTimeSlots(data.timeSlots || []);
-
-      // Select first doctor by default
+ 
       if (data.doctors?.length > 0 && !selectedDoctor) {
         setSelectedDoctor(data.doctors[0].id);
       }
     }
   } catch (error) {
     console.error("Error fetching schedule:", error);
-    alert("Failed to load schedule");
+ 
+    setDoctors([]);
+    setTimeSlots([]);
   } finally {
     setLoading(false);
   }
 };
-
-
+ 
+ 
   const fetchSlotDetails = async (slotId) => {
     try {
       const res = await api.get(
         `/schedule/schedule/slot-details/${slotId}`
       );
-
+ 
       if (res.data.success) {
         setSelectedSlotDetails(res.data.data);
         setShowMobilePopup(true);
@@ -138,11 +143,11 @@ const getDatesForWeek = (weekObj) => {
       console.error("Error fetching slot details:", error);
     }
   };
-
+ 
   /* ===========================
      🛠️ FORMATTERS
      =========================== */
-
+ 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr + "T00:00:00");
     const days = [
@@ -156,7 +161,7 @@ const getDatesForWeek = (weekObj) => {
     ];
     return { day: days[date.getDay()], dateNum: date.getDate() };
   };
-
+ 
   const formatTime = (timeStr) => {
     if (!timeStr) return "";
     const [hours, minutes] = timeStr.split(":");
@@ -165,11 +170,11 @@ const getDatesForWeek = (weekObj) => {
     const hour12 = hour % 12 || 12;
     return `${String(hour12).padStart(2, "0")}:${minutes} ${ampm}`;
   };
-
+ 
   /* ===========================
      🧩 SLOT HELPERS
      =========================== */
-
+ 
   const getAllTimes = () => {
     const times = new Set();
     timeSlots.forEach((slot) => {
@@ -177,7 +182,7 @@ const getDatesForWeek = (weekObj) => {
     });
     return Array.from(times).sort();
   };
-
+ 
   const getSlot = (doctorId, date, time) => {
     return timeSlots.find(
       (slot) =>
@@ -186,16 +191,16 @@ const getDatesForWeek = (weekObj) => {
         slot.slotTimeFrom === time
     );
   };
-
+ 
   const renderSlotCard = (slot) => {
     if (!slot) {
       return <div className="slot-card no-slot">No Slot</div>;
     }
-
+ 
     if (!slot.hasAppointment) {
       return <div className="slot-card available">Available</div>;
     }
-
+ 
     const statusColors = {
       pending: "status-pending",
       assigned: "status-assigned",
@@ -204,9 +209,9 @@ const getDatesForWeek = (weekObj) => {
       cancelled: "status-cancelled",
       delayed: "status-delayed",
     };
-
+ 
     const statusClass = statusColors[slot.appointmentStatus] || "";
-
+ 
     return (
       <div
         className={`slot-card booked ${statusClass}`}
@@ -215,30 +220,30 @@ const getDatesForWeek = (weekObj) => {
         <div className="slot-client-name">
           {slot.clientName || "No Name"}
         </div>
-
+ 
         <div className="slot-time">
           {formatTime(slot.slotTimeFrom)} to{" "}
           {formatTime(slot.slotTimeTo)}
         </div>
-
+ 
         <div className="slot-action">
           {slot.purpose || "Consultation"}
         </div>
-
+ 
         <div className={`slot-status ${statusClass}`}>
           {slot.appointmentStatus}
         </div>
       </div>
     );
   };
-
+ 
   /* ===========================
      📱 MOBILE POPUP
      =========================== */
-
+ 
   const renderMobilePopup = () => {
     if (!showMobilePopup || !selectedSlotDetails) return null;
-
+ 
     return (
       <div
         className="mobile-popup-overlay"
@@ -257,7 +262,7 @@ const getDatesForWeek = (weekObj) => {
               ×
             </button>
           </div>
-
+ 
           <div className="popup-content">
             <div className="detail-section">
               <h4>Doctor Information</h4>
@@ -270,7 +275,7 @@ const getDatesForWeek = (weekObj) => {
                 {selectedSlotDetails.doctorQualification}
               </p>
             </div>
-
+ 
             <div className="detail-section">
               <h4>Appointment Time</h4>
               <p>
@@ -290,7 +295,7 @@ const getDatesForWeek = (weekObj) => {
                 )}
               </p>
             </div>
-
+ 
             {selectedSlotDetails.clientName && (
               <div className="detail-section">
                 <h4>Patient Information</h4>
@@ -339,13 +344,67 @@ const getDatesForWeek = (weekObj) => {
       </div>
     );
   };
-
+ 
   const times = getAllTimes();
-
+ 
   if (loading) {
-    return <div className="loading">Loading schedule...</div>;
-  }
-
+  return (
+    <div className="schedule-container">
+      {/* Left Sidebar Skeleton */}
+      <div className="doctors-sidebar">
+        <Skeleton
+          variant="text"
+          width={150}
+          height={40}
+          sx={{ mb: 2 }}
+        />
+ 
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} style={{ marginBottom: 12 }}>
+            <Skeleton
+              variant="rectangular"
+              height={70}
+              sx={{ borderRadius: 2 }}
+            />
+          </div>
+        ))}
+      </div>
+ 
+      {/* Main Content Skeleton */}
+      <div className="schedule-main">
+        {/* Filters */}
+        <div
+          style={{
+            display: "flex",
+            gap: "15px",
+            marginBottom: "20px",
+          }}
+        >
+          <Skeleton variant="rectangular" width={120} height={40} />
+          <Skeleton variant="rectangular" width={120} height={40} />
+          <Skeleton variant="rectangular" width={120} height={40} />
+        </div>
+ 
+        {/* Schedule Table Skeleton */}
+        <Skeleton
+          variant="rectangular"
+          height={60}
+          sx={{ borderRadius: 1, mb: 1 }}
+        />
+ 
+        {[1, 2, 3, 4, 5, 6].map((row) => (
+          <Skeleton
+            key={row}
+            variant="rectangular"
+            height={70}
+            sx={{ borderRadius: 1, mb: 1 }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+ 
   return (
     <div className="schedule-container">
       {/* Left Sidebar - Doctors List */}
@@ -380,7 +439,7 @@ const getDatesForWeek = (weekObj) => {
                     </div>
                   )}
                 </div>
-
+ 
                 <div className="doctor-info">
                   <h3 className="doctor-name">
                     {doctor.name}
@@ -394,7 +453,7 @@ const getDatesForWeek = (weekObj) => {
           )}
         </div>
       </div>
-
+ 
       {/* Main Schedule Area */}
       <div className="schedule-main">
         {/* Filters */}
@@ -408,9 +467,9 @@ const getDatesForWeek = (weekObj) => {
     </option>
   ))}
 </select>
-
+ 
           </div>
-
+ 
           <div className="filter-group">
             <label>Month</label>
             <select
@@ -439,7 +498,7 @@ const getDatesForWeek = (weekObj) => {
               ))}
             </select>
           </div>
-
+ 
           <div className="filter-group">
             <label>Year</label>
             <select
@@ -458,7 +517,7 @@ const getDatesForWeek = (weekObj) => {
             </select>
           </div>
         </div>
-
+ 
         {/* Schedule Table */}
         {dates.length === 0 || times.length === 0 ? (
           <div className="no-data">
@@ -525,11 +584,11 @@ const getDatesForWeek = (weekObj) => {
           </div>
         )}
       </div>
-
+ 
       {/* Mobile Popup */}
       {renderMobilePopup()}
     </div>
   );
 };
-
+ 
 export default DoctorSchedule;

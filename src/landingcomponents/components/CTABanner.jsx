@@ -58,7 +58,7 @@ const CTABanner = () => {
     try {
       setLoading(true);
 
-      await axios.post("https://api.caredesk360.com/demo/post", demoData);
+      await axios.post(`${process.env.REACT_APP_URL}/landingpage/demo/post`, demoData);
 
       setSnackbar({
         open: true,

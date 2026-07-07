@@ -28,38 +28,43 @@ const reasons = [
     desc: "Automate workflows, monitor operations, and manage resources efficiently with complete administrative oversight.",
   },
   {
-   icon: "/animations/Why/fast.json",
+    icon: "/animations/Why/fast.json",
     title: "Faster Service, Better Care",
     desc: "Reduce waiting times, improve coordination, and deliver seamless care — enhancing overall patient satisfaction.",
   },
   {
-   icon: "/animations/Why/marketing.json",
+    icon: "/animations/Why/marketing.json",
     title: "Marketing & Growth",
     desc: "Drive visibility and reach with strategic digital marketing. From social media and campaigns to performance tracking, we help attract the right audience and convert attention into measurable growth.",
   },
   {
-   icon: "/animations/Why/branding.json",
+    icon: "/animations/Why/branding.json",
     title: "Brand Identity",
     desc: "Build a consistent and recognizable brand presence. We help define your brand voice, visuals, and messaging to ensure your organization stands out with clarity, credibility, and professionalism.",
   },
   {
-   icon: "/animations/Why/content.json",
+    icon: "/animations/Why/content.json",
     title: "Content Creation",
     desc: "Engage your audience with high-quality content tailored for Hospitals/Clinics. From visuals to messaging, we create meaningful content that builds trust and communicates value clearly across platforms.",
   },
 ];
 
 const WhyUs = () => (
-  <section className="why-us" id="about">
+  <section className="why-us" id="whyus">
     <div className="container">
-      <div className="section-header">
-        <div className="section-label">Why Choose CareDesk360</div>
-        <h2 className="section-title">Smarter Healthcare Starts Here</h2>
-        <p className="section-subtitle">
+      <div className="about-header">
+        <span className="badge">Smarter Healthcare Starts Here</span>
+        <h1>Why Choose CareDesk360</h1>
+        <p className="subtitle">
           CareDesk360 is designed to simplify healthcare management while
           improving efficiency, accuracy, and patient satisfaction. Our platform
           brings everything you need into one secure and easy-to-use system.
         </p>
+      </div>
+      <div className="section-header">
+        <div className="section-label"></div>
+        <h2 className="section-title"></h2>
+        <p className="section-subtitle"></p>
       </div>
       <div className="why-grid">
         {reasons.map((r, i) => (
@@ -76,8 +81,20 @@ const WhyUs = () => (
           </div>
         ))}
       </div>
-      <iframe src="https://widgets.sociablekit.com/google-reviews/iframe/25687238" frameborder="0" width="100%" height="1000px"></iframe>
-      <iframe src="https://widgets.sociablekit.com/instagram-reels/iframe/25687241" frameborder="0" width="100%" height="1000px"></iframe>
+
+      <iframe
+        src="https://widgets.sociablekit.com/google-reviews/iframe/25687238"
+        frameborder="0"
+        width="100%"
+        height="1000px"
+      ></iframe>
+
+      <iframe
+        src="https://widgets.sociablekit.com/instagram-reels/iframe/25687241"
+        frameborder="0"
+        width="100%"
+        height="1000px"
+      ></iframe>
     </div>
   </section>
 );

@@ -40,7 +40,7 @@ const Bills = () => {
   const [bills, setBills] = useState([]);
   const [filteredBills, setFilteredBills] = useState([]);
   const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 4;
 
   const [selectedBill, setSelectedBill] = useState(null);
 
@@ -458,6 +458,18 @@ const Bills = () => {
                 >
                   Sub Total
                 </TableCell>
+
+                 <TableCell
+                  align="center"
+                  sx={{
+                     color: COLORS.texWhite,
+                    bgcolor: COLORS.primary,
+                    fontWeight: 600,
+                  }}
+                >
+                  Discount
+                </TableCell>
+
                 <TableCell
                   align="center"
                   sx={{
@@ -466,7 +478,7 @@ const Bills = () => {
                     fontWeight: 600,
                   }}
                 >
-                  Tax
+                  Tax Amount
                 </TableCell>
                 <TableCell
                   align="center"
@@ -565,7 +577,10 @@ const Bills = () => {
                   <TableCell align="center" sx={colBg(2)}>
                     {b.subtotal}
                   </TableCell>
-                  <TableCell align="center">{b.tax}</TableCell>
+                  <TableCell align="center" sx={colBg(2)}>
+                    {b.discount_amount}
+                  </TableCell>
+                  <TableCell align="center">{b.tax_amount}</TableCell>
                   <TableCell align="center" sx={colBg(6)}>
                     {b.total_amount}
                   </TableCell>

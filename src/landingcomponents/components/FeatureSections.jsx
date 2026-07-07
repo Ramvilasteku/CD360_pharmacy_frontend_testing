@@ -1,7 +1,7 @@
 import React from "react";
 import "./FeatureSections.css";
-import branding from '../../images/Brandingimage.png';
-import content from '../../images/content.png';
+import branding from "../Assets/Brandingimage.png";
+import content from "../Assets/content.png";
 
 const MockScheduler = () => (
   <div className="mock-ui" id="scheduling">
@@ -80,7 +80,6 @@ const MockDocuments = () => (
   </div>
 );
 
-
 const MockDigitalPrescription = () => (
   <div className="mock-ui" id="eprescribing">
     <div className="mock-header">
@@ -88,10 +87,8 @@ const MockDigitalPrescription = () => (
     </div>
 
     <div className="prescription-layout">
-      
       {/* LEFT SIDE */}
       <div className="prescription-left">
-
         {/* Summary */}
         <div className="prescription-summary">
           <div className="rx-card">
@@ -115,10 +112,25 @@ const MockDigitalPrescription = () => (
           </div>
 
           {[
-            { name: "Rahul", med: "Aspirin", date: "18/12/25", status: "Issued" },
-            { name: "Arjun", med: "Celecoxib", date: "17/12/25", status: "Pending" },
+            {
+              name: "Rahul",
+              med: "Aspirin",
+              date: "18/12/25",
+              status: "Issued",
+            },
+            {
+              name: "Arjun",
+              med: "Celecoxib",
+              date: "17/12/25",
+              status: "Pending",
+            },
             { name: "Ajay", med: "Zenox", date: "30/11/25", status: "Issued" },
-            { name: "Rupa", med: "Ibuprofen", date: "16/12/25", status: "Issued" },
+            {
+              name: "Rupa",
+              med: "Ibuprofen",
+              date: "16/12/25",
+              status: "Issued",
+            },
           ].map((rx, i) => (
             <div className="rx-row" key={i}>
               <span>{rx.name}</span>
@@ -329,7 +341,6 @@ const MockBilling = () => (
   </div>
 );
 
-
 const MockAttendance = () => (
   <div className="mock-ui" id="admin-portal">
     <div className="mock-header">
@@ -410,17 +421,15 @@ const MockAttendance = () => (
 
 const Branding = () => (
   <div className="mock-ui" id="marketing">
-    <img src={branding} alt="Branding&Marketing"/>
+    <img src={branding} alt="Branding&Marketing" />
   </div>
 );
-
 
 const Content = () => (
   <div className="mock-ui" id="content-creation">
-    <img src={content} alt="Content Creation"/>
+    <img src={content} alt="Content Creation" />
   </div>
 );
-
 
 const sections = [
   {
@@ -516,8 +525,7 @@ const sections = [
   {
     id: "Content Creation",
     tag: "CONTENT CREATION",
-    title:
-      "Create, manage, and publish content effortlessly.",
+    title: "Create, manage, and publish content effortlessly.",
     bullets: [
       "Centralized content creation and editing",
       "Manage blogs, posts, creatives, and media assets",

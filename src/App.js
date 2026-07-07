@@ -49,6 +49,9 @@ import SuperAdminLogin from "./Pages/Login";
 import SuperAdminDashboard from './Pages/SuperAdminDashboard';
 import ClientPrescriptions from './ClientComponents/ClientPrescriptions';
 import AboutCareDesk360 from './landingcomponents/components/About';
+import Register from './landingcomponents/components/Register';
+import Payment from './landingcomponents/components/payment';
+import PaymentStatus from './payments/paymentstatus';
 
 
 function App() {
@@ -57,21 +60,21 @@ function App() {
     localStorage.getItem("userId") ||
     localStorage.getItem("id");
 
-    function LandingPage() {
-  return (
-    <div>
-      <Navbar />
-      <Hero />
-      <FeaturesStrip />
-      <FeatureSections />
-      <CTABanner />
-      <Comparison />
-      <AboutCareDesk360 />
-      <WhyUs />
-      <Footer />
-    </div>
-  );
-}
+function LandingPage() {
+    return (
+      <div>
+        <Navbar />
+        <Hero />
+        <FeaturesStrip />
+        <FeatureSections />
+        <CTABanner />
+        {/* <Comparison /> */}
+        <AboutCareDesk360 />
+        <WhyUs />
+        <Footer />
+      </div>
+    );
+  }
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -89,6 +92,8 @@ function ProtectedRoute({ children }) {
       <SocketProvider userId={userId}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/pricing" element={<Comparison />} />
+          <Route path="/paymentstatus" element={<PaymentStatus />} />
         <Route path="/admin" element={<SuperAdminLogin />} />
         <Route
           path="/admin/dashboard"
@@ -113,6 +118,12 @@ function ProtectedRoute({ children }) {
             <Route path="bills" element={<Bills />} />
             <Route path="prescriptions" element={<ClientPrescriptions />} />
           </Route>
+          <Route path="/" element={<Register />} />
+
+        <Route
+          path="/payment/:registrationId"
+          element={<Payment />}
+        />
         </Routes>
 
       </SocketProvider>

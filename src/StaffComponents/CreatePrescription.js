@@ -475,7 +475,7 @@ export default function CreatePrescription() {
   useEffect(() => { fetchPatients(); }, []);
 
   const patientAppointments = patientId
-    ? appointments.filter(a => String(a.client_id) === String(patientId) && a.status === "assigned")
+    ? appointments.filter(a => String(a.client_id) === String(patientId))
     : [];
 
   /* ── Edit existing prescription ── */

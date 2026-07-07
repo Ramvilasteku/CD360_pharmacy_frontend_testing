@@ -29,6 +29,6 @@
   transition: all 0.2s;
   min-width: 100px;
 }
-.strip-item:hover { border-color: var(--blue-primary); background: var(--blue-bg); }
+.strip-item:hover { border-color: var(--navy); background: var(--blue-bg); }
 .strip-icon { font-size: 22px; }
 .strip-label { font-size: 12px; font-weight: 600; color: var(--text-body); text-align: center; }

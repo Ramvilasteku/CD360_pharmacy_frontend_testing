@@ -2,198 +2,22 @@ import React, { useEffect, useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, IconButton, TextField,
   Button, Autocomplete, Snackbar, Alert, Typography, Box, Stack,
-  Table, TableHead, TableRow, TableCell, TableBody, Tooltip,
+  useMediaQuery, useTheme,
 } from "@mui/material";
-import CloseIcon        from "@mui/icons-material/Close";
-import DeleteIcon       from "@mui/icons-material/Delete";
-import EditIcon         from "@mui/icons-material/Edit";
-import CheckIcon        from "@mui/icons-material/Check";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import { COLORS } from "./Themes";
+import { fieldSx, labelSx } from "./Prescription/Billconstants";
+import SectionNav from "./Prescription/Sectionnav";
+import SectionHeader from "./Prescription/Sectionheader";
+import AddConsultationItem from "./Prescription/Addconsultationitem";
+import AddMedicineItem from "./Prescription/Addmedicineitem";
+import AddTestItem from "./Prescription/Addtestitem";
+import EditableCostTable from "./Prescription/CostTables";
 
-const fieldSx = {
-  "& .MuiInputBase-root": { height: 35, border: `2px solid ${COLORS.primary}` },
-  "& fieldset": { border: "none" },
-};
-
-const costInputSx = {
-  width: 100,
-  "& .MuiInputBase-root": { height: 30, fontSize: 13 },
-  "& fieldset": { border: "1px solid #ccc" },
-};
-
-const editInputSx = {
-  width: 80,
-  "& .MuiInputBase-root": { height: 28, fontSize: 12 },
-  "& fieldset": { border: "1px solid #aaa" },
-};
-
-/* ─────────────────────────────────────────────────────────────────
-   EDITABLE COST TABLE
-   Supports per-row: delete, inline-edit (qty + amount + cost)
-───────────────────────────────────────────────────────────────── */
-function EditableCostTable({ rows, nameKey, onCostChange, onDelete, onEditSave, extraColumns, isMedicine }) {
-  // editingIndex = which row is currently in edit mode
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [editDraft,    setEditDraft]    = useState({});
-
-  const startEdit = (i, row) => {
-    setEditingIndex(i);
-    setEditDraft({
-      cost:     row.cost,
-      quantity: row.quantity,
-      amount:   row.amount,
-    });
-  };
-
-  const cancelEdit = () => {
-    setEditingIndex(null);
-    setEditDraft({});
-  };
-
-  const saveEdit = (i) => {
-    onEditSave(i, editDraft);
-    setEditingIndex(null);
-    setEditDraft({});
-  };
-
-  return (
-    <Table size="small">
-      <TableHead>
-        <TableRow sx={{ bgcolor: "#f0f4f8" }}>
-          <TableCell><strong>Item</strong></TableCell>
-          {extraColumns?.map((col, i) => (
-            <TableCell key={i} align="center"><strong>{col.label}</strong></TableCell>
-          ))}
-          <TableCell align="right"><strong>Cost (₹)</strong></TableCell>
-          <TableCell align="center" sx={{ width: 80 }}><strong>Actions</strong></TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {rows.map((row, i) => {
-          const isEditing = editingIndex === i;
-          return (
-            <TableRow key={i} hover sx={{ bgcolor: isEditing ? "#fffde7" : "inherit" }}>
-              {/* Item name */}
-              <TableCell>
-                <Typography fontSize={13}>{row[nameKey]}</Typography>
-                {row.duration && (
-                  <Typography variant="caption" color="text.secondary">{row.duration}</Typography>
-                )}
-              </TableCell>
-
-              {/* Extra columns (qty / unit price) — editable when in edit mode */}
-              {extraColumns?.map((col, j) => (
-                <TableCell key={j} align="center">
-                  {isEditing && isMedicine && col.label === "Qty" ? (
-                    <TextField
-                      type="number"
-                      value={editDraft.quantity ?? ""}
-                      onChange={(e) => {
-                        const qty = Number(e.target.value);
-                        const amt = Number(editDraft.amount || 0);
-                        setEditDraft(d => ({ ...d, quantity: qty, cost: qty * amt }));
-                      }}
-                      sx={editInputSx}
-                      inputProps={{ min: 1 }}
-                    />
-                  ) : isEditing && isMedicine && col.label === "Unit Price" ? (
-                    <TextField
-                      type="number"
-                      value={editDraft.amount ?? ""}
-                      onChange={(e) => {
-                        const amt = Number(e.target.value);
-                        const qty = Number(editDraft.quantity || 1);
-                        setEditDraft(d => ({ ...d, amount: amt, cost: qty * amt }));
-                      }}
-                      sx={editInputSx}
-                      inputProps={{ min: 0, step: 0.01 }}
-                    />
-                  ) : (
-                    <Typography fontSize={13}>{col.render(row)}</Typography>
-                  )}
-                </TableCell>
-              ))}
-
-              {/* Cost field */}
-              <TableCell align="right">
-                {isEditing ? (
-                  <TextField
-                    type="number"
-                    value={editDraft.cost ?? ""}
-                    onChange={(e) => setEditDraft(d => ({ ...d, cost: Number(e.target.value) }))}
-                    sx={costInputSx}
-                    inputProps={{ min: 0, step: 0.01 }}
-                  />
-                ) : (
-                  <TextField
-                    type="number"
-                    value={row.cost}
-                    onChange={(e) => onCostChange(i, e.target.value)}
-                    sx={costInputSx}
-                    inputProps={{ min: 0, step: 0.01 }}
-                  />
-                )}
-              </TableCell>
-
-              {/* Actions */}
-              <TableCell align="center">
-                {isEditing ? (
-                  <Stack direction="row" spacing={0.5} justifyContent="center">
-                    <Tooltip title="Save">
-                      <IconButton size="small" onClick={() => saveEdit(i)} sx={{ color: "green" }}>
-                        <CheckIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Cancel">
-                      <IconButton size="small" onClick={cancelEdit} sx={{ color: "#888" }}>
-                        <CloseOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                ) : (
-                  <Stack direction="row" spacing={0.5} justifyContent="center">
-                    <Tooltip title="Edit row">
-                      <IconButton size="small" onClick={() => startEdit(i, row)} sx={{ color: COLORS.primary }}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete row">
-                      <IconButton size="small" onClick={() => onDelete(i)} sx={{ color: "#e53935" }}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                )}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────
-   SECTION HEADER  (title + delete-section button)
-───────────────────────────────────────────────────────────────── */
-function SectionHeader({ title, onDeleteSection }) {
-  return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={0.5}>
-      <Typography fontWeight={500}>{title}</Typography>
-      <Tooltip title={`Remove all ${title.toLowerCase()}`}>
-        <IconButton size="small" onClick={onDeleteSection} sx={{ color: "#e53935" }}>
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    </Stack>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────
-   MAIN COMPONENT
-───────────────────────────────────────────────────────────────── */
+// Top-level bill-creation modal. Owns all state: patient/appointment
+// selection, the fetched prescription, the three editable line-item
+// sections (consultations/medicines/tests), tax, notes, and submission.
 export default function AddBillModal({ open, onClose, bills = [], onBillAdded }) {
   const [patients,     setPatients]     = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -203,17 +27,26 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
   const [notes,        setNotes]        = useState("");
   const [loadingRx,    setLoadingRx]    = useState(false);
   const [alert,        setAlert]        = useState({ open: false, type: "success", message: "" });
-  const [tax,          setTax]          = useState(0);
-
+  const [discountPercentage, setDiscountPercentage] = useState(0);
+  const [taxPercentage, setTaxPercentage] = useState(0);
   const [consultations, setConsultations] = useState([]);
   const [medicines,     setMedicines]     = useState([]);
   const [tests,         setTests]         = useState([]);
+
+  const [activeSection, setActiveSection] = useState("consultations");
+
+  // ── Responsive helpers (layout only — no behavior changes) ──────────
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));  // phones
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));  // phones + tablets
 
   /* ── helpers ── */
   const deleteRow = (setter, index) =>
     setter(prev => prev.filter((_, i) => i !== index));
 
   const deleteSection = (setter) => setter([]);
+
+  const addRow = (setter, row) => setter(prev => [...prev, row]);
 
   const editSaveRow = (setter, index, draft, isMed) =>
     setter(prev =>
@@ -226,7 +59,7 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
         }
         return { ...item, cost: Number(draft.cost ?? item.cost) };
       })
-    );
+  );
 
   /* ── 1. Fetch patients ── */
   useEffect(() => {
@@ -236,6 +69,7 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
       .then((res) => { if (res.data.success) setPatients(res.data.data); })
       .catch((err) => console.error("Billing patients fetch error:", err));
   }, [open]);
+
 
   /* ── 2. Fetch appointments ── */
   useEffect(() => {
@@ -277,6 +111,7 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
           setPrescription(null);
           setConsultations([]); setMedicines([]); setTests([]);
         }
+        setActiveSection("consultations");
       })
       .catch(() => {
         setPrescription(null);
@@ -294,66 +129,218 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
     );
 
   /* ── Totals ── */
-  const consultationTotal = consultations.reduce((s, c) => s + Number(c.cost || 0), 0);
-  const medicineTotal     = medicines.reduce((s, m)     => s + Number(m.cost || 0), 0);
-  const testTotal         = tests.reduce((s, t)         => s + Number(t.cost || 0), 0);
-  const subtotal          = consultationTotal + medicineTotal + testTotal;
-  const totalAmount       = subtotal + Number(tax || 0);
+ const consultationTotal = consultations.reduce(
+  (s, c) => s + Number(c.cost || 0),
+  0
+);
 
-  /* ── Submit ── */
-  const handleSubmit = async () => {
-    if (!patient)     { setAlert({ open: true, type: "warning", message: "Please select a patient" });     return; }
-    if (!appointment) { setAlert({ open: true, type: "warning", message: "Please select an appointment" }); return; }
-    try {
-      await axios.post(
-        `${process.env.REACT_APP_URL}/bill/bills`,
-        {
-          appointment_id:  appointment.id,
-          prescription_id: prescription?.id || null,
-          subtotal:        subtotal.toFixed(2),
-          tax:             Number(tax || 0).toFixed(2),
-          total_amount:    totalAmount.toFixed(2),
-          notes,
-          bill_breakdown_json: {
-            consultations: consultations.map(c => ({ name: c.name, cost: Number(c.cost || 0) })),
-            medicines: medicines.map(m => ({
-              name:       m.medicine_name,
-              unit_price: m.amount,
-              quantity:   m.quantity,
-              cost:       Number(m.cost || 0),
-              duration:   m.duration,
-            })),
-            tests: tests.map(t => ({ name: t.test_name, cost: Number(t.cost || 0) })),
-          },
+const medicineTotal = medicines.reduce(
+  (s, m) => s + Number(m.cost || 0),
+  0
+);
+
+const testTotal = tests.reduce(
+  (s, t) => s + Number(t.cost || 0),
+  0
+);
+
+    const subtotal = consultationTotal + medicineTotal + testTotal;
+
+    const discountAmount =
+      (subtotal * Number(discountPercentage || 0)) / 100;
+
+    const taxableAmount = subtotal - discountAmount;
+
+    const taxAmount =
+      (taxableAmount * Number(taxPercentage || 0)) / 100;
+
+    const totalAmount = taxableAmount + taxAmount;
+
+      const sectionCounts = {
+        consultations: consultations.length,
+        medicines: medicines.length,
+        tests: tests.length,
+      };
+
+      /* ── Submit ── */
+      const handleSubmit = async () => {
+  if (!patient) {
+    setAlert({
+      open: true,
+      type: "warning",
+      message: "Please select a patient",
+    });
+    return;
+  }
+
+  if (!appointment) {
+    setAlert({
+      open: true,
+      type: "warning",
+      message: "Please select an appointment",
+    });
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${process.env.REACT_APP_URL}/bill/bills`,
+      {
+        appointment_id: appointment.id,
+        prescription_id: prescription?.id || null,
+
+        // Only send the inputs required for calculation
+        subtotal,
+
+        discount_percentage: discountPercentage,
+        tax_percentage: taxPercentage,
+
+        notes,
+
+        bill_breakdown_json: {
+          consultations,
+          medicines,
+          tests,
         },
-        { withCredentials: true }
-      );
-      onBillAdded?.();
-      setAlert({ open: true, type: "success", message: "Bill created successfully" });
-      setTimeout(() => { onClose(); resetForm(); }, 1200);
-    } catch (err) {
-      setAlert({ open: true, type: "error", message: err.response?.data?.message || "Server error" });
-    }
-  };
+      },
+      { withCredentials: true }
+    );
 
-  const resetForm = () => {
-    setPatient(null); setAppointment(null); setPrescription(null);
-    setPatients([]); setAppointments([]);
-    setConsultations([]); setMedicines([]); setTests([]);
-    setNotes(""); setTax(0);
-  };
+    onBillAdded?.();
 
-  const labelSx = { color: COLORS.primary, mb: 0.5, fontWeight: 500 };
+    setAlert({
+      open: true,
+      type: "success",
+      message: "Bill created successfully",
+    });
+
+    setTimeout(() => {
+      resetForm();
+      onClose();
+    }, 1200);
+
+  } catch (err) {
+    setAlert({
+      open: true,
+      type: "error",
+      message: err.response?.data?.message || "Server error",
+    });
+  }
+};
+
+    const resetForm = () => {
+  setPatient(null);
+  setAppointment(null);
+  setPrescription(null);
+
+  setPatients([]);
+  setAppointments([]);
+
+  setConsultations([]);
+  setMedicines([]);
+  setTests([]);
+
+  setNotes("");
+
+  setDiscountPercentage(0);
+  setTaxPercentage(0);
+
+  setActiveSection("consultations");
+};
+
+      /* ── active section content ── */
+      const renderActiveSection = () => {
+        if (activeSection === "consultations") {
+          return (
+            <>
+              <SectionHeader
+                title="Consultation Fees"
+                subtotal={consultationTotal}
+                onDeleteSection={() => deleteSection(setConsultations)}
+              />
+              <AddConsultationItem
+                onAdd={(row) => addRow(setConsultations, row)}
+              />
+              <EditableCostTable
+                rows={consultations}
+                nameKey="name"
+                onCostChange={(i, v) => updateCost(setConsultations, i, v)}
+                onDelete={(i) => deleteRow(setConsultations, i)}
+                onEditSave={(i, draft) => editSaveRow(setConsultations, i, draft, false)}
+              />
+            </>
+          );
+        }
+        if (activeSection === "medicines") {
+          return (
+            <>
+              <SectionHeader
+                title="Medicines"
+                subtotal={medicineTotal}
+                onDeleteSection={() => deleteSection(setMedicines)}
+              />
+              <AddMedicineItem
+                onAdd={(row) => addRow(setMedicines, row)}
+              />
+              <EditableCostTable
+                rows={medicines}
+                nameKey="medicine_name"
+                onCostChange={(i, v) => updateCost(setMedicines, i, v)}
+                onDelete={(i) => deleteRow(setMedicines, i)}
+                onEditSave={(i, draft) => editSaveRow(setMedicines, i, draft, true)}
+                isMedicine
+                extraColumns={[
+                  { label: "Qty",        render: (row) => row.quantity },
+                  { label: "Unit Price", render: (row) => `₹${Number(row.amount || 0).toFixed(2)}` },
+                ]}
+              />
+            </>
+          );
+        }
+        return (
+          <>
+            <SectionHeader
+              title="Tests"
+              subtotal={testTotal}
+              onDeleteSection={() => deleteSection(setTests)}
+            />
+            <AddTestItem
+              onAdd={(row) => addRow(setTests, row)}
+            />
+            <EditableCostTable
+              rows={tests}
+              nameKey="test_name"
+              onCostChange={(i, v) => updateCost(setTests, i, v)}
+              onDelete={(i) => deleteRow(setTests, i)}
+              onEditSave={(i, draft) => editSaveRow(setTests, i, draft, false)}
+            />
+          </>
+        );
+      };
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", px: 3, py: 2 }}>
-          <Typography fontWeight={600} fontSize={18} color={COLORS.primary}>Add Bill</Typography>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        fullScreen={isMobile}
+        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex", justifyContent: "space-between",
+            px: { xs: 2, sm: 3 }, py: 2,
+          }}
+        >
+          <Typography fontWeight={600} fontSize={{ xs: 16, sm: 18 }} color={COLORS.primary}>
+            Add Bill
+          </Typography>
           <IconButton onClick={onClose}><CloseIcon /></IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ px: 4, py: 1 }}>
+        <DialogContent sx={{ px: { xs: 2, sm: 3, md: 4 }, py: 1 }}>
           <Stack spacing={2}>
 
             {/* PATIENT */}
@@ -406,120 +393,166 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
               <Typography color="text.secondary" fontSize={13}>Fetching prescription...</Typography>
             )}
 
-            {appointment && !loadingRx && !prescription && (
-              <Typography color="text.secondary" fontSize={13}>
-                No prescription linked to this appointment.
-              </Typography>
-            )}
-
-            {/* ── PRESCRIPTION BREAKDOWN — EDITABLE ── */}
-            {prescription && !loadingRx && (
-              <Box sx={{ border: `1px solid ${COLORS.primary}`, borderRadius: 2, p: 2 }}>
-                <Typography fontWeight={600} color={COLORS.primary} mb={1.5}>
-                  Prescription #{prescription.id} — Edit Costs
-                </Typography>
-
-                {/* CONSULTATIONS */}
-                {consultations.length > 0 && (
-                  <Box mb={2}>
-                    <SectionHeader
-                      title="Consultation Fees"
-                      onDeleteSection={() => deleteSection(setConsultations)}
+            {/* ── SIDEBAR + SECTION CONTENT (only once appointment is selected) ──
+                Mobile/tablet: sidebar stacks ABOVE the content, full width,
+                instead of a fixed-width column beside it.
+                Laptop/desktop: original side-by-side layout, unchanged. */}
+            {appointment && !loadingRx && (
+              <Box sx={{ border: `1px solid ${COLORS.primary}`, borderRadius: 2, overflow: "hidden" }}>
+                <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, minHeight: { xs: "auto", md: 320 } }}>
+                  {/* Sidebar */}
+                  <Box
+                    sx={{
+                      bgcolor: "#fafbfc",
+                      borderRight: { xs: "none", md: "1px solid #e2e8f0" },
+                      borderBottom: { xs: "1px solid #e2e8f0", md: "none" },
+                      p: { xs: 1, md: 1.5 },
+                      width: { xs: "100%", md: "auto" },
+                      overflowX: { xs: "auto", md: "visible" },
+                    }}
+                  >
+                    <SectionNav
+                      active={activeSection}
+                      onChange={setActiveSection}
+                      counts={sectionCounts}
                     />
-                    <EditableCostTable
-                      rows={consultations}
-                      nameKey="name"
-                      onCostChange={(i, v) => updateCost(setConsultations, i, v)}
-                      onDelete={(i) => deleteRow(setConsultations, i)}
-                      onEditSave={(i, draft) => editSaveRow(setConsultations, i, draft, false)}
-                    />
-                    <Typography align="right" fontSize={12} mt={0.5} color="text.secondary">
-                      Subtotal: ₹{consultationTotal.toFixed(2)}
-                    </Typography>
                   </Box>
-                )}
-
-                {/* MEDICINES */}
-                {medicines.length > 0 && (
-                  <Box mb={2}>
-                    <SectionHeader
-                      title="Medicines"
-                      onDeleteSection={() => deleteSection(setMedicines)}
-                    />
-                    <EditableCostTable
-                      rows={medicines}
-                      nameKey="medicine_name"
-                      onCostChange={(i, v) => updateCost(setMedicines, i, v)}
-                      onDelete={(i) => deleteRow(setMedicines, i)}
-                      onEditSave={(i, draft) => editSaveRow(setMedicines, i, draft, true)}
-                      isMedicine
-                      extraColumns={[
-                        { label: "Qty",        render: (row) => row.quantity },
-                        { label: "Unit Price", render: (row) => `₹${Number(row.amount || 0).toFixed(2)}` },
-                      ]}
-                    />
-                    <Typography align="right" fontSize={12} mt={0.5} color="text.secondary">
-                      Subtotal: ₹{medicineTotal.toFixed(2)}
-                    </Typography>
+                  {/* Content */}
+                  <Box sx={{ flex: 1, p: { xs: 1.5, sm: 2 }, minWidth: 0 }}>
+                    {renderActiveSection()}
                   </Box>
-                )}
-
-                {/* TESTS */}
-                {tests.length > 0 && (
-                  <Box>
-                    <SectionHeader
-                      title="Tests"
-                      onDeleteSection={() => deleteSection(setTests)}
-                    />
-                    <EditableCostTable
-                      rows={tests}
-                      nameKey="test_name"
-                      onCostChange={(i, v) => updateCost(setTests, i, v)}
-                      onDelete={(i) => deleteRow(setTests, i)}
-                      onEditSave={(i, draft) => editSaveRow(setTests, i, draft, false)}
-                    />
-                    <Typography align="right" fontSize={12} mt={0.5} color="text.secondary">
-                      Subtotal: ₹{testTotal.toFixed(2)}
-                    </Typography>
-                  </Box>
-                )}
+                </Box>
               </Box>
             )}
 
             {/* TOTALS */}
-            <Box sx={{ bgcolor: "#f5f5f5", borderRadius: 2, p: 2 }}>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Consultation Total</Typography>
-                <Typography fontWeight={600}>₹{consultationTotal.toFixed(2)}</Typography>
-              </Stack>
-              <Stack direction="row" justifyContent="space-between" mt={0.5}>
-                <Typography color="text.secondary">Medicine Total</Typography>
-                <Typography fontWeight={600}>₹{medicineTotal.toFixed(2)}</Typography>
-              </Stack>
-              <Stack direction="row" justifyContent="space-between" mt={0.5}>
-                <Typography color="text.secondary">Test Total</Typography>
-                <Typography fontWeight={600}>₹{testTotal.toFixed(2)}</Typography>
-              </Stack>
-              <Stack direction="row" justifyContent="space-between" mt={0.5} alignItems="center">
-                <Typography color="text.secondary">Tax</Typography>
-                <TextField
-                  type="number"
-                  value={tax}
-                  onChange={(e) => setTax(e.target.value === "" ? "" : Number(e.target.value))}
-                  sx={{ width: 120 }}
-                  inputProps={{ min: 0, step: 0.01 }}
-                />
-              </Stack>
-              <Stack
-                direction="row" justifyContent="space-between" mt={1}
-                sx={{ borderTop: "1px solid #ccc", pt: 1 }}
-              >
-                <Typography fontWeight={700} fontSize={16}>Total</Typography>
-                <Typography fontWeight={700} fontSize={16} color={COLORS.primary}>
-                  ₹{totalAmount.toFixed(2)}
-                </Typography>
-              </Stack>
-            </Box>
+           {/* TOTALS */}
+            {appointment && (
+              <Box sx={{ bgcolor: "#f5f5f5", borderRadius: 2, p: { xs: 1.5, sm: 2 } }}>
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography color="text.secondary">Consultation Total</Typography>
+                  <Typography fontWeight={600}>
+                    ₹{consultationTotal.toFixed(2)}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" mt={0.5}>
+                  <Typography color="text.secondary">Medicine Total</Typography>
+                  <Typography fontWeight={600}>
+                    ₹{medicineTotal.toFixed(2)}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" mt={0.5}>
+                  <Typography color="text.secondary">Test Total</Typography>
+                  <Typography fontWeight={600}>
+                    ₹{testTotal.toFixed(2)}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" mt={0.5}>
+                  <Typography fontWeight={600}>Subtotal</Typography>
+                  <Typography fontWeight={600}>
+                    ₹{subtotal.toFixed(2)}
+                  </Typography>
+                </Stack>
+
+                {/* Discount */}
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "flex-start", sm: "center" }}
+                  spacing={1}
+                  mt={2}
+                >
+                  <Typography>Discount (%)</Typography>
+
+                  <TextField
+                    type="number"
+                    value={discountPercentage}
+                    onChange={(e) =>
+                      setDiscountPercentage(
+                        e.target.value === "" ? "" : Number(e.target.value)
+                      )
+                    }
+                    sx={{ width: { xs: "100%", sm: 120 } }}
+                    inputProps={{
+                      min: 0,
+                      max: 100,
+                      step: 0.01,
+                    }}
+                  />
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" mt={1}>
+                  <Typography color="text.secondary">
+                    Discount Amount
+                  </Typography>
+
+                  <Typography color="error">
+                    - ₹{discountAmount.toFixed(2)}
+                  </Typography>
+                </Stack>
+
+                {/* GST */}
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "flex-start", sm: "center" }}
+                  spacing={1}
+                  mt={2}
+                >
+                  <Typography>GST (%)</Typography>
+
+                  <TextField
+                    type="number"
+                    value={taxPercentage}
+                    onChange={(e) =>
+                      setTaxPercentage(
+                        e.target.value === "" ? "" : Number(e.target.value)
+                      )
+                    }
+                    sx={{ width: { xs: "100%", sm: 120 } }}
+                    inputProps={{
+                      min: 0,
+                      max: 100,
+                      step: 0.01,
+                    }}
+                  />
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" mt={1}>
+                  <Typography color="text.secondary">
+                    GST Amount
+                  </Typography>
+
+                  <Typography>
+                    ₹{taxAmount.toFixed(2)}
+                  </Typography>
+                </Stack>
+
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  mt={2}
+                  sx={{
+                    borderTop: "1px solid #ccc",
+                    pt: 1,
+                  }}
+                >
+                  <Typography fontWeight={700}>
+                    Grand Total
+                  </Typography>
+
+                  <Typography
+                    fontWeight={700}
+                    color={COLORS.primary}
+                  >
+                    ₹{totalAmount.toFixed(2)}
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
 
             {/* NOTES */}
             <Box>
@@ -540,9 +573,12 @@ export default function AddBillModal({ open, onClose, bills = [], onBillAdded })
             <Box display="flex" justifyContent="center" pb={1}>
               <Button
                 onClick={handleSubmit}
+                fullWidth={isTablet}
                 sx={{
                   bgcolor: COLORS.primary, color: "#fff",
-                  px: 6, py: 1.2, borderRadius: "24px",
+                  px: { xs: 4, sm: 6 }, py: 1.2,
+                  maxWidth: { xs: "100%", sm: 320 },
+                  borderRadius: "24px",
                   fontWeight: 600, textTransform: "capitalize",
                 }}
               >

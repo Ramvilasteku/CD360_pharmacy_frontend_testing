@@ -309,7 +309,7 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Pateint Name"
+                        label="Patient Name"
                         error={!!errors.client}
                         helperText={errors.client}
                       />
