@@ -105,7 +105,7 @@
 
 }
 
-.row {
+.row-contact {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   align-content: space-between;
@@ -115,16 +115,16 @@
   gap: 20px;
 }
 
-.row > * {
+.row-contact > * {
   min-width: 0;
 }
 
-.MuiTextField-root {
+.row-contact .MuiTextField-root {
   width: 100%;
 
 }
 
-.MuiOutlinedInput-root {
+.row-contact .MuiOutlinedInput-root {
   border-radius: 14px !important;
   background: #fafafa;
   transition: all .3s ease;
@@ -135,12 +135,12 @@
   display: flex;
 }
 
-.MuiOutlinedInput-root:hover {
+.row-contact .MuiOutlinedInput-root:hover {
   background: white;
   transform: translateY(-1px);
 }
 
-.MuiOutlinedInput-root.Mui-focused {
+.row-contact .MuiOutlinedInput-root.Mui-focused {
   background: white;
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
 }
@@ -307,7 +307,7 @@
     padding: 20px;
   }
 
-  .row {
+  .row-contact {
     grid-template-columns: 1fr;
   }
 

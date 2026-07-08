@@ -16,14 +16,14 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-
+ 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-
+ 
 import PrescriptionPreview from "./PrescriptionPreview";
 import EditPrescription from "./Editprescription";
-
+ 
 export default function PrescriptionTable({ refreshKey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,31 +31,31 @@ export default function PrescriptionTable({ refreshKey }) {
   const [company, setCompany] = useState(null);
   const [doctor, setDoctor] = useState(null);
   const [editId, setEditId] = useState(null);
-
+ 
   /* ───────── Responsive + Pagination ───────── */
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
+ 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+ 
   const paginatedRows = rows.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
+ 
   const handleChangePage = (_, newPage) => setPage(newPage);
-
+ 
   const handleChangeRowsPerPage = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
-
+ 
   /* ───────── Fetch Data ───────── */
   useEffect(() => {
     fetchPrescriptions();
   }, [refreshKey]);
-
+ 
   const fetchPrescriptions = async () => {
     setLoading(true);
     try {
@@ -71,7 +71,7 @@ export default function PrescriptionTable({ refreshKey }) {
       setLoading(false);
     }
   };
-
+ 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_SITE_URL}/api/company-info/full`, {
       credentials: "include",
@@ -79,7 +79,7 @@ export default function PrescriptionTable({ refreshKey }) {
       .then((r) => r.json())
       .then((d) => d.success && setCompany(d.data));
   }, []);
-
+ 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_SITE_URL}/api/staff/self`, {
       credentials: "include",
@@ -87,7 +87,7 @@ export default function PrescriptionTable({ refreshKey }) {
       .then((r) => r.json())
       .then((d) => d.success && setDoctor(d.data));
   }, []);
-
+ 
   /* ───────── Actions ───────── */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this prescription?")) return;
@@ -97,21 +97,36 @@ export default function PrescriptionTable({ refreshKey }) {
     );
     fetchPrescriptions();
   };
-
+ 
   const handleEdit = (id) => {
     setPreviewData(null);
     setEditId(id);
   };
-
+ 
   const handlePreview = async (id) => {
     const res = await fetch(
       `${process.env.REACT_APP_SITE_URL}/api/prescriptions/${id}`,
       { credentials: "include" }
     );
-    const json = await res.json();
-    if (json.success) setPreviewData(json.data);
+   const json = await res.json();
+ 
+    console.log("preview data is",json.data);
+ 
+    if (json.success) {
+ 
+    setPreviewData({
+        ...json.data,
+ 
+        notes: {
+            chiefComplaint: json.data.appointment?.purpose || "",
+            treatmentPlan: json.data.description || "",
+            doctorNotes: json.data.notes || "",
+        }
+    });
+ 
+}
   };
-
+ 
   /* ───────── Render ───────── */
   return (
     <>
@@ -120,7 +135,7 @@ export default function PrescriptionTable({ refreshKey }) {
           <Typography variant="h6" gutterBottom>
             All Prescriptions
           </Typography>
-
+ 
           {/* ───── Mobile Card View ───── */}
           {isMobile ? (
             paginatedRows.map((rx) => (
@@ -129,25 +144,25 @@ export default function PrescriptionTable({ refreshKey }) {
                   <Typography variant="subtitle2">
                     Prescription #{rx.id}
                   </Typography>
-
+ 
                   <Typography variant="body2">
                     <b>Patient:</b> {rx.patient_name}
                   </Typography>
-
+ 
                   <Typography variant="body2">
                     <b>Appointment:</b> {rx.appointment_id || "-"}
                   </Typography>
-
+ 
                   <Typography variant="body2">
                     <b>Date:</b>{" "}
                     {new Date(rx.created_at).toLocaleDateString("en-IN")}
                   </Typography>
-
+ 
                   <Typography variant="body2">
                     <b>Medicines:</b> {rx.medicine_count} | <b>Tests:</b>{" "}
                     {rx.test_count}
                   </Typography>
-
+ 
                   <Stack direction="row" spacing={1} mt={1}>
                     <IconButton size="small" onClick={() => handleEdit(rx.id)}>
                       <EditIcon />
@@ -213,7 +228,7 @@ export default function PrescriptionTable({ refreshKey }) {
               </TableBody>
             </Table>
           )}
-
+ 
           {/* ───── Pagination ───── */}
           <TablePagination
             component="div"
@@ -226,7 +241,7 @@ export default function PrescriptionTable({ refreshKey }) {
           />
         </CardContent>
       </Card>
-
+ 
       {/* Edit Dialog */}
       <Dialog open={Boolean(editId)} onClose={() => setEditId(null)} fullScreen>
         {editId && (
@@ -237,7 +252,7 @@ export default function PrescriptionTable({ refreshKey }) {
           />
         )}
       </Dialog>
-
+ 
       {/* Preview Dialog */}
       <Dialog
         open={Boolean(previewData)}

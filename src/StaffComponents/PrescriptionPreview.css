@@ -3,11 +3,11 @@
    Print is handled via dedicated popup window in JSX
    A4 = 794px × 1123px @96dpi
 ========================================================= */
-
+ 
 *, *::before, *::after {
   box-sizing: border-box;
 }
-
+ 
 /* =========================
    SCROLL WRAPPER
 ========================= */
@@ -20,7 +20,7 @@
   flex-direction: column;
   align-items: center;
 }
-
+ 
 /* =========================
    A4 PAGE CARD
 ========================= */
@@ -39,18 +39,18 @@
   position: relative;
   flex-shrink: 0;
 }
-
+ 
 .rx-body-content {
   flex: 1;
 }
-
+ 
 .rx-page-num {
   text-align: right;
   font-size: 10px;
   color: #aaa;
   margin-top: 12px;
 }
-
+ 
 /* =========================
    HEADER
 ========================= */
@@ -58,7 +58,7 @@
   flex-shrink: 0;
   margin-bottom: 4px;
 }
-
+ 
 .rx-header-top {
   display: flex;
   align-items: center;
@@ -66,12 +66,12 @@
   gap: 12px;
   margin-bottom: 10px;
 }
-
+ 
 .rx-header-logo {
   flex-shrink: 0;
   width: 70px;
 }
-
+ 
 .rx-logo {
   width: 64px;
   height: 64px;
@@ -79,7 +79,7 @@
   border-radius: 6px;
   display: block;
 }
-
+ 
 .rx-logo-placeholder {
   width: 64px;
   height: 64px;
@@ -93,12 +93,12 @@
   justify-content: center;
   font-family: Georgia, serif;
 }
-
+ 
 .rx-header-center {
   flex: 1;
   text-align: center;
 }
-
+ 
 .rx-clinic-name {
   font-size: 22px;
   font-weight: 700;
@@ -106,13 +106,13 @@
   letter-spacing: 0.02em;
   line-height: 1.2;
 }
-
+ 
 .rx-branch {
   font-size: 11.5px;
   color: #666;
   margin-top: 3px;
 }
-
+ 
 .rx-header-right {
   font-size: 11px;
   line-height: 1.7;
@@ -121,42 +121,42 @@
   color: #333;
   flex-shrink: 0;
 }
-
+ 
 .clinic-address {
   color: #555;
   line-height: 1.45;
   margin-top: 2px;
 }
-
+ 
 .rx-divider {
   border: none;
   border-top: 2.5px solid #3f6f7a;
   margin: 0 0 10px;
 }
-
+ 
 .rx-divider-thin {
   border: none;
   border-top: 1px solid #ccc;
   margin: 10px 0 6px;
 }
-
+ 
 /* ── Meta row ── */
 .rx-meta {
   display: flex;
   justify-content: space-between;
 }
-
+ 
 .rx-meta-block {
   flex: 1;
   padding: 4px 0;
 }
-
+ 
 .rx-meta-block + .rx-meta-block {
   border-left: 1px solid #e8e8e8;
   padding-left: 16px;
   margin-left: 16px;
 }
-
+ 
 .rx-label {
   font-size: 9px;
   font-weight: 700;
@@ -165,21 +165,21 @@
   color: #3f6f7a;
   margin-bottom: 3px;
 }
-
+ 
 .rx-meta-val {
   font-size: 13.5px;
   font-weight: 700;
   color: #111;
   line-height: 1.3;
 }
-
+ 
 .rx-meta-small {
   font-size: 10.5px;
   color: #666;
   display: block;
   margin-top: 2px;
 }
-
+ 
 /* =========================
    CONTENT BODY
 ========================= */
@@ -193,14 +193,14 @@
   padding-bottom: 3px;
   margin: 16px 0 7px;
 }
-
+ 
 .rx-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 11.5px;
   font-family: "Georgia", "Times New Roman", serif;
 }
-
+ 
 .rx-table th {
   background: #e8eaf6;
   color: #3f6f7a;
@@ -212,18 +212,18 @@
   text-align: left;
   border-bottom: 1px solid #c5cae9;
 }
-
+ 
 .rx-table td {
   padding: 6px 8px;
   border-bottom: 1px solid #f0f0f0;
   vertical-align: top;
   color: #222;
 }
-
+ 
 .rx-table tbody tr:nth-child(even) td {
   background: #fafafa;
 }
-
+ 
 .rx-notes {
   background: #f7f7f7;
   border-left: 3px solid #3f6f7a;
@@ -233,49 +233,15 @@
   line-height: 1.6;
   color: #333;
 }
-
 /* =========================
-   FOOTER
+   SIGNATURE (body, when header is off)
 ========================= */
-.rx-footer {
-  flex-shrink: 0;
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 2px solid #3f6f7a;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  font-size: 11px;
-  color: #333;
-  gap: 12px;
-}
-
-.rx-footer-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.rx-footer-logo {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  border-radius: 4px;
-}
-
-.rx-footer-name {
-  font-weight: 700;
-  color: #3f6f7a;
-  font-size: 12px;
-}
-
-.rx-signature-area {
-  text-align: center;
-  flex: 1;
+.rx-signature-block {
+  text-align: right;
+  margin-top: 16px;
   line-height: 1.55;
 }
-
+ 
 .rx-sign-label {
   font-size: 9px;
   font-weight: 700;
@@ -283,21 +249,82 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-
+ 
 .rx-sign-name {
   font-size: 12.5px;
   font-weight: 700;
   color: #1a1a2e;
 }
-
+ 
 .rx-sign-qual {
   font-size: 10px;
   color: #666;
 }
-
+ 
+/* =========================
+   FOOTER — full layout, hidden via visibility when header is off
+========================= */
+.rx-footer-full {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+ 
+.rx-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 2px solid #3f6f7a;
+  font-size: 11px;
+  color: #333;
+}
+ 
+.rx-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+ 
+.rx-footer-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+ 
+.rx-footer-name {
+  font-weight: 700;
+  color: #3f6f7a;
+  font-size: 12px;
+}
+ 
+.rx-signature-area-center {
+  text-align: center;
+  flex: 1;
+  line-height: 1.55;
+}
+ 
 .rx-footer-right {
   text-align: right;
   flex: 1;
   line-height: 1.7;
   font-size: 11px;
+}
+ 
+.rx-header-top-spacer {
+  width: 100%;
+  height: 120px;
+}
+ 
+.rx-hidden-branding {
+  visibility: hidden;
+}
+ 
+.rx-continuation {
+  font-size: 10px;
+  color: #888;
+  font-style: italic;
+  padding-bottom: 6px;
 }

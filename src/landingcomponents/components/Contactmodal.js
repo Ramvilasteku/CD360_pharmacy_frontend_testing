@@ -205,7 +205,7 @@ export default function Contactmodal({ open, handleClose }) {
               </Typography>
 
               <Box className="form-fields">
-                <div className="row">
+                <div className="row-contact">
                   <TextField
                     label="Full Name"
                     name="full_name"
@@ -225,7 +225,7 @@ export default function Contactmodal({ open, handleClose }) {
                   />
                 </div>
 
-                <div className="row">
+                <div className="row-contact">
                   <TextField
                     label="Mobile Number"
                     name="mobile"
@@ -245,7 +245,7 @@ export default function Contactmodal({ open, handleClose }) {
                   />
                 </div>
 
-                <div className="row">
+                <div className="row-contact">
                   <TextField
                     type="date"
                     label="Preferred Date"
