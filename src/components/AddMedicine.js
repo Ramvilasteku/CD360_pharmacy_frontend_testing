@@ -26,6 +26,9 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import CircularProgress from '@mui/material/CircularProgress';
+import Skeleton from '@mui/material/Skeleton';
+import { DataGrid } from "@mui/x-data-grid";
 
 const MedicinesPage = () => {
   const [medicines, setMedicines] = useState([]);
@@ -33,6 +36,7 @@ const MedicinesPage = () => {
   const [editingId, setEditingId] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     medicine_name: "",
     type: "",
@@ -45,18 +49,100 @@ const MedicinesPage = () => {
     description: "",
   });
 
+  const columns = [
+    {
+      field: "medicine_name",
+      headerName: "Medicine",
+      flex: 1.5,
+      minWidth: 180,
+    },
+    // {
+    //   field: "type",
+    //   headerName: "Type",
+    //   flex: 1,
+    //   minWidth: 120,
+    // },
+    // {
+    //   field: "strength",
+    //   headerName: "Strength",
+    //   flex: 1,
+    //   minWidth: 100,
+    // },
+    // {
+    //   field: "unit",
+    //   headerName: "Unit",
+    //   flex: 0.8,
+    //   minWidth: 80,
+    // },
+    {
+      field: "quantity",
+      headerName: "Qty",
+      type: "number",
+      flex: 0.8,
+      minWidth: 90,
+    },
+    {
+      field: "amount",
+      headerName: "Amount (₹)",
+      type: "number",
+      flex: 1,
+      minWidth: 120,
+    },
+    {
+      field: "when_to_take",
+      headerName: "When To Take",
+      flex: 1.5,
+      minWidth: 180,
+      valueGetter: (value) =>
+        Array.isArray(value) ? value.join(", ") : value || "",
+    },
+    {
+      field: "duration",
+      headerName: "Duration",
+      flex: 1,
+      minWidth: 120,
+    },
+    // {
+    //   field: "actions",
+    //   headerName: "Actions",
+    //   sortable: false,
+    //   filterable: false,
+    //   width: 140,
+    //   renderCell: (params) => (
+    //     <>
+    //       <IconButton
+    //         color="primary"
+    //         onClick={() => handleOpen(params.row)}
+    //       >
+    //         <EditIcon />
+    //       </IconButton>
+
+    //       <IconButton
+    //         color="error"
+    //         onClick={() => handleDelete(params.row.id)}
+    //       >
+    //         <DeleteIcon />
+    //       </IconButton>
+    //     </>
+    //   ),
+    // },
+  ];
+
   const whenToTakeOptions = ["Morning", "Afternoon", "Night"];
 
   /* ================= FETCH ================= */
   const fetchMedicines = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(
-        `${process.env.REACT_APP_SITE_URL}/api/medicines`,
+        `${process.env.REACT_APP_SITE_URL}/api/medicines/search-all`,
         { withCredentials: true }
       );
       setMedicines(res.data.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,11 +164,11 @@ const MedicinesPage = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
- 
+
   const paginatedMedicines = medicines.slice(
-  page * rowsPerPage,
-  page * rowsPerPage + rowsPerPage
-);
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   /* ================= OPEN MODAL ================= */
   const handleOpen = (medicine = null) => {
@@ -140,7 +226,7 @@ const MedicinesPage = () => {
       fetchMedicines();
     } catch (err) {
       console.error(err);
-      alert("Error saving medicine");
+      alert(err.response?.data?.message || "An error occurred while saving the medicine.");
     }
   };
 
@@ -167,7 +253,7 @@ const MedicinesPage = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 3,
+          mb: 0,
         }}
       >
         <Typography variant="h5" fontWeight={600}>
@@ -188,65 +274,132 @@ const MedicinesPage = () => {
       </Box>
 
       {/* Table */}
-      <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+      {/* <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead sx={{ backgroundColor: "#3f6f7a" }}>
             <TableRow>
-              <TableCell sx={{color:"#ffffff"}}><b>Name</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>Type</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>Strength</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>Unit</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>Quantity</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>Amount</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>When To Take</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}}><b>Duration</b></TableCell>
-              <TableCell sx={{color:"#ffffff"}} align="center"><b>Actions</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Name</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Type</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Strength</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Unit</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Quantity</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Amount</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>When To Take</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }}><b>Duration</b></TableCell>
+              <TableCell sx={{ color: "#ffffff" }} align="center"><b>Actions</b></TableCell>
             </TableRow>
           </TableHead>
+          {
+            loading ? (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ height: 100 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                      }}
+                    >
+                      <CircularProgress />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {paginatedMedicines.map((med) => (
+                  <TableRow key={med.id} hover>
+                    <TableCell>{med.medicine_name}</TableCell>
+                    <TableCell>{med.type}</TableCell>
+                    <TableCell>{med.strength}</TableCell>
+                    <TableCell>{med.unit}</TableCell>
+                    <TableCell>{med.quantity}</TableCell>
+                    <TableCell>{med.amount}</TableCell>
+                    <TableCell>
+                      {Array.isArray(med.when_to_take) ? med.when_to_take.join(", ") : ""}
+                    </TableCell>
+                    <TableCell>{med.duration}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" onClick={() => handleOpen(med)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => handleDelete(med.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
 
-          <TableBody>
-        {paginatedMedicines.map((med) => (
-          <TableRow key={med.id} hover>
-            <TableCell>{med.medicine_name}</TableCell>
-            <TableCell>{med.type}</TableCell>
-            <TableCell>{med.strength}</TableCell>
-            <TableCell>{med.unit}</TableCell>
-            <TableCell>{med.quantity}</TableCell>
-            <TableCell>{med.amount}</TableCell>
-            <TableCell>
-              {Array.isArray(med.when_to_take) ? med.when_to_take.join(", ") : ""}
-            </TableCell>
-            <TableCell>{med.duration}</TableCell>
-            <TableCell align="center">
-              <IconButton color="primary" onClick={() => handleOpen(med)}>
-                <EditIcon />
-              </IconButton>
-              <IconButton color="error" onClick={() => handleDelete(med.id)}>
-                <DeleteIcon />
-              </IconButton>
-            </TableCell>
-          </TableRow>
-        ))}
+                {medicines.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center">
+                      No medicines added yet.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            )
+          }
 
-      {medicines.length === 0 && (
-        <TableRow>
-          <TableCell colSpan={9} align="center">
-            No medicines added yet.
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-            </Table>
-          </TableContainer>
-<TablePagination
-  component="div"
-  count={medicines.length}
-  page={page}
-  onPageChange={handleChangePage}
-  rowsPerPage={rowsPerPage}
-  onRowsPerPageChange={handleChangeRowsPerPage}
-  rowsPerPageOptions={[5, 10, 25]}
- />
+        </Table>
+      </TableContainer>
+      <TablePagination
+        component="div"
+        count={medicines.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[5, 10, 25]}
+      /> */}
+
+      <Box
+        sx={{
+          height: 500,
+          width: "100%",
+          bgcolor: "#fff",
+          borderRadius: 2,
+        }}
+      >
+        <DataGrid
+          rows={medicines}
+          columns={columns}
+          getRowId={(row) => row.id}
+          loading={loading}
+          pageSizeOptions={[5, 10, 25, 50]}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
+            },
+          }}
+          disableRowSelectionOnClick
+          sx={{
+            border: 0,
+
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#3f6f7a",
+              color: "black",
+              fontWeight: 600,
+            },
+
+            "& .MuiDataGrid-columnHeaderTitle": {
+              fontWeight: 600,
+            },
+
+            "& .MuiDataGrid-cell": {
+              alignItems: "center",
+            },
+
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "#f8fafc",
+            },
+          }}
+        />
+      </Box>
       {/* Dialog */}
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle

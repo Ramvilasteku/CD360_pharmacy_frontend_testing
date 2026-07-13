@@ -603,12 +603,12 @@ export default function AdminDashboard() {
               backgroundColor: '#fff',
               borderRadius: '20px',
               p: 2,
-              minHeight: '80vh',
+              minHeight: '50vh',
             }}
           >
-            <Typography variant="h6" sx={{ color: 'black', fontWeight: 600 }}>
+            {/* <Typography variant="h6" sx={{ color: 'black', fontWeight: 600 }}>
               Dashboard / {content}
-            </Typography>
+            </Typography> */}
 
             {/* Conditionally render content based on the state */}
             {content === 'Home' && (

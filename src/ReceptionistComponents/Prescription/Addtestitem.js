@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Grid, TextField, Select, MenuItem, Button, Typography } from "@mui/material";
+import { Box, Grid, TextField, Select, MenuItem, Button, Typography, Autocomplete } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { COLORS } from "../Themes";
@@ -22,14 +22,16 @@ export default function AddTestItem({ onAdd }) {
       .catch((err) => console.error("Tests fetch error:", err));
   }, []);
 
-  const handleSelect = (name) => {
-    setSelectedName(name);
-    const t = allTests.find((x) => x.test_name === name);
-    setSelected(t || null);
+  // const handleSelect = (name) => {
+  //   setSelectedName(name);
+  //   const t = allTests.find((x) => x.test_name === name);
+  //   setSelected(t || null);
+  // };
+
+  const reset = () => {
+    setSelected(null);
+    setCost("");
   };
-
-  const reset = () => { setSelectedName(""); setSelected(null); setCost(""); };
-
   const handleAdd = () => {
     if (!selected) return;
     onAdd({
@@ -53,8 +55,16 @@ export default function AddTestItem({ onAdd }) {
         lg (desktop)  -> same row, dropdown gets extra room since there's space
       */}
       <Grid container spacing={1.25} alignItems="center">
-        <Grid item xs={12} sm={7} md={4} lg={5}>
-          <Select
+        <Grid
+          item
+          size={{
+            xs: 12,
+            sm: 7,
+            md: 4,
+            lg: 5,
+          }}
+        >
+          {/* <Select
             displayEmpty fullWidth value={selectedName}
             onChange={(e) => handleSelect(e.target.value)}
             sx={addInputSx}
@@ -63,14 +73,47 @@ export default function AddTestItem({ onAdd }) {
             {allTests.map((t) => (
               <MenuItem key={t.id} value={t.test_name}>{t.test_name}</MenuItem>
             ))}
-          </Select>
+          </Select> */}
+          <Autocomplete
+            options={allTests}
+            value={selected}
+            fullWidth
+            getOptionLabel={(option) => option?.test_name || ""}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            onChange={(event, value) => {
+              setSelected(value);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Search Test..."
+                sx={addInputSx}
+              />
+            )}
+            renderOption={(props, option) => (
+              <li {...props} key={option.id}>
+                <Box>
+                  <Typography fontSize={14} fontWeight={600}>
+                    {option.test_name}
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    {option.test_type}
+                  </Typography>
+                </Box>
+              </li>
+            )}
+          />
         </Grid>
 
-        {selected?.test_type && (
+        {/* {selected?.test_type && (
           <Grid item xs={12} sm={5} md="auto" lg="auto">
             <Typography variant="caption" sx={{ color: "#6b7280" }}>{selected.test_type}</Typography>
           </Grid>
-        )}
+        )} */}
 
         <Grid item xs={8} sm={7} md={3} lg={2.5}>
           <TextField

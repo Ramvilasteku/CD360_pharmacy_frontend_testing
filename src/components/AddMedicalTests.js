@@ -25,6 +25,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import { DataGrid } from "@mui/x-data-grid";
 
 const TestsPage = () => {
   const [tests, setTests] = useState([]);
@@ -37,6 +38,45 @@ const TestsPage = () => {
     test_type: "",
     description: "",
   });
+
+  const columns = [
+    {
+      field: "test_name",
+      headerName: "Test Name",
+      flex: 1.5,
+      minWidth: 200,
+    },
+    {
+      field: "test_type",
+      headerName: "Type",
+      flex: 1,
+      minWidth: 150,
+    },
+    {
+      field: "description",
+      headerName: "Description",
+      flex: 2,
+      minWidth: 300,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <>
+          <IconButton onClick={() => handleOpen(params.row)}>
+            <EditIcon color="primary" />
+          </IconButton>
+
+          <IconButton onClick={() => handleDelete(params.row.id)}>
+            <DeleteIcon color="error" />
+          </IconButton>
+        </>
+      ),
+    },
+  ];
 
   /* ================= FETCH TESTS ================= */
   const fetchTests = async () => {
@@ -63,7 +103,7 @@ const TestsPage = () => {
     });
   };
 
-    const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
@@ -161,7 +201,7 @@ const TestsPage = () => {
       </Paper>
 
       {/* ================= TABLE ================= */}
-      <Paper sx={{ borderRadius: 4 }}>
+      {/* <Paper sx={{ borderRadius: 4 }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -174,23 +214,23 @@ const TestsPage = () => {
             </TableHead>
 
             <TableBody>
-          {tests
-          .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-          .map((test) => (
-                <TableRow key={test.id} hover>
-                  <TableCell>{test.test_name}</TableCell>
-                  <TableCell>{test.test_type}</TableCell>
-                  <TableCell>{test.description}</TableCell>
-                  <TableCell align="center">
-                    <IconButton onClick={() => handleOpen(test)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton onClick={() => handleDelete(test.id)}>
-                      <DeleteIcon color="error" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {tests
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((test) => (
+                  <TableRow key={test.id} hover>
+                    <TableCell>{test.test_name}</TableCell>
+                    <TableCell>{test.test_type}</TableCell>
+                    <TableCell>{test.description}</TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={() => handleOpen(test)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={() => handleDelete(test.id)}>
+                        <DeleteIcon color="error" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
 
               {tests.length === 0 && (
                 <TableRow>
@@ -203,14 +243,66 @@ const TestsPage = () => {
           </Table>
         </TableContainer>
         <TablePagination
-        component="div"
-        count={tests.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[5]}
-      />
+          component="div"
+          count={tests.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5]}
+        />
+      </Paper> */}
+      <Paper
+        sx={{
+          borderRadius: 3,
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ height: 500, width: "100%" }}>
+          <DataGrid
+            rows={tests}
+            columns={columns}
+            getRowId={(row) => row.id}
+            loading={false}
+            disableRowSelectionOnClick
+            pageSizeOptions={[5, 10, 20, 50]}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
+              },
+            }}
+            sx={{
+              border: 0,
+
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: "#3f6f7a",
+              },
+
+              "& .MuiDataGrid-columnHeader": {
+                backgroundColor: "#3f6f7a",
+              },
+
+              "& .MuiDataGrid-columnHeaderTitle": {
+                color: "#fff",
+                fontWeight: "bold",
+              },
+
+              "& .MuiDataGrid-cell": {
+                alignItems: "center",
+              },
+
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: "1px solid #e0e0e0",
+              },
+            }}
+          />
+        </Box>
       </Paper>
 
       {/* ================= DIALOG ================= */}
@@ -253,27 +345,27 @@ const TestsPage = () => {
               />
             </Grid>
 
-           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              inputProps={{
-                style: {
-                  whiteSpace: "nowrap",
-                  overflowX: "auto",
-                },
-              }}
-              sx={{
-                "& input": {
-                  overflowX: "auto",
-                },
-              }}
-            />
-          </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                inputProps={{
+                  style: {
+                    whiteSpace: "nowrap",
+                    overflowX: "auto",
+                  },
+                }}
+                sx={{
+                  "& input": {
+                    overflowX: "auto",
+                  },
+                }}
+              />
+            </Grid>
           </Grid>
         </DialogContent>
 

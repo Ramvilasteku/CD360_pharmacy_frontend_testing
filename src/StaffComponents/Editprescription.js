@@ -9,8 +9,8 @@ import PrescriptionPreview from "./PrescriptionPreview";
  
 /* ── Scoped styles ─────────────────────────────────────────────────────── */
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap%27);
- 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap');
+
 .rx-edit-wrap *, .rx-edit-wrap *::before, .rx-edit-wrap *::after { box-sizing: border-box; }
  
 .rx-edit-wrap {
