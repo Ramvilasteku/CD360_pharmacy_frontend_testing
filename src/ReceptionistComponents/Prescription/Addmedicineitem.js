@@ -30,6 +30,7 @@ export default function AddMedicineItem({ onAdd }) {
 
   const [quantity, setQuantity] = useState(1);
   const [amount, setAmount] = useState("");
+  const [duration, setDuration] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -78,6 +79,7 @@ export default function AddMedicineItem({ onAdd }) {
     setSelected(null);
     setQuantity(1);
     setAmount("");
+    setDuration("");
     setDbMeds([]);
   };
 
@@ -93,7 +95,7 @@ export default function AddMedicineItem({ onAdd }) {
       type: selected.type,
       strength: selected.strength,
       unit: selected.unit,
-      duration: selected.duration,
+      duration,
       quantity: qty,
       amount: amt,
       cost: qty * amt,
@@ -137,8 +139,10 @@ export default function AddMedicineItem({ onAdd }) {
               setSelected(value);
               if (value) {
                 setAmount(value.amount);
+                setDuration(value.duration || "");
               } else {
                 setAmount("");
+                setDuration("");
               }
             }}
             onInputChange={(event, value, reason) => {
@@ -209,6 +213,7 @@ export default function AddMedicineItem({ onAdd }) {
             inputProps={{ min: 1 }}
             sx={inputSx}
           />
+
         </Grid>
 
         <Grid item xs={5} sm={4} md={2.5} lg={2.2}>
@@ -231,6 +236,27 @@ export default function AddMedicineItem({ onAdd }) {
               min: 0,
               step: 0.01,
             }}
+            sx={inputSx}
+          />
+
+        </Grid>
+
+        <Grid item xs={5} sm={4} md={2.5} lg={2.2}>
+          <Typography
+            sx={{
+              color: "#6b7280",
+              mb: 0.5,
+              fontSize: 12.5,
+            }}
+          >
+            Duration
+          </Typography>
+
+          <TextField
+            fullWidth
+            placeholder="e.g. 5 Days"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
             sx={inputSx}
           />
         </Grid>
@@ -302,12 +328,12 @@ export default function AddMedicineItem({ onAdd }) {
               />
             )}
 
-            {selected.duration && (
+            {/* {selected.duration && (
               <Chip
                 size="small"
                 label={selected.duration}
               />
-            )}
+            )} */}
           </Stack>
         )}
     </Box>
