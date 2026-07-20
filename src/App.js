@@ -41,7 +41,7 @@ import FeaturesStrip from "./landingcomponents/components/FeaturesStrip";
 import DigitalVisibilityPlan from './landingcomponents/components/DigitalVisibilityPlan';
 import FeatureSections from "./landingcomponents/components/FeatureSections";
 import CTABanner from "./landingcomponents/components/CTABanner";
-import Comparison from "./landingcomponents/components/Comparison";
+import Pricing from "./landingcomponents/components/Pricing";
 import WhyUs from "./landingcomponents/components/WhyUs";
 import Footer from "./landingcomponents/components/Footer";
 import './Styles/global.css';
@@ -52,6 +52,8 @@ import AboutCareDesk360 from './landingcomponents/components/About';
 import Register from './landingcomponents/components/Register';
 import Payment from './landingcomponents/components/payment';
 import PaymentStatus from './payments/paymentstatus';
+import Comparison from './landingcomponents/components/Comparison';
+import OurWork from './landingcomponents/components/OurWork';
 
 
 function App() {
@@ -68,8 +70,8 @@ function LandingPage() {
         <FeaturesStrip />
         <FeatureSections />
         <CTABanner />
-        {/* <Comparison /> */}
         <AboutCareDesk360 />
+        <OurWork />
         <WhyUs />
         <Footer />
       </div>
@@ -92,7 +94,8 @@ function ProtectedRoute({ children }) {
       <SocketProvider userId={userId}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/pricing" element={<Comparison />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/comparison" element={<Comparison/>} />
           <Route path="/paymentstatus" element={<PaymentStatus />} />
         <Route path="/admin" element={<SuperAdminLogin />} />
         <Route

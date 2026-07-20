@@ -1,7 +1,10 @@
 import React from "react";
 import "./DigitalVisibilityPlan.css";
+import { useState } from "react";
 
 const DigitalVisibilityPlan = () => {
+  const [activePlan, setActivePlan] = useState("annual");
+
   return (
     <section className="dvp-wrapper">
       {/* Heading */}
@@ -10,62 +13,106 @@ const DigitalVisibilityPlan = () => {
 
         <div className="dvp-heading-content">
           <h2 className="dvp-main-title">DIGITAL VISIBILITY PLAN</h2>
-          <h3 className="dvp-price">
-            ₹48,000 <span>+ GST</span>
-          </h3>
-          <p className="dvp-sub-title">(Annually)</p>
           <p className="dvp-sub-title">
             Website + Clinic/Hospital Management Software
           </p>
         </div>
-
         <div className="dvp-line"></div>
       </div>
 
-      
-      {/* Month Plan */}
-      <div className="dvp-price-layout">
-        <div className="dvp-price-card">
-          <h3 className="dvp-price-heading">Monthly Plan</h3>
+      {/* Slider section start */}
 
-          <h1 className="dvp-price-amount">
-            ₹10,000  <span> + ₹3,999/month</span>
-          </h1>
-        </div>
+      <div className="dvp-plan-tabs">
+        <button
+          className={activePlan === "monthly" ? "active" : ""}
+          onClick={() => setActivePlan("monthly")}
+        >
+          <span className="full-text">Monthly</span>
+          <span className="short-text">1Mon</span>
+        </button>
 
-        <div className="dvp-price-description">
-          <p>
-            Annual website and clinic software setup:{" "}
-            <strong>₹10,000/year</strong>.
-            <br />
-            <p>
-              Build your digital presence, streamline operations,
-              <br />
-              and grow your patient base.
-            </p>
-          </p>
-        </div>
+        <button
+          className={activePlan === "quarterly" ? "active" : ""}
+          onClick={() => setActivePlan("quarterly")}
+        >
+          <span className="full-text">Quarterly</span>
+          <span className="short-text">3Mon</span>
+        </button>
+
+        <button
+          className={activePlan === "annual" ? "active" : ""}
+          onClick={() => setActivePlan("annual")}
+        >
+          <span className="full-text">Annual</span>
+          <span className="short-text">12Mon</span>
+        </button>
       </div>
 
-      {/* Annual Plan */}
-      <div className="dvp-price-layout">
-        <div className="dvp-price-card">
-          <h3 className="dvp-price-heading">Annual Plan</h3>
+      <div key={activePlan} className="plan-content">
+        {activePlan === "monthly" && (
+          <div className="dvp-price-layout">
+            <div className="dvp-price-card">
+              <h3 className="dvp-price-heading">Monthly Plan</h3>
+              <h1 className="dvp-price-amount">₹10,000 +</h1>
+              <span className="dvp-price-month">₹3,999/month</span>
+            </div>
 
-          <h1 className="dvp-price-amount">
-            ₹3,999 <span>x 12</span>
-          </h1>
-        </div>
+            <div className="dvp-price-description">
+              <p>
+                Website and setup fee :<strong> ₹10,000/year</strong>.
+                <br />
+                <p>
+                  Build your digital presence, streamline operations,
+                  <br />
+                  and grow your patient base.
+                </p>
+              </p>
+            </div>
+          </div>
+        )}
 
-        <div className="dvp-price-description">
-          <p>
-            Build your digital presence, streamline operations,
-            <br />
-            and grow your patient base.
-          </p>
-        </div>
+        {activePlan === "quarterly" && (
+          <div className="dvp-price-layout">
+            <div className="dvp-price-card">
+              <h3 className="dvp-price-heading">Quarterly Plan</h3>
+
+              <h1 className="dvp-price-amount">
+                ₹4,999 <span>x 3</span>
+              </h1>
+            </div>
+
+            <div className="dvp-price-description">
+              <p>
+                Build your digital presence, streamline operations,
+                <br />
+                and grow your patient base.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {activePlan === "annual" && (
+          <div className="dvp-price-layout annual-popular">
+            <div className="dvp-price-card">
+              <h3 className="dvp-price-heading">Annual Plan</h3>
+
+              <h1 className="dvp-price-amount">
+                ₹3,999 <span>x 12</span>
+              </h1>
+            </div>
+
+            <div className="dvp-price-description">
+              <p>
+                Build your digital presence, streamline operations,
+                <br />
+                and grow your patient base.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Slider section end */}
 
       {/* Cards */}
 
@@ -162,7 +209,8 @@ const DigitalVisibilityPlan = () => {
             <ul className="dvp-list">
               <li>Design of 12 Creatives for Social Media Every Month</li>
               <li>
-                12 Reel Videos per Year (1 Reel per Month, up to 60 Seconds Each)
+                12 Reel Videos per Year (1 Reel per Month, up to 60 Seconds
+                Each)
               </li>
               <li>1 Ad Campaign Management Per Month</li>
             </ul>

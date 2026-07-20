@@ -8,66 +8,67 @@ import PrescriptionPreview from "./PrescriptionPreview";
 import PrescriptionTable from "./PrescriptionTable";
 import AddConsultation from "./AddConsultation";
 import "./CreatePrescription.css";
- 
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 /* ── API base ── */
 const BASE = process.env.REACT_APP_SITE_URL;
- 
+
 export default function CreatePrescription() {
-  const [patients, setPatients]             = useState([]);
-  const [patientId, setPatientId]           = useState("");
-  const [appointments, setAppointments]     = useState([]);
-  const [appointmentId, setAppointmentId]   = useState("");
-  const [medicines, setMedicines]           = useState([]);
-  const [tests, setTests]                   = useState([]);
-  const [company, setCompany]               = useState(null);
-  const [doctor, setDoctor]                 = useState(null);
-  const [rxId, setRxId]                     = useState(null);
-  const [savedId, setSavedId]               = useState(null);
-  const [consultation, setConsultation]     = useState([]);
-  const [previewOpen, setPreviewOpen]       = useState(false);
-  const [saving, setSaving]                 = useState(false);
-  const [activeSection, setActiveSection]   = useState("medicines");
+  const [patients, setPatients] = useState([]);
+  const [patientId, setPatientId] = useState("");
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentId, setAppointmentId] = useState("");
+  const [medicines, setMedicines] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [company, setCompany] = useState(null);
+  const [doctor, setDoctor] = useState(null);
+  const [rxId, setRxId] = useState(null);
+  const [savedId, setSavedId] = useState(null);
+  const [consultation, setConsultation] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [activeSection, setActiveSection] = useState("medicines");
   const [refreshRxTable, setRefreshRxTable] = useState(0);
-  const [popupOpen, setPopupOpen]           = useState(false);
- 
+  const [popupOpen, setPopupOpen] = useState(false);
+
   /* ── Toast state ── */
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   const showToast = (message, severity = "success") =>
     setToast({ open: true, message, severity });
   const closeToast = () => setToast(t => ({ ...t, open: false }));
   const [notes, setNotes] = useState({
-  chiefComplaint: "",
-  treatmentPlan: "",
-  doctorNotes: "",
+    chiefComplaint: "",
+    treatmentPlan: "",
+    doctorNotes: "",
   });
   const [draftNotes, setDraftNotes] = useState({
-  chiefComplaint: "",
-  treatmentPlan: "",
-  doctorNotes: "",
+    chiefComplaint: "",
+    treatmentPlan: "",
+    doctorNotes: "",
   });
- 
+
   /* Keep the editable draft in sync whenever the committed notes change
      (e.g. when loading an existing prescription for edit). */
   useEffect(() => {
     setDraftNotes(notes);
   }, [notes]);
- 
+
   /* ── Fetch company info ── */
   useEffect(() => {
     fetch(`${BASE}/api/company-info/full`, { credentials: "include" })
       .then(res => res.json())
       .then(d => {
         if (d.success) setCompany({
-          name:    d.data.company_name || "",
-          logo:    d.data.company_logo ? `${BASE}/Images/${d.data.company_logo}` : null,
+          name: d.data.company_name || "",
+          logo: d.data.company_logo ? `${BASE}/Images/${d.data.company_logo}` : null,
           address: d.data.address || "",
-          phone:   d.data.mobile || d.data.phone || "",
-          email:   d.data.email || "",
+          phone: d.data.mobile || d.data.phone || "",
+          email: d.data.email || "",
         });
       })
       .catch(err => console.error("Company info error:", err));
   }, []);
- 
+
   /* ── Fetch doctor ── */
   useEffect(() => {
     fetch(`${BASE}/api/staff/self`, { credentials: "include" })
@@ -75,11 +76,11 @@ export default function CreatePrescription() {
       .then(d => { if (d.success) setDoctor(d.data); })
       .catch(err => console.error("Staff fetch error:", err));
   }, []);
- 
+
   useEffect(() => {
-  console.log("appointments changed:", appointments);
+    console.log("appointments changed:", appointments);
   }, [appointments]);
- 
+
   /* ── Fetch patients ── */
   const fetchPatients = () => {
     fetch(`${BASE}/appointment/appointments/pending/clients`, { credentials: "include" })
@@ -106,7 +107,7 @@ export default function CreatePrescription() {
               a.reason_for_visit ??
               a.chief_complaint ??
               "";
- 
+
             if (!purpose) {
               // Helps diagnose in devtools if the backend ever renames the
               // field again — remove once you've confirmed the key.
@@ -115,7 +116,7 @@ export default function CreatePrescription() {
                 a
               );
             }
- 
+
             return {
               id: a.appointment_id,
               client_id: a.id,
@@ -130,17 +131,17 @@ export default function CreatePrescription() {
       })
       .catch(err => console.error("Pending appointment clients error:", err));
   };
- 
+
   useEffect(() => { fetchPatients(); }, []);
- 
+
   const patientAppointments = patientId
     ? appointments.filter(a => String(a.client_id) === String(patientId))
     : [];
- 
+
   /* ── Edit existing prescription ── */
   const handleEditPrescription = async (id) => {
     try {
-      const res  = await fetch(`${BASE}/api/prescriptions/${id}`, { credentials: "include" });
+      const res = await fetch(`${BASE}/api/prescriptions/${id}`, { credentials: "include" });
       const data = await res.json();
       if (!data.success) return showToast("Failed to load prescription", "error");
       setRxId(id);
@@ -157,7 +158,7 @@ export default function CreatePrescription() {
       showToast("Failed to load prescription", "error");
     }
   };
- 
+
   /* ── Preview ── */
   const previewPrescription = () => {
     if (!patientId) return showToast("Please select a patient", "warning");
@@ -165,7 +166,7 @@ export default function CreatePrescription() {
       return showToast("Add at least one medicine or test", "warning");
     setPreviewOpen(true);
   };
- 
+
   /* ─────────────────────────────────────────────────────────────────
      SAVE PRESCRIPTION
      1. POST/PUT to /api/prescriptions  (backend auto-sends mail)
@@ -175,43 +176,43 @@ export default function CreatePrescription() {
      4. onClose() is called by PrescriptionPreview AFTER this resolves
   ───────────────────────────────────────────────────────────────── */
   const savePrescription = async () => {
-  if (!patientId) throw new Error("Please select a patient");
- 
-  const payload = {
-    patient_id: patientId,
-    appointment_id: appointmentId || null,
-    consultation_types: consultation,
-    medicines,
-    tests,
-    notes: notes,
+    if (!patientId) throw new Error("Please select a patient");
+
+    const payload = {
+      patient_id: patientId,
+      appointment_id: appointmentId || null,
+      consultation_types: consultation,
+      medicines,
+      tests,
+      notes: notes,
+    };
+
+    const url = rxId
+      ? `${BASE}/api/prescriptions/${rxId}`
+      : `${BASE}/api/prescriptions`;
+
+    const method = rxId ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.message || "Save failed");
+
+    const prescriptionId = data?.data?.prescription_id || rxId || null;
+
+    setSavedId(prescriptionId);
+    setRefreshRxTable(v => v + 1);
+
+    showToast("Prescription saved & email sent ✓", "success");
   };
- 
-  const url = rxId
-    ? `${BASE}/api/prescriptions/${rxId}`
-    : `${BASE}/api/prescriptions`;
- 
-  const method = rxId ? "PUT" : "POST";
- 
-  const res = await fetch(url, {
-    method,
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
- 
-  const data = await res.json();
- 
-  if (!data.success) throw new Error(data.message || "Save failed");
- 
-  const prescriptionId = data?.data?.prescription_id || rxId || null;
- 
-  setSavedId(prescriptionId);
-  setRefreshRxTable(v => v + 1);
- 
-  showToast("Prescription saved & email sent ✓", "success");
-};
- 
- 
+
+
   /* ── Reset ── */
   const resetForm = () => {
     setPatientId("");
@@ -223,19 +224,19 @@ export default function CreatePrescription() {
     setConsultation([]);
     setActiveSection("medicines");
   };
- 
+
   const handlePopupClose = () => {
-  setPopupOpen(false);
-  setTimeout(() => {
-    resetForm();
-  }, 200);
-};
- 
+    setPopupOpen(false);
+    setTimeout(() => {
+      resetForm();
+    }, 200);
+  };
+
   const openNewPopup = () => {
     resetForm();
     setPopupOpen(true);
   };
- 
+
   /* ── Derived ── */
   const clinicData = {
     name: company?.name || "", logo: company?.logo || null,
@@ -243,29 +244,29 @@ export default function CreatePrescription() {
     address: company?.address || "",
   };
   const selectedPatient = patients.find(p => p.id === patientId);
- 
+
   const sectionMeta = {
-    medicines:    { title: "Medicines",              desc: "Add medications with dosage, route and frequency.",  icon: "💊" },
-    tests:        { title: "Tests & Investigations", desc: "Order lab tests and diagnostic investigations.",     icon: "🔬" },
-    consultation: { title: "Consultation Types",     desc: "Select applicable consultation categories.",         icon: "📋" },
-      notes: {
-    title: "Doctor Notes",
-    desc: "Enter chief complaint, treatment plan and doctor's notes.",
-    icon: "📝",
-  },
+    medicines: { title: "Medicines", desc: "Add medications with dosage, route and frequency.", icon: "💊" },
+    tests: { title: "Tests & Investigations", desc: "Order lab tests and diagnostic investigations.", icon: "🔬" },
+    consultation: { title: "Consultation Types", desc: "Select applicable consultation categories.", icon: "📋" },
+    notes: {
+      title: "Doctor Notes",
+      desc: "Enter chief complaint, treatment plan and doctor's notes.",
+      icon: "📝",
+    },
   };
- 
+
   const muiSelectSx = {
     fontSize: "0.86rem", borderRadius: "8px", background: "#fff",
     "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e2e8f0" },
     "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#1a56db" },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#1a56db", borderWidth: "1.5px" },
   };
- 
+
   const SummaryList = ({ items, getLabel }) => {
     if (!items || !items.length) return null;
     const visible = items.slice(0, 3);
-    const extra   = items.length - 3;
+    const extra = items.length - 3;
     return (
       <div className="rx-summary">
         {visible.map((item, i) => (
@@ -280,11 +281,11 @@ export default function CreatePrescription() {
       </div>
     );
   };
- 
+
   return (
     <>
       <div className="rx-wrap">
- 
+
         {/* ── Header ── */}
         <div className="rx-header">
           <h1>Prescriptions</h1>
@@ -293,7 +294,7 @@ export default function CreatePrescription() {
             <span className="btn-text">Create Prescription</span>
           </button>
         </div>
- 
+
         {/* ── History / Table ── */}
         <div className="rx-history">
           <PrescriptionTable
@@ -303,12 +304,12 @@ export default function CreatePrescription() {
               patient: patients.find(p => p.id === patientId) || {},
               appointment: appointments.find(a => a.id === appointmentId) || null,
               doctor, branch: doctor?.branch || "—", clinic: clinicData,
-              consultations: consultation, medicines, tests,notes
+              consultations: consultation, medicines, tests, notes
             }}
             refreshKey={refreshRxTable}
           />
         </div>
- 
+
         {/* ══════════════════════════════════════
             POPUP
         ══════════════════════════════════════ */}
@@ -318,7 +319,7 @@ export default function CreatePrescription() {
             onClick={e => { if (e.target === e.currentTarget) handlePopupClose(); }}
           >
             <div className="rx-popup" role="dialog" aria-modal="true">
- 
+
               <div className="rx-popup-header">
                 <h2>{rxId ? "Edit Prescription" : "Create Prescription"}</h2>
                 <div className="rx-popup-header-actions">
@@ -328,9 +329,9 @@ export default function CreatePrescription() {
                   <button className="rx-popup-close" onClick={handlePopupClose} aria-label="Close">✕</button>
                 </div>
               </div>
- 
+
               <div className="rx-popup-body">
- 
+
                 {/* LEFT PANEL */}
                 <div className="rx-left">
                   <div className="rx-left-label">Patient</div>
@@ -356,7 +357,7 @@ export default function CreatePrescription() {
                         <MenuItem key={p.id} value={p.id}>{p.id} — {p.name}</MenuItem>
                       ))}
                     </Select>
- 
+
                     {patientId && (
                       <Select
                         fullWidth displayEmpty size="small"
@@ -364,11 +365,11 @@ export default function CreatePrescription() {
                         onChange={(e) => {
                           const id = e.target.value;
                           setAppointmentId(id);
- 
+
                           const selectedAppointment = appointments.find(
                             (a) => String(a.id) === String(id)
                           );
- 
+
                           // Only prefill the DRAFT — never touch the
                           // committed `notes` here. Committing happens
                           // only when the user presses Submit in the
@@ -397,7 +398,7 @@ export default function CreatePrescription() {
                         )}
                       </Select>
                     )}
- 
+
                     {selectedPatient && (
                       <div className="rx-pt-info">
                         <div className="rx-pt-info-name">{selectedPatient.name}</div>
@@ -409,12 +410,12 @@ export default function CreatePrescription() {
                       </div>
                     )}
                   </div>
- 
+
                   <div className="rx-divider" />
- 
+
                   <div className="rx-left-label">Sections</div>
                   <div className="rx-nav">
- 
+
                     <div
                       className={`rx-nav-item ${activeSection === "medicines" ? "active" : ""}`}
                       onClick={() => setActiveSection("medicines")}
@@ -426,7 +427,7 @@ export default function CreatePrescription() {
                     {medicines.length > 0 && activeSection !== "medicines" && (
                       <SummaryList items={medicines} getLabel={m => m.medicine_name || m.name || "Medicine"} />
                     )}
- 
+
                     <div
                       className={`rx-nav-item ${activeSection === "tests" ? "active" : ""}`}
                       onClick={() => setActiveSection("tests")}
@@ -438,7 +439,7 @@ export default function CreatePrescription() {
                     {tests.length > 0 && activeSection !== "tests" && (
                       <SummaryList items={tests} getLabel={t => t.test_name || t.name || "Test"} />
                     )}
- 
+
                     <div
                       className={`rx-nav-item ${activeSection === "consultation" ? "active" : ""}`}
                       onClick={() => setActiveSection("consultation")}
@@ -449,39 +450,34 @@ export default function CreatePrescription() {
                         <span className="rx-nav-badge">{consultation.length}</span>
                       )}
                     </div>
- 
- 
-                   <div
-  className={`rx-nav-item ${activeSection === "notes" ? "active" : ""}`}
-  onClick={() => setActiveSection("notes")}
->
-  <span className="ni-icon">📝</span>
-  Notes
- 
-</div>
- 
- 
- 
- 
-                 
+
+
+                    <div
+                      className={`rx-nav-item ${activeSection === "notes" ? "active" : ""}`}
+                      onClick={() => setActiveSection("notes")}
+                    >
+                      <span className="ni-icon">📝</span>
+                      Notes
+
+                    </div>
                     {Array.isArray(consultation) && consultation.length > 0 && activeSection !== "consultation" && (
                       <SummaryList
                         items={consultation}
                         getLabel={c => typeof c === "string" ? c : c.type || c.name || "Consultation"}
                       />
                     )}
- 
+
                   </div>
- 
+
                   <div className="rx-divider" />
- 
+
                   <div className="rx-left-footer">
                     <button className="rx-btn-preview" onClick={previewPrescription}>
                       <span>👁</span> Preview Prescription
                     </button>
                   </div>
                 </div>
- 
+
                 {/* RIGHT PANEL */}
                 <div className="rx-right">
                   {!patientId ? (
@@ -510,95 +506,96 @@ export default function CreatePrescription() {
                           <AddConsultation initialConsultation={consultation} onConsultationChange={setConsultation} />
                         )}
                         {activeSection === "notes" && (
-  <div className="rx-notes-container">
- 
-    <div className="rx-form-group">
-      <div className="rx-form-group-header">
-       
-        <label>Chief Complaint / Appointment Purpose</label>
-      </div>
-      <textarea
-        rows={4}
-        className="rx-input"
-        placeholder="Enter chief complaint..."
-        value={draftNotes.chiefComplaint}
-        onChange={(e) =>
-          setDraftNotes({
-            ...draftNotes,
-            chiefComplaint: e.target.value,
-          })
-        }
-      />
-    </div>
- 
-    <div className="rx-form-group">
-      <div className="rx-form-group-header">
-       
-        <label>Treatment Plan</label>
-      </div>
-      <textarea
-        rows={4}
-        className="rx-input"
-        placeholder="Enter treatment plan..."
-        value={draftNotes.treatmentPlan}
-        onChange={(e) =>
-          setDraftNotes({
-            ...draftNotes,
-            treatmentPlan: e.target.value,
-          })
-        }
-      />
-    </div>
- 
-    <div className="rx-form-group">
-      <div className="rx-form-group-header">
-     
-        <label>Doctor Notes</label>
-      </div>
-      <textarea
-        rows={4}
-        className="rx-input"
-        placeholder="Enter doctor notes..."
-        value={draftNotes.doctorNotes}
-        onChange={(e) =>
-          setDraftNotes({
-            ...draftNotes,
-            doctorNotes: e.target.value,
-          })
-        }
-      />
-    </div>
- 
-    <div className="rx-notes-actions">
-      <button
-        type="button"
-        className="rx-submit-btn"
-        onClick={() => {
-          const updatedNotes = { ...draftNotes };
-          setNotes(updatedNotes);
-          showToast("Notes saved successfully", "success");
-        }}
-      >
-        <span>✓</span> Submit
-      </button>
-    </div>
- 
-  </div>
-)}
+                          <div className="rx-notes-container">
+
+                            <div className="rx-form-group">
+                              <div className="rx-form-group-header">
+
+                                <label>Chief Complaint / Appointment Purpose</label>
+                              </div>
+                              <textarea
+                                rows={4}
+                                className="rx-input"
+                                placeholder="Enter chief complaint..."
+                                value={draftNotes.chiefComplaint}
+                                onChange={(e) =>
+                                  setDraftNotes({
+                                    ...draftNotes,
+                                    chiefComplaint: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+
+                            <div className="rx-form-group">
+                              <div className="rx-form-group-header">
+
+                                <label>Treatment Plan</label>
+                              </div>
+                              <textarea
+                                rows={4}
+                                className="rx-input"
+                                placeholder="Enter treatment plan..."
+                                value={draftNotes.treatmentPlan}
+                                onChange={(e) =>
+                                  setDraftNotes({
+                                    ...draftNotes,
+                                    treatmentPlan: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+
+                            <div className="rx-form-group">
+                              <div className="rx-form-group-header">
+
+                                <label>Doctor Notes</label>
+                              </div>
+                              <textarea
+                                rows={4}
+                                className="rx-input"
+                                placeholder="Enter doctor notes..."
+                                value={draftNotes.doctorNotes}
+                                onChange={(e) =>
+                                  setDraftNotes({
+                                    ...draftNotes,
+                                    doctorNotes: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+
+                            <div className="rx-notes-actions">
+                              <button
+                                type="button"
+                                className="rx-submit-btn"
+                                onClick={() => {
+                                  const updatedNotes = { ...draftNotes };
+                                  setNotes(updatedNotes);
+                                  showToast("Notes saved successfully", "success");
+                                }}
+                              >
+                                <span>✓</span> Submit
+                              </button>
+                            </div>
+
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
                 </div>
- 
+
               </div>
             </div>
           </div>
         )}
- 
+
         {/* ── Preview Dialog ── */}
         <Dialog
           open={previewOpen}
           onClose={() => setPreviewOpen(false)}
+          fullScreen={useMediaQuery("(max-width:768px)")}
           fullWidth
           maxWidth="lg"
           PaperProps={{ sx: { borderRadius: 3 } }}
@@ -606,12 +603,12 @@ export default function CreatePrescription() {
           <Box sx={{ height: "90vh", display: "flex", flexDirection: "column" }}>
             <PrescriptionPreview
               data={{
-                id:            savedId,
-                patient:       patients.find(p => p.id === patientId) || {},
-                appointment:   appointments.find(a => a.id === appointmentId) || null,
+                id: savedId,
+                patient: patients.find(p => p.id === patientId) || {},
+                appointment: appointments.find(a => a.id === appointmentId) || null,
                 doctor,
-                branch:        doctor?.branch || "—",
-                clinic:        clinicData,
+                branch: doctor?.branch || "—",
+                clinic: clinicData,
                 consultations: consultation,
                 medicines,
                 tests,
@@ -629,7 +626,7 @@ export default function CreatePrescription() {
             />
           </Box>
         </Dialog>
- 
+
         {/* ── Global Toast ── */}
         <Snackbar
           open={toast.open}
@@ -646,7 +643,7 @@ export default function CreatePrescription() {
             {toast.message}
           </Alert>
         </Snackbar>
- 
+
       </div>
     </>
   );

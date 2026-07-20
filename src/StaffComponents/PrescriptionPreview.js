@@ -631,6 +631,7 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
   if (consultations.length > 0) {
     chunks.push(`<div class="rx-section-title">Consultation Types</div>`);
     chunks.push(`
+      <div class="rx-table-wrapper">
       <table class="rx-table">
         <thead><tr><th>#</th><th>Consultation</th><th>Description</th></tr></thead>
         <tbody>
@@ -638,12 +639,14 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
             `<tr><td>${i + 1}</td><td>${c.name || "—"}</td><td>${c.description || "—"}</td></tr>`
           ).join("")}
         </tbody>
-      </table>`);
+      </table>
+      </div>`);
   }
  
   if (medicines.length > 0) {
     chunks.push(`<div class="rx-section-title">Medicines</div>`);
     chunks.push(`
+      <div class="rx-table-wrapper">
       <table class="rx-table">
         <thead>
           <tr><th>#</th><th>Medicine</th><th>Type</th><th>Strength</th>
@@ -663,12 +666,14 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
             </tr>`;
           }).join("")}
         </tbody>
-      </table>`);
+      </table>
+      </div>`);
   }
  
   if (tests.length > 0) {
     chunks.push(`<div class="rx-section-title">Tests</div>`);
     chunks.push(`
+      <div class="rx-table-wrapper">
       <table class="rx-table">
         <thead><tr><th>#</th><th>Test</th><th>Type</th><th>Notes</th></tr></thead>
         <tbody>
@@ -677,7 +682,8 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
             <td>${t.test_type || "—"}</td><td>${t.description || "—"}</td></tr>`
           ).join("")}
         </tbody>
-      </table>`);
+      </table>
+      </div>`);
   }
  
   if (notes?.doctorNotes) {
