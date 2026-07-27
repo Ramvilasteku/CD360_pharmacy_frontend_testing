@@ -124,7 +124,7 @@
 
 }
 
-.row-contact  .MuiOutlinedInput-root {
+.row-contact .MuiOutlinedInput-root {
   border-radius: 14px !important;
   background: #fafafa;
   transition: all .3s ease;

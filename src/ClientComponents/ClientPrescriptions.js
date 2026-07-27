@@ -36,7 +36,7 @@ import PrescriptionPreview from "../StaffComponents/PrescriptionPreview";
 
 const API = `${process.env.REACT_APP_SITE_URL}/api`;
 const FETCH_OPTS = { credentials: "include" };
-const PER_PAGE = 10;
+const PER_PAGE = 5;
 
 const statusColor = (count) => (count > 0 ? "#3f6f7a" : "default");
 
@@ -87,50 +87,74 @@ export default function ClientPrescriptions() {
       .finally(() => setLoading(false));
   }, []);
 
-  /* ───────── Preview ───────── */
-  const handlePreview = async (id) => {
-    setPreviewLoading(true);
-    setLoadingId(id);
-    try {
-      const res = await fetch(`${API}/client/prescriptions/${id}`, FETCH_OPTS);
-      const json = await res.json();
-      if (!json.success) return alert(json.message);
 
-      const rx = json.data;
-      
-      setPreviewData({
-        id: rx.id,
-        patient: { id: rx.patient?.id, name: rx.patient?.name },
-        doctor: { name: rx.doctor?.name, qualification: rx.doctor?.qualification },
-        branch: rx.branch || rx.doctor?.branch || "—",
-        appointment: {
-        id: rx.appointment?.id ?? rx.appointment_id ?? null,
-        appointment_date:
-          rx.appointment?.appointment_date ??
-          rx.appointment_date ??
-          null,
-      },
-        clinic: {
-          name: company?.name || rx.clinic?.name,
-          logo: company?.logo || rx.clinic?.logo,
-          phone: company?.phone || rx.clinic?.phone,
-          email: company?.email || rx.clinic?.email,
-          address: company?.address || rx.clinic?.address,
-        },
-        consultations: rx.consultations || [],
-        medicines: rx.medicines || [],
-        tests: rx.tests || [],
-        notes: rx.notes || "",
-        description: rx.description || "",
-      });
-      console.log("client appointment  preview data is",previewData);
-    } catch {
-      alert("Failed to load prescription");
-    } finally {
-      setPreviewLoading(false);
-      setLoadingId(null);
+ const handleViewPdf = async (id) => {
+  const newTab = window.open("", "_blank"); // open synchronously first
+  setLoadingId(id);
+  try {
+    const res = await fetch(`${API}/client/prescriptions/${id}/download`, FETCH_OPTS);
+    if (!res.ok) throw new Error("Failed");
+    const blob = await res.blob();
+    const pdfBlob = new Blob([blob], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(pdfBlob);
+    newTab.location.href = url;
+  } catch (err) {
+    newTab.close();
+    alert("Failed to open prescription");
+  } finally {
+    setLoadingId(null);
+  }
+};
+
+
+ const handleDownload = async (id) => {
+  setLoadingId(id);
+
+  try {
+    const res = await fetch(
+      `${API}/client/prescriptions/${id}/download`,
+      FETCH_OPTS
+    );
+
+    if (!res.ok) {
+      // Try to read the backend's actual error message instead of guessing
+      let message = `Download failed (status ${res.status})`;
+      try {
+        const errJson = await res.json();
+        if (errJson?.message) message = errJson.message;
+      } catch {
+        // response wasn't JSON (e.g. an HTML error page) — keep default message
+      }
+      throw new Error(message);
     }
-  };
+
+    const blob = await res.blob();
+
+    // Guard: if the server actually sent JSON (an error) with a 200 status,
+    // don't try to download it as a PDF
+    if (blob.type && blob.type.includes("json")) {
+      const text = await blob.text();
+      const parsed = JSON.parse(text);
+      throw new Error(parsed.message || "Server returned an error, not a PDF");
+    }
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `prescription_${id}.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Download error:", err);
+    alert(err.message || "Failed to download prescription");
+  } finally {
+    setLoadingId(null);
+  }
+};
 
   const formatDate = (iso) =>
     iso
@@ -189,35 +213,35 @@ export default function ClientPrescriptions() {
   );
 
   /* ───────── Preview Button ───────── */
-  const PreviewBtn = ({ id }) => (
-    <Tooltip title="View PDF" arrow>
-      <span>
-        <IconButton
-          onClick={() => handlePreview(id)}
-          disabled={previewLoading}
-          size="small"
-          sx={{
-            color: "#3f6f7a",
-            bgcolor: "primary.50",
-            border: "1px solid",
-            borderColor: "#3f6f7a",
-            transition: "all 0.2s",
-            "&:hover": {
-              bgcolor: "#3f6f7a",
-              color: "#fff",
-              transform: "scale(1.08)",
-            },
-          }}
-        >
-          {loadingId === id ? (
-            <CircularProgress size={18} color="inherit" />
-          ) : (
-            <PictureAsPdfIcon fontSize="small" />
-          )}
-        </IconButton>
-      </span>
-    </Tooltip>
-  );
+const PreviewBtn = ({ id }) => (
+  <Tooltip title="Download PDF" arrow>
+    <span>
+      <IconButton
+        onClick={() => handleDownload(id)}
+        disabled={loadingId === id}
+        size="small"
+        sx={{
+          color: "#3f6f7a",
+          bgcolor: "primary.50",
+          border: "1px solid",
+          borderColor: "#3f6f7a",
+          transition: "all 0.2s",
+          "&:hover": {
+            bgcolor: "#3f6f7a",
+            color: "#fff",
+            transform: "scale(1.08)",
+          },
+        }}
+      >
+        {loadingId === id ? (
+          <CircularProgress size={18} color="inherit" />
+        ) : (
+          <PictureAsPdfIcon fontSize="small" />
+        )}
+      </IconButton>
+    </span>
+  </Tooltip>
+);
 
   /* ───────── DESKTOP: Table ───────── */
   const DesktopTable = () => (
@@ -248,7 +272,7 @@ export default function ClientPrescriptions() {
           >
             <TableCell>#</TableCell>
             <TableCell>Doctor</TableCell>
-            <TableCell>Date</TableCell>
+            <TableCell>Hospital Name</TableCell>
             <TableCell>
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <EventNoteIcon sx={{ fontSize: 16 }} />
@@ -316,7 +340,7 @@ export default function ClientPrescriptions() {
                   </TableCell>
                   <TableCell>
                     <Typography fontSize="0.875rem" color="text.secondary">
-                      {formatDate(rx.created_at)}
+                    {rx.company_name}
                     </Typography>
                   </TableCell>
 

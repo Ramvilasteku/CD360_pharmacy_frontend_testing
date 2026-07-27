@@ -35,7 +35,7 @@ const Bills = () => {
   const [bills, setBills] = useState([]);
   const [filteredBills, setFilteredBills] = useState([]);
   const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 4;
 
   const [selectedBill, setSelectedBill] = useState(null);
 
@@ -66,6 +66,8 @@ const Bills = () => {
         : [];
 
       setBills(list);
+
+      console.log("bills data is",list);
     } catch (err) {
       console.error("Fetch bills error:", err.response || err);
       setBills([]);
@@ -474,7 +476,7 @@ const Bills = () => {
                     maxWidth: 250,
                   }}
                 >
-                  Notes
+                  Hospital Name
                 </TableCell>
 
                 <TableCell
@@ -583,7 +585,7 @@ const Bills = () => {
                       maxWidth: 350,
                     }}
                   >
-                    {b.notes}
+                    {b.company_name}
                   </TableCell>
 
                   <TableCell align="center">
@@ -699,7 +701,7 @@ const Bills = () => {
                   </Box>
 
                   <Typography>Total : {b.total_amount}₹</Typography>
-                  <Typography>Note : {b.notes}</Typography>
+                  <Typography> Hospital Name: {b.company_name}</Typography>
                   <Typography>
                     Date : {dayjs(b.created_at).format("DD/MM/YYYY")}
                   </Typography>

@@ -6,12 +6,12 @@
   --gray-text: #5a6b82;
 }
 
-* {
+/* * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: "Inter", sans-serif;
-}
+} */
 
 /* ── HERO ── */
 .hero {
@@ -20,11 +20,11 @@
   overflow: hidden;
 }
 
-.container {
+/* .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 32px;
-}
+} */
 
 .hero-inner {
   display: grid;
@@ -236,9 +236,9 @@
   .hero {
     padding: 40px 0;
   }
-  .container {
+  /* .container {
     padding: 0 16px;
-  }
+  } */
   .hero-title {
     font-size: 24px;
   }

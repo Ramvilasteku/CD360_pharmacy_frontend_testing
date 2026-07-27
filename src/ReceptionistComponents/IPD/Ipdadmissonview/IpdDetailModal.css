@@ -1,0 +1,857 @@
+/* IpdDetailModal.css */
+
+/* ─────────────────────────────────────────────
+   MAIN OVERLAY
+───────────────────────────────────────────── */
+.idm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+
+  z-index: 11000 !important;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+.ipd-sub-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+
+  z-index: 999999;
+  padding: 20px;
+}
+
+.ipd-sub-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+
+  background: #fff;
+  border-radius: 14px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 12px 32px rgba(0,0,0,.18),
+    0 24px 60px rgba(0,0,0,.25);
+
+  animation: ipd-popup .2s ease;
+}
+/* ─────────────────────────────────────────────
+   MAIN PANEL
+───────────────────────────────────────────── */
+.idm-panel {
+  position: relative;
+
+  width: 100%;
+  max-width: 900px;
+
+  background: #ffffff;
+  border-radius: 16px;
+
+  box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+
+  display: flex;
+  flex-direction: column;
+
+  animation: idm-slide-in 0.22s ease;
+}
+
+@keyframes idm-slide-in {
+  from {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────── */
+.idm-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px 28px 16px;
+
+  background: #fff;
+
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 16px 16px 0 0;
+}
+
+.idm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.idm-badge {
+  background: #1e40af;
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.idm-title {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.idm-close {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f3f4f6;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  color: #374151;
+
+  transition: background 0.15s;
+}
+
+.idm-close:hover {
+  background: #e5e7eb;
+}
+
+/* ─────────────────────────────────────────────
+   BODY
+───────────────────────────────────────────── */
+.idm-body {
+  padding: 24px 28px 32px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─────────────────────────────────────────────
+   INFO GRID
+───────────────────────────────────────────── */
+.idm-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 12px 16px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  padding: 18px 20px;
+}
+
+.idm-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.idm-info-item.wide {
+  grid-column: 1 / -1;
+}
+
+.idm-info-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  color: #6b7280;
+}
+
+.idm-info-value {
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #111827;
+}
+
+/* ─────────────────────────────────────────────
+   STATUS
+───────────────────────────────────────────── */
+.idm-status {
+  display: inline-block;
+
+  padding: 2px 10px;
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.idm-status.admitted {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.idm-status.discharged {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.idm-status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ─────────────────────────────────────────────
+   LOADER
+───────────────────────────────────────────── */
+.idm-loader {
+  padding: 48px;
+
+  text-align: center;
+
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* ─────────────────────────────────────────────
+   SECTION
+───────────────────────────────────────────── */
+.ipd-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  overflow: visible;
+
+  background: #fff;
+}
+
+.ipd-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 13px 18px;
+
+  background: #f9fafb;
+
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 12px 12px 0 0;
+}
+
+.ipd-section-title {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  color: #1f2937;
+}
+
+.ipd-section-add-btn {
+  padding: 6px 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 0.15s;
+}
+
+.ipd-section-add-btn:hover {
+  background: #1d4ed8;
+}
+
+/* ─────────────────────────────────────────────
+   TABLE
+───────────────────────────────────────────── */
+.ipd-section-table-wrap {
+  overflow-x: auto;
+}
+
+.ipd-section-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.ipd-section-table th {
+  background: #f3f4f6;
+
+  padding: 9px 12px;
+
+  text-align: left;
+  white-space: nowrap;
+
+  font-weight: 600;
+  color: #374151;
+}
+
+.ipd-section-table td {
+  padding: 9px 12px;
+
+  border-top: 1px solid #f3f4f6;
+
+  white-space: nowrap;
+
+  color: #374151;
+}
+
+.ipd-section-table tr:hover td {
+  background: #f9fafb;
+}
+
+.ipd-section-empty {
+  padding: 20px;
+
+  text-align: center;
+
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* ─────────────────────────────────────────────
+   ACTION BUTTONS
+───────────────────────────────────────────── */
+.ipd-act-btn {
+  padding: 4px 10px;
+
+  border: none;
+  border-radius: 6px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: opacity 0.15s;
+}
+
+.ipd-act-btn:hover {
+  opacity: 0.8;
+}
+
+.ipd-act-btn.edit {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.ipd-act-btn.delete {
+  margin-left: 6px;
+
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Lock main overlay scroll while a sub-form popup is open.
+   Add this class to .idm-overlay via JS: overlayEl.classList.add('scroll-locked')
+   Or use the useEffect approach in each section component (see below). */
+.idm-overlay.scroll-locked {
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────
+   SUB POPUP — fixed, centered, full-screen overlay
+───────────────────────────────────────────── */
+./* FULL SCREEN OVERLAY */
+.ipd-sub-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 12000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+
+  padding: 20px;
+}
+
+/* CENTERED POPUP */
+.ipd-sub-modal {
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+
+  background: #fff;
+  border-radius: 14px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+
+  animation: popupFadeIn 0.2s ease;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ipd-sub-modal {
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 48px);
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  /* Allow inner body to scroll if the form is tall */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.12),
+    0 20px 48px rgba(0,0,0,0.18);
+
+  animation: ipd-popup 0.18s ease;
+}
+
+@keyframes ipd-popup {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   SUB POPUP HEADER
+───────────────────────────────────────────── */
+.ipd-sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px 20px 12px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  /* Don't shrink — stays at top */
+  flex-shrink: 0;
+}
+
+.ipd-sub-title {
+  margin: 0;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+/* ─────────────────────────────────────────────
+   SUB POPUP BODY
+───────────────────────────────────────────── */
+.ipd-sub-body {
+  /* Scrollable if content is tall */
+  flex: 1;
+  overflow-y: auto;
+
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ─────────────────────────────────────────────
+   FORM
+───────────────────────────────────────────── */
+.ipd-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ipd-form-group label {
+  font-size: 12px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  color: #6b7280;
+}
+
+.ipd-form-group input,
+.ipd-form-group select,
+.ipd-form-group textarea {
+  width: 100%;
+
+  padding: 9px 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  outline: none;
+
+  font-size: 14px;
+  font-family: inherit;
+
+  color: #111827;
+
+  transition: border-color 0.15s;
+
+  box-sizing: border-box;
+}
+
+.ipd-form-group input:focus,
+.ipd-form-group select:focus,
+.ipd-form-group textarea:focus {
+  border-color: #2563eb;
+}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+.ipd-sub-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 14px 20px;
+
+  border-top: 1px solid #e5e7eb;
+
+  /* Don't shrink — stays at bottom */
+  flex-shrink: 0;
+}
+
+.ipd-btn-cancel {
+  padding: 8px 18px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #f3f4f6;
+  color: #374151;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.ipd-btn-submit {
+  padding: 8px 18px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 0.15s;
+}
+
+.ipd-btn-submit:hover {
+  background: #1d4ed8;
+}
+
+.ipd-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .idm-info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .idm-body {
+    padding: 18px;
+  }
+
+  .ipd-sub-modal {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .idm-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .idm-panel {
+    border-radius: 12px;
+  }
+
+  .idm-header {
+    padding: 16px;
+  }
+
+  .idm-body {
+    padding: 14px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   OVERLAY
+───────────────────────────────────────────── */
+
+.idm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+  padding: 20px;
+}
+
+/* ─────────────────────────────────────────────
+   MODAL PANEL
+───────────────────────────────────────────── */
+
+.idm-panel {
+  width: 95%;
+  max-width: 1400px;
+
+  background: #fff;
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  /* IMPORTANT */
+  max-height: 95vh;
+  overflow: hidden;
+
+  will-change: transform;
+  contain: layout paint;
+}
+
+/* ─────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────── */
+
+.idm-header {
+  flex-shrink: 0;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 18px 24px;
+  border-bottom: 1px solid #e5e7eb;
+
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ─────────────────────────────────────────────
+   BODY SCROLLABLE
+───────────────────────────────────────────── */
+
+.idm-body {
+  flex: 1;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 20px;
+
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+}
+
+/* ─────────────────────────────────────────────
+   CUSTOM SCROLLBAR
+───────────────────────────────────────────── */
+
+.idm-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.idm-body::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+.idm-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.idm-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ─────────────────────────────────────────────
+   SKELETON LOADER
+───────────────────────────────────────────── */
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  width: 150px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.5),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(300px);
+  }
+}
+
+.idm-skeleton-wrapper {
+  padding: 20px;
+}
+
+.idm-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.idm-skeleton-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.idm-skeleton-item.wide {
+  grid-column: span 2;
+}
+
+.idm-skeleton-label {
+  width: 90px;
+  height: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.idm-skeleton-value {
+  width: 100%;
+  height: 18px;
+  border-radius: 6px;
+}
+
+.idm-section-skeleton {
+  margin-top: 24px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.idm-section-title {
+  width: 180px;
+  height: 20px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.idm-table-row {
+  height: 48px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* ─────────────────────────────────────────────
+   PERFORMANCE OPTIMIZATION
+───────────────────────────────────────────── */
+
+.idm-panel {
+  will-change: transform;
+  contain: layout paint;
+}
+
+.idm-body {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}

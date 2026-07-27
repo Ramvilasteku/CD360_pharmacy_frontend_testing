@@ -14,6 +14,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useEffect } from "react";
 import api from "./services/api";
+import RateReviewIcon from '@mui/icons-material/RateReview';
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
@@ -24,9 +25,10 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import LogoutIcon from "@mui/icons-material/Logout";
-
+import KingBedIcon from "@mui/icons-material/KingBed";
 import DoctorProfileModal from "./ReceptionistProfileModal";
 import React, { useState } from "react";
+
 
 export const drawerWidth = 240;
 export const drawerWidthClosed = 70;
@@ -39,7 +41,7 @@ export default function Sidebar({ isOpen, onToggle, company }) {
   const staffName = localStorage.getItem('userName');
   const [openProfile, setOpenProfile] = useState(false);
   const [staff, setStaff] = useState(null);
-
+  const [openDropdown, setOpenDropdown] = useState(null);
 
 
   // const menuItems = [
@@ -63,35 +65,40 @@ export default function Sidebar({ isOpen, onToggle, company }) {
     const storedModules = localStorage.getItem("modules");
     const allowedModules = storedModules ? JSON.parse(storedModules) : [];
 
-    const moduleAccessMap = {
-  appointments: ["appointments", "reviews","doctor schedule","add slots"],
-  attendance: ["attendance", "leave_requests"],
-  prescriptions: [
-    "medicine",
-    "medical_tests",
-    "consultation_types",
-    "prescriptions",
-  ],
-  documents: ["documents"],
-  bills: ["bills"],
-  notifications: ["notifications"],
-  clients: ["clients"],
-  employees: ["employees"],
-};
+//     const moduleAccessMap = {
+//   appointments: ["appointments", "reviews","doctor schedule","add slots"],
+//   attendance: ["attendance", "leave_requests"],
+//   prescription: [
+//     "medicine",
+//     "medical_tests",
+//     "consultation_types",
+//     "prescription",
+//   ],
+//   documents: ["documents"],
+//   bills: ["bills"],
+//   notifications: ["notifications"],
+//   clients: ["clients"],
+//   employees: ["employees"],
+//   ipd:["ipd"]
+// };
 
-const hasAccess = (itemKey) => {
-  return allowedModules.some((module) => {
-    const children = moduleAccessMap[module];
+// const hasAccess = (itemKey) => {
+//   return allowedModules.some((module) => {
+//     const children = moduleAccessMap[module];
 
-    // if module has child mapping
-    if (children) {
-      return children.includes(itemKey);
-    }
+//     // if module has child mapping
+//     if (children) {
+//       return children.includes(itemKey);
+//     }
 
-    // fallback direct match
-    return module === itemKey;
-  });
-};
+//     // fallback direct match
+//     return module === itemKey;
+//   });
+// };
+
+    const hasAccess = (itemKey) => {
+      return allowedModules.includes(itemKey);
+    };
 
     // ✅ MASTER MENU (WITH module_key)
     const menuItems = [
@@ -142,6 +149,65 @@ const hasAccess = (itemKey) => {
         module_key: "appointments",
         icon: <AddCircleOutlineIcon />,
         path: "/receptionist/dashboard/add-slots",
+      }
+//       {
+//   text: "Medicine",
+//   module_key: "prescriptions",
+//   icon: <AddCircleOutlineIcon />,
+//   path: "/receptionist/dashboard/medicine",
+// },
+// {
+//   text: "Test",
+//   module_key: "prescriptions",
+//   icon: <AddCircleOutlineIcon />,
+//   path: "/receptionist/dashboard/medicaltests",
+// },
+// {
+//   text: "Prescription",
+//   module_key: "prescriptions",
+//   icon: <AddCircleOutlineIcon />,
+//   path: "/receptionist/dashboard/prescription",
+// },
+      // {
+      //   text: "Add Slot",
+      //   module_key: "appointments",
+      //   icon: <AddCircleOutlineIcon />,
+      //   path: "/receptionist/dashboard/add-slots",
+      // },
+     ,
+
+      {
+        text: "Ipd",
+        module_key: "ipd",
+        icon: <KingBedIcon />,
+
+        children: [
+          {
+            text: "Bed Creation",
+            path: "/receptionist/dashboard/ipd/bed-creation",
+            icon:<ChevronRightIcon sx={{ fontSize: 18 }} />
+          },
+          {
+            text: "IPD Admission",
+            path: "/receptionist/dashboard/ipd/ipd-admission",
+            icon:<ChevronRightIcon sx={{ fontSize: 18 }} />
+          },
+          {
+            text: "Bed Allocation",
+            path: "/receptionist/dashboard/ipd/bed-allocation",
+            icon: <ChevronRightIcon sx={{ fontSize: 18 }} />
+          },
+          {
+            text: "IPD Bills",
+            path: "/receptionist/dashboard/ipd/ipd-bills",
+            icon: <ChevronRightIcon sx={{ fontSize: 18 }} />
+          },
+          {
+            text: "IPD Payments",
+            path: "/receptionist/dashboard/ipd/ipd-payments",
+            icon : <ChevronRightIcon sx={{ fontSize: 18 }} />
+          }
+        ],
       },
       {
         text: "Logout",
@@ -379,70 +445,151 @@ const filteredMenu = menuItems.filter(
         />
 
         <List sx={{ px: 2 }}>
-          {filteredMenu.map((item) => {
-            const isLogout = item.text === "Logout";
+  {filteredMenu.map((item) => {
+    const isLogout = item.text === "Logout";
 
-            return (
-              <ListItem
-                key={item.text}
-                component={isLogout ? "div" : NavLink}
-                to={!isLogout ? item.path : undefined}
-                end={!isLogout && item.path === "/receptionist/dashboard"}
-                onClick={isLogout ? item.onClick : undefined}
-                sx={{
-                  cursor: "pointer",
-                  borderRadius: 2,
-                  color: "white",
-                  textDecoration: "none",
-                  justifyContent: isOpen ? "flex-start" : "center",
-                  px: isOpen ? 2 : 1,
-                  py: 0.5,
-                  minHeight: "44px",
-                  transition: "all 0.2s",
+    // ✅ DROPDOWN MENU
+    if (item.children) {
+      return (
+        <Box key={item.text}>
 
-                  "&.active": !isLogout
-                    ? {
-                      backgroundColor: "rgba(255, 255, 255, 0.25)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                    }
-                    : {},
+          {/* Parent Menu */}
+          <ListItem
+            onClick={() =>
+              setOpenDropdown(
+                openDropdown === item.text ? null : item.text
+              )
+            }
+            sx={{
+              cursor: "pointer",
+              borderRadius: 2,
+              color: "white",
+              px: isOpen ? 2 : 1,
+              minHeight: "44px",
 
-                  "&.active .MuiListItemIcon-root": {
-                    color: "white",
-                    transform: "scale(1.1)",
-                  },
+              "&:hover": {
+                backgroundColor: "rgba(255,255,255,0.15)",
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                color: "white",
+                minWidth: isOpen ? 36 : "auto",
+              }}
+            >
+              {item.icon}
+            </ListItemIcon>
 
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                  },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: isOpen ? 36 : "auto",
-                    justifyContent: "center",
-                    color: "white",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
+            {isOpen && (
+              <>
+                <ListItemText primary={item.text} />
 
-                {isOpen && (
-                  <ListItemText
-                    primary={item.text}
-                    sx={{
-                      "& .MuiTypography-root": {
-                        fontSize: "14px",
-                        fontWeight: 500,
-                      },
-                    }}
-                  />
-                )}
-              </ListItem>
-            );
-          })}
-        </List>
+                <Typography fontSize="12px">
+                  {openDropdown === item.text ? "▲" : "▼"}
+                </Typography>
+              </>
+            )}
+          </ListItem>
+
+          {/* Children */}
+          {openDropdown === item.text &&
+  item.children.map((child) => (
+    <ListItem
+      key={child.text}
+      component={NavLink}
+      to={child.path}
+      sx={{
+        pl: 5,
+        py: 0.5,
+        color: "white",
+        borderRadius: 2,
+
+        "&.active": {
+          backgroundColor: "rgba(255,255,255,0.2)",
+        },
+
+        "&:hover": {
+          backgroundColor: "rgba(255,255,255,0.12)",
+        },
+      }}
+    >
+      <ListItemIcon
+        sx={{
+          minWidth: 24,
+          color: "white",
+        }}
+      >
+        {child.icon}
+      </ListItemIcon>
+
+      <ListItemText
+        primary={child.text}
+        sx={{
+          "& .MuiTypography-root": {
+            fontSize: "13px",
+          },
+        }}
+      />
+    </ListItem>
+))}
+        </Box>
+      );
+    }
+
+    // ✅ NORMAL MENU
+    return (
+      <ListItem
+        key={item.text}
+        component={isLogout ? "div" : NavLink}
+        to={!isLogout ? item.path : undefined}
+        onClick={isLogout ? item.onClick : undefined}
+        sx={{
+          cursor: "pointer",
+          borderRadius: 2,
+          color: "white",
+          textDecoration: "none",
+          justifyContent: isOpen ? "flex-start" : "center",
+          px: isOpen ? 2 : 1,
+          py: 0.5,
+          minHeight: "44px",
+
+          "&.active": !isLogout
+            ? {
+                backgroundColor: "rgba(255,255,255,0.25)",
+              }
+            : {},
+
+          "&:hover": {
+            backgroundColor: "rgba(255,255,255,0.15)",
+          },
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: isOpen ? 36 : "auto",
+            justifyContent: "center",
+            color: "white",
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
+
+        {isOpen && (
+          <ListItemText
+            primary={item.text}
+            sx={{
+              "& .MuiTypography-root": {
+                fontSize: "14px",
+                fontWeight: 500,
+              },
+            }}
+          />
+        )}
+      </ListItem>
+    );
+  })}
+</List>
 
         <DoctorProfileModal
           open={openProfile}

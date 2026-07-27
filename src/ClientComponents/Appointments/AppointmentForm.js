@@ -3,6 +3,11 @@ import {
   Dialog,
   DialogContent,
   TextField,
+  Autocomplete,
+  Avatar,
+  Grid,
+  Card,
+  CardContent,
   Button,
   Box,
   Typography,
@@ -26,7 +31,11 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
   const isMobile = useMediaQuery("(max-width:900px)");
 
   /* ---------------- STATE ---------------- */
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [staff, setStaff] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [doctorId, setDoctorId] = useState("");
@@ -40,7 +49,12 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [noSlots, setNoSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  
 
+
+
+
+const [selectedClient, setSelectedClient] = useState(null);
   const [errors, setErrors] = useState({});
   const [snack, setSnack] = useState({
     open: false,
@@ -49,7 +63,33 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
   });
 
   const canShowSlots =
-    selectedBranch && doctorId && selectedDate && !loadingSlots;
+    selectedCompany && selectedDoctor && selectedDate && !loadingSlots;
+
+
+    const resetAppointmentForm = () => {
+
+  setSelectedCompany(null);
+  setSelectedDoctor(null);
+  setSelectedClient(null);
+
+  setSelectedBranch("");
+  setDoctorId("");
+
+  setPurpose("");
+
+  setSelectedDate(dayjs());
+
+  setSlots([]);
+  setSelectedSlot(null);
+
+  setDoctors([]);
+
+  setErrors({});
+
+  setNoSlots(false);
+
+};
+
 
   /* ---------------- FETCH STAFF ---------------- */
   useEffect(() => {
@@ -78,10 +118,47 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
       }
     };
 
+    
+
+    const fetchCompanies = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_URL}/api/admin/get`
+        );
+        const companiesData = res?.data?.data || [];
+        setCompanies(companiesData);
+      } catch {
+        setCompanies([]);
+      }
+    };
+
+    fetchCompanies();
+
     fetchStaff();
   }, [open]);
 
   /* ---------------- FILTER DOCTORS ---------------- */
+  const fetchDoctors = async (adminId) => {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_URL}/api/staff/doctors/client/${adminId}`,
+        { withCredentials: true },
+      );
+
+      if (res.data.success) {
+        setDoctors(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+    }
+  };
+
+useEffect(() => {
+  if (selectedCompany) {
+    fetchDoctors(selectedCompany);
+  }
+}, [selectedCompany]);
+
   useEffect(() => {
     if (!selectedBranch) {
       setDoctorsByBranch([]);
@@ -106,7 +183,7 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
 
   /* ---------------- FETCH SLOTS ---------------- */
   const fetchSlots = useCallback(async () => {
-    if (!open || !selectedBranch || !doctorId || !selectedDate) return;
+    if (!open || !selectedCompany || !selectedDoctor || !selectedDate) return;
 
     try {
       setLoadingSlots(true);
@@ -119,8 +196,7 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
         {
           params: {
             date: selectedDate.format("YYYY-MM-DD"),
-            branch: selectedBranch,
-            doctorId,
+            doctorId: selectedDoctor?.id,
           },
           withCredentials: true,
         },
@@ -140,7 +216,7 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
     } finally {
       setLoadingSlots(false);
     }
-  }, [open, selectedDate, selectedBranch, doctorId]);
+  }, [open, selectedDate, selectedCompany, selectedDoctor]);
 
   useEffect(() => {
     fetchSlots();
@@ -161,9 +237,9 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
     return false;
   };
 
-  const slotInstructionText = !selectedBranch
-    ? "Please select a branch to continue"
-    : !doctorId
+  const slotInstructionText = !selectedCompany
+    ? "Please select a hospital to continue"
+    : !selectedDoctor
       ? "Please select a doctor to view available slots"
       : "";
 
@@ -172,8 +248,8 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
     const newErrors = {};
 
     if (!purpose.trim()) newErrors.purpose = "Purpose is required";
-    if (!selectedBranch) newErrors.branch = "Select branch";
-    if (!doctorId) newErrors.doctor = "Select doctor";
+    if (!selectedCompany) newErrors.branch = "Select hospital";
+    if (!selectedDoctor) newErrors.doctor = "Select doctor";
     if (!selectedSlot) newErrors.slot = "Select time slot";
 
     setErrors(newErrors);
@@ -190,24 +266,23 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
       await axios.post(
         `${process.env.REACT_APP_URL}/appointment/appointment/request`,
         {
-          doctorId,
+          doctorId: selectedDoctor?.id,
           appointment_date: selectedDate.format("YYYY-MM-DD"),
           from_time: selectedSlot.slot_time_from,
           to_time: selectedSlot.slot_time_to,
           purpose: purpose.trim(),
-          selected_branch: selectedBranch.trim(),
+          selected_branch: selectedDoctor?.branch || "",
         },
         { withCredentials: true },
       );
 
       // CLOSE MODAL FIRST
-      handleClose();
-
-      // SHOW MESSAGE ON MAIN PAGE
       onSuccess?.({
         type: "success",
         msg: "Appointment booked successfully",
       });
+
+      handleClose();
     } catch {
       handleClose();
 
@@ -221,19 +296,19 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
   };
 
   /* ---------------- CLOSE ---------------- */
-  const handleClose = () => {
-    setSelectedBranch("");
-    setDoctorId("");
-    setDoctorsByBranch([]);
-    setPurpose("");
-    setSelectedDate(dayjs());
-    setSlots([]);
-    setSelectedSlot(null);
-    setErrors({});
-    setNoSlots(false);
-    setSnack({ open: false, msg: "", type: "success" });
-    onClose();
-  };
+ const handleClose = () => {
+
+  resetAppointmentForm();
+
+  setSnack({
+    open:false,
+    msg:"",
+    type:"success"
+  });
+
+  onClose();
+
+};
 
   const showSnack = (msg, type = "success") => {
     setSnack({ open: true, msg, type });
@@ -256,7 +331,7 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
             <CloseIcon />
           </IconButton>
 
-          <Box p={isMobile ? 1 : 1}>
+          <Box p={isMobile ? 1 : 0}>
             <Box
               display="flex"
               my={2}
@@ -370,9 +445,54 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
                     error={!!errors.purpose}
                     helperText={errors.purpose}
                     fullWidth
-                    size="small"
                   />
-                  <TextField
+                <Autocomplete
+  options={companies}
+  value={
+    companies.find(
+      (c)=>c.id===selectedCompany
+    ) || null
+  }
+  getOptionLabel={(option)=>option.company_name || ""}
+  onChange={(event,value)=>{
+
+    setSelectedCompany(value?.id || null);
+    setSelectedDoctor(null);
+
+  }}
+  renderInput={(params)=>(
+    <TextField
+      {...params}
+      label="Select Hospital"
+      placeholder="Search hospital..."
+      fullWidth
+    />
+  )}
+/>
+                  <Autocomplete
+                    options={doctors}
+                    value={selectedDoctor}
+                    onChange={(event, value) => {
+                      setSelectedDoctor(value);
+
+                      console.log("Selected Doctor:", value);
+                    }}
+                    getOptionLabel={(option) =>
+                      `${option.name} - ${option.branch}`
+                    }
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Doctor"
+                        placeholder="Search doctor..."
+                        fullWidth
+                      />
+                    )}
+                  />
+                  {/* <TextField
                     select
                     label="Branch"
                     value={selectedBranch}
@@ -387,9 +507,9 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
                         {branch}
                       </MenuItem>
                     ))}
-                  </TextField>
+                  </TextField> */}
                   {/* DOCTOR */}
-                  <TextField
+                  {/* <TextField
                     select
                     label="Doctor"
                     value={doctorId}
@@ -420,7 +540,7 @@ const AppointmentForm = ({ open, onClose, onSuccess }) => {
                         {doc.name}
                       </MenuItem>
                     ))}
-                  </TextField>
+                  </TextField> */}
 
                   {/* SUBMIT */}
                   <Box textAlign="center">

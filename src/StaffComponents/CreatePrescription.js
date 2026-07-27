@@ -40,11 +40,13 @@ export default function CreatePrescription() {
     chiefComplaint: "",
     treatmentPlan: "",
     doctorNotes: "",
+    diagnosis:"",
   });
   const [draftNotes, setDraftNotes] = useState({
     chiefComplaint: "",
     treatmentPlan: "",
     doctorNotes: "",
+    diagnosis: "",
   });
 
   /* Keep the editable draft in sync whenever the committed notes change
@@ -186,6 +188,8 @@ export default function CreatePrescription() {
       tests,
       notes: notes,
     };
+
+    console.log("Saving prescription with payload:", payload);
 
     const url = rxId
       ? `${BASE}/api/prescriptions/${rxId}`
@@ -522,6 +526,25 @@ export default function CreatePrescription() {
                                   setDraftNotes({
                                     ...draftNotes,
                                     chiefComplaint: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+
+                            <div className="rx-form-group">
+                              <div className="rx-form-group-header">
+
+                                <label>Diagnosis(or)Investigation</label>
+                              </div>
+                              <textarea
+                                rows={4}
+                                className="rx-input"
+                                placeholder="Enter the Investigation or Diagnosis..."
+                                value={draftNotes.diagnosis}
+                                onChange={(e) =>
+                                  setDraftNotes({
+                                    ...draftNotes,
+                                    diagnosis: e.target.value,
                                   })
                                 }
                               />

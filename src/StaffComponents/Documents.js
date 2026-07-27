@@ -32,6 +32,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from "@mui/icons-material/Close";
+import DialogActions from "@mui/material/DialogActions";
+import Skeleton from "@mui/material/Skeleton";
 
 function Documents() {
   const [clients, setClients] = useState([]);
@@ -52,6 +54,18 @@ function Documents() {
   const [selectedClientForUpload, setSelectedClientForUpload] = useState("");
   const [openViewer, setOpenViewer] = useState(false);
   const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [accessDialogOpen, setAccessDialogOpen] = useState(false);
+  const [accessDoc, setAccessDoc] = useState(null);
+  const [accessStatus, setAccessStatus] = useState("none");
+  const [requestingAccess, setRequestingAccess] = useState(false);
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpDoc, setOtpDoc] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null); // "view" | "download"
+  const [otpSendingSkeleton, setOtpSendingSkeleton] = useState(false);
+ 
 
   useEffect(() => {
     fetchClients();
@@ -97,6 +111,36 @@ function Documents() {
     setUploadedDate("");
     setDoctorName("");
   };
+
+  const checkAccess = async (doc) => {
+  
+  try {
+    const res = await api.get(`/api/documents/access-status/${doc.id}`);
+    if (res.data.status === "approved") return true;
+    setAccessDoc(doc);
+    setAccessStatus(res.data.status);
+    setAccessDialogOpen(true);
+    return false;
+  } catch {
+    setError("Failed to check access status");
+    return false;
+  }
+  };
+
+    const handleRequestAccess = async () => {
+      if (!accessDoc) return;
+      try {
+        setRequestingAccess(true);
+        const res = await api.post(`/api/documents/request-access/${accessDoc.id}`);
+        setAccessStatus(res.data.status || "pending");
+        setSuccess(res.data.message);
+      } catch (err) {
+        setError(err?.response?.data?.message || "Failed to request access");
+      } finally {
+        setRequestingAccess(false);
+      }
+    };
+
 
   const handleUploadFromMainPage = async () => {
     if (!selectedFile || !selectedClientForUpload) {
@@ -172,37 +216,7 @@ function Documents() {
     }
   };
 
-  const handleView = async (doc) => {
-    try {
-      setDocLoading(true);
-      const res = await api.get(`/api/documents/view-safe/${doc.id}`, {
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(res.data);
-      setViewDocUrl(url);
-      setOpenViewer(true);
-    } catch {
-      setError("Failed to load document");
-    } finally {
-      setDocLoading(false);
-    }
-  };
-
-  const handleDownload = async (doc) => {
-    try {
-      const res = await api.get(`/api/documents/download-safe/${doc.id}`, {
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(res.data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = doc.file_name;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch {
-      setError("Download failed");
-    }
-  };
+ 
 
   const getRoleColor = (role) => {
     switch (role?.toLowerCase()) {
@@ -438,6 +452,185 @@ function Documents() {
       </Stack>
     </Box>
   );
+
+
+ 
+
+
+const verifyOtp = async () => {
+  if (!otpDoc) {
+    setError("Document not selected");
+    return;
+  }
+  try {
+    setVerifyingOtp(true);
+    await api.post("/api/documents/verify-otp", {
+      documentId: otpDoc.id,
+      otp,
+    });
+    setOtpDialogOpen(false);
+
+    if (pendingAction === "view") {
+      await fetchAndShowDocument(otpDoc);
+    } else if (pendingAction === "download") {
+      await downloadDocument(otpDoc);
+    }
+  } catch (err) {
+    setError(err?.response?.data?.message || "OTP verification failed");
+  } finally {
+    setVerifyingOtp(false);
+    setPendingAction(null);
+  }
+};
+
+
+const fetchAndShowDocument = async (doc) => {
+  try {
+    setDocLoading(true);
+      const res = await api.get(`/api/documents/view-safe/${doc.id}`, {
+      responseType: "blob",
+    });
+
+    const contentType = res.headers["content-type"];
+
+    const blob = new Blob(
+      [res.data],
+      {
+        type: contentType
+      }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    setViewDocUrl(url);
+
+    setOpenViewer(true);
+  } catch (err) {
+    if (err.response?.data instanceof Blob) {
+      const text = await err.response.data.text();
+      try {
+        setError(JSON.parse(text).message);
+      } catch {
+        setError("Failed to load document");
+      }
+    } else {
+      setError(err.response?.data?.message || "Failed to load document");
+    }
+  } finally {
+    setDocLoading(false);
+  }
+};
+
+const downloadDocument = async (doc) => {
+  try {
+    const res = await api.get(`/api/documents/download-safe/${doc.id}`, {
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(res.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = doc.file_name;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    if (err.response?.data instanceof Blob) {
+      const text = await err.response.data.text();
+      try {
+        setError(JSON.parse(text).message);
+      } catch {
+        setError("Download failed");
+      }
+    } else {
+      setError(err.response?.data?.message || "Download failed");
+    }
+  }
+};
+
+
+const checkOtpStatusAndProceed = async (doc, action) => {
+  try {
+    const res = await api.get(`/api/documents/otp-status/${doc.id}`);
+
+    if (res.data.status === "verified") {
+      // still within the verified access window — skip OTP entirely
+      if (action === "view") {
+        await fetchAndShowDocument(doc);
+      } else if (action === "download") {
+        await downloadDocument(doc);
+      }
+      return;
+    }
+  } catch {
+    // if the status check fails, fall through to normal OTP flow
+  }
+
+  sendOtp(doc, action);
+};
+
+const handleView = (doc) => {
+  checkOtpStatusAndProceed(doc, "view");   // CHANGED: was sendOtp(doc, "view")
+};
+
+const handleDownload = (doc) => {
+  checkOtpStatusAndProceed(doc, "download");   // CHANGED: was sendOtp(doc, "download")
+};
+
+
+const sendOtp = async (doc, action) => {
+  try {
+    setSendingOtp(true);
+
+    // show skeleton loader
+    setOtpSendingSkeleton(true);
+
+    const res = await api.post(`/api/documents/send-otp/${doc.id}`);
+
+
+    // Already verified - no OTP required
+    if (res.data.alreadyVerified) {
+
+      setOtpSendingSkeleton(false);
+
+      if (action === "view") {
+        await fetchAndShowDocument(doc);
+      } 
+      else if (action === "download") {
+        await downloadDocument(doc);
+      }
+
+      return;
+    }
+
+
+    // OTP sent successfully
+    setOtpSendingSkeleton(false);
+
+
+    // Open OTP popup
+    setOtpDoc(doc);
+    setPendingAction(action);
+    setOtp("");
+
+    setOtpDialogOpen(true);
+
+    setSuccess(res.data.message);
+
+
+  } catch (err) {
+
+    setOtpSendingSkeleton(false);
+
+    setError(
+      err?.response?.data?.message || "Failed to send OTP"
+    );
+
+  } finally {
+
+    setSendingOtp(false);
+
+  }
+};
+
 
   return (
     <Box sx={{ bgcolor: "#F5F5F5", maxHeight: "100vh", overflow: "hidden" }}>
@@ -859,7 +1052,7 @@ function Documents() {
                                 </IconButton>
                               </Tooltip>
 
-                              <Tooltip title="Download" arrow>
+                              {/* <Tooltip title="Download" arrow>
                                 <IconButton
                                   size="small"
                                   sx={{
@@ -873,7 +1066,7 @@ function Documents() {
                                 >
                                   <DownloadIcon fontSize="small" />
                                 </IconButton>
-                              </Tooltip>
+                              </Tooltip> */}
 
                               {doc.uploaded_by_role?.toLowerCase() === "doctor" && (
                                 <Tooltip title="Delete" arrow>
@@ -922,56 +1115,191 @@ function Documents() {
             </Dialog>
 
             {/* DOCUMENT VIEWER MODAL */}
-            <Dialog open={openViewer} onClose={() => setOpenViewer(false)} maxWidth="lg" fullWidth>
-              <IconButton
-                aria-label="close"
-                onClick={() => setOpenViewer(false)}
-                sx={{
-                  position: "absolute",
-                  right: 8,
-                  top: 8,
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-              <DialogTitle>Document Preview</DialogTitle>
+          <Dialog
+  open={openViewer}
+  onClose={() => setOpenViewer(false)}
+  maxWidth={false}
+  PaperProps={{
+    sx: {
+      width: {
+        xs: "95%",
+        sm: "80%",
+        md: "70%",
+      },
+      height: {
+        xs: "85vh",
+        sm: "80vh",
+        md: "75vh",
+      },
+      maxHeight: "90vh",
+      borderRadius: 3,
+      overflow: "hidden",
+      position: "fixed",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      m: 0,
+    },
+  }}
+>
+  <IconButton
+    onClick={() => setOpenViewer(false)}
+    sx={{
+      position: "absolute",
+      right: 10,
+      top: 10,
+      zIndex: 2,
+      bgcolor: "white",
+      boxShadow: 2,
+    }}
+  >
+    <CloseIcon />
+  </IconButton>
 
-              <DialogContent
-                sx={{
-                  p: { xs: 1, sm: 2 },
-                }}
-              >
-                {docLoading ? (
-                  <Box display="flex" justifyContent="center" py={5}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: {
-                        xs: "75vh",
-                        sm: "65vh",
-                        md: "70vh",
-                      },
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      border: "1px solid #e0e0e0",
-                    }}
-                  >
-                    <iframe
-                      src={viewDocUrl}
-                      title="Document Preview"
-                      width="100%"
-                      height="100%"
-                      style={{
-                        border: "none",
-                      }}
-                    />
-                  </Box>
-                )}
-              </DialogContent>
-            </Dialog>
+
+  <DialogTitle sx={{ textAlign:"center" }}>
+    Document Preview
+  </DialogTitle>
+
+
+  <DialogContent
+    sx={{
+      p:0,
+      height:"100%",
+      overflow:"hidden",
+    }}
+  >
+
+    {docLoading ? (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+      >
+        <CircularProgress />
+      </Box>
+    ) : (
+
+      <iframe
+        src={`${viewDocUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+        title="Document Preview"
+        width="100%"
+        height="100%"
+        style={{
+          border:"none",
+          display:"block"
+        }}
+      />
+
+    )}
+
+  </DialogContent>
+
+</Dialog>
+
+<Dialog
+  open={otpSendingSkeleton}
+  maxWidth="xs"
+  fullWidth
+>
+  <DialogContent>
+
+    <Box
+      sx={{
+        p:3,
+        display:"flex",
+        flexDirection:"column",
+        alignItems:"center"
+      }}
+    >
+
+      {/* Header */}
+      <Skeleton
+        variant="text"
+        width="60%"
+        height={35}
+      />
+
+
+      {/* Description */}
+      <Skeleton
+        variant="text"
+        width="90%"
+        height={25}
+      />
+
+
+      {/* OTP Field */}
+      <Skeleton
+        variant="rounded"
+        width="100%"
+        height={55}
+        sx={{
+          mt:3,
+          borderRadius:2
+        }}
+      />
+
+
+      {/* Buttons */}
+      <Box
+        sx={{
+          display:"flex",
+          justifyContent:"flex-end",
+          gap:2,
+          width:"100%",
+          mt:3
+        }}
+      >
+
+        <Skeleton
+          variant="rounded"
+          width={80}
+          height={36}
+        />
+
+
+        <Skeleton
+          variant="rounded"
+          width={90}
+          height={36}
+        />
+
+      </Box>
+
+
+    </Box>
+
+  </DialogContent>
+</Dialog>
+
+          <Dialog open={otpDialogOpen} onClose={() => setOtpDialogOpen(false)} maxWidth="xs" fullWidth>
+  <DialogTitle>OTP Verification</DialogTitle>
+  <DialogContent>
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      Enter the OTP sent to the patient's email.
+    </Typography>
+    <TextField
+      fullWidth
+      label="OTP"
+      value={otp}
+      onChange={(e) => setOtp(e.target.value)}
+      inputProps={{ maxLength: 6 }}
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOtpDialogOpen(false)}>Cancel</Button>
+    <Button
+      variant="contained"
+      sx={{ bgcolor: "#5A9BA5" }}
+      disabled={verifyingOtp}
+      onClick={verifyOtp}
+    >
+      {verifyingOtp ? <CircularProgress size={20} color="inherit" /> : "Verify"}
+    </Button>
+  </DialogActions>
+</Dialog>
           </>
         )}
       </Box>

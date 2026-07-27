@@ -14,7 +14,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useEffect } from "react";
 import api from "./services/api";
-
+import PersonIcon from "@mui/icons-material/Person";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import EventIcon from "@mui/icons-material/Event";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -101,6 +101,12 @@ const hasAccess = (itemKey) => {
           module_key: "prescriptions",
           icon: <MedicationIcon />,
           path: "/doctor/dashboard/prescription",
+        },
+        {
+          text: " IPD Doctor Visits",
+          module_key: "ipd",
+          icon: <PersonIcon />,
+          path: "doctorvisits",
         },
         {
           text: "Logout",

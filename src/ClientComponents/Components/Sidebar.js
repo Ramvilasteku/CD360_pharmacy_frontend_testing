@@ -16,7 +16,7 @@ import { NavLink } from "react-router-dom";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import ReceiptIcon from "@mui/icons-material/Receipt";
+// import ReceiptIcon from "@mui/icons-material/Receipt";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -32,6 +32,17 @@ import { useEffect, useState } from "react";
 import { COLORS } from "../Themes";
 import ClientProfileModal from "../ClientProfileModal";
 import axios from "axios";
+import Collapse from "@mui/material/Collapse";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import HistoryIcon from '@mui/icons-material/History';
+import RestoreIcon from '@mui/icons-material/Restore';
+import BedIcon from '@mui/icons-material/Bed';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 
 export const drawerWidth = 240;
 export const drawerWidthClosed = 70;
@@ -60,26 +71,46 @@ export default function Sidebar({ isOpen, onToggle }) {
   const UserName = localStorage.getItem("userName");
   // ✅ GET MODULES FROM STORAGE
   const [allowedModules, setAllowedModules] = useState([]);
+  const [openIPD, setOpenIPD] = useState(false);
 
- 
+  const ipdSubMenu = [
+    {
+      text: "Application History",
+      module_key: "ipd_history",
+      icon: <BedIcon />,
+      path: "ipdhistory",
+    },
+    {
+      text: "IPD Bills",
+      module_key: "ipd_bills",
+      icon: <ReceiptIcon />,
+      path: "ipdbills",
+    },
+    {
+      text: "IPD Payments",
+      module_key: "ipd_payments",
+      icon: <CurrencyRupeeIcon />,
+      path: "ipdpayments",
+    },
+  ];
 
-useEffect(() => {
-  const storedModules = localStorage.getItem("modules");
+  useEffect(() => {
+    const storedModules = localStorage.getItem("modules");
 
-  console.log("RAW:", storedModules); // 👈 ADD
-  if (storedModules) {
-    try {
-      const parsed = JSON.parse(storedModules);
-      console.log("PARSED:", parsed); // 👈 ADD
-      setAllowedModules(parsed);
-    } catch (err) {
-      console.error("Invalid modules JSON", err);
-      setAllowedModules([]);
+    console.log("RAW:", storedModules); // 👈 ADD
+    if (storedModules) {
+      try {
+        const parsed = JSON.parse(storedModules);
+        console.log("PARSED:", parsed); // 👈 ADD
+        setAllowedModules(parsed);
+      } catch (err) {
+        console.error("Invalid modules JSON", err);
+        setAllowedModules([]);
+      }
     }
-  }
-}, []);
+  }, []);
 
-    const handleConfirmLogout = async () => {
+  const handleConfirmLogout = async () => {
     try {
       await axios.post(
         `${process.env.REACT_APP_URL}/logout`,
@@ -99,81 +130,112 @@ useEffect(() => {
   };
 
   const moduleAccessMap = {
-  appointments: ["appointments", "reviews"],
-  attendance: ["attendance", "leave_requests"],
-  prescriptions: [
-    "medicine",
-    "medical_tests",
-    "consultation_types",
-    "prescriptions",
-  ],
-  documents: ["documents"],
-  bills: ["bills"],
-  notifications: ["notifications"],
-  clients: ["clients"],
-  employees: ["employees"],
-};
+    appointments: ["appointments", "reviews"],
+    attendance: ["attendance", "leave_requests"],
+    prescriptions: [
+      "medicine",
+      "medical_tests",
+      "consultation_types",
+      "prescriptions",
+    ],
+    documents: ["documents"],
+    bills: ["bills"],
+    notifications: ["notifications"],
+    clients: ["clients"],
+    employees: ["employees"],
+    ipd: ['ipd_history', 'ipd_bills']
+  };
 
-const hasAccess = (itemKey) => {
-  return allowedModules.some((module) => {
-    const children = moduleAccessMap[module];
+  const hasAccess = (itemKey) => {
+    return allowedModules.some((module) => {
+      const children = moduleAccessMap[module];
 
-    // if module has child mapping
-    if (children) {
-      return children.includes(itemKey);
+      // match direct module
+      if (module === itemKey) return true;
+
+      // match children
+      if (children) {
+        return children.includes(itemKey);
+      }
+
+      return false;
+    });
+  };
+
+
+  const menuItems = [
+    {
+      text: "Dashboard",
+      module_key: "dashboard",
+      icon: <DashboardIcon />,
+      path: "dashboard",
+    },
+    {
+      text: "Document Upload",
+      module_key: "documents",
+      icon: <UploadFileIcon />,
+      path: "documents",
+    },
+    {
+      text: "Appointment",
+      module_key: "appointments",
+      icon: <EventIcon />,
+      path: "appointment",
+    },
+    {
+      text: "Reviews",
+      module_key: "appointment_review", // ✅ FIXED
+      icon: <StarBorderIcon />,
+      path: "reviews",
+    },
+    {
+      text: "Bills",
+      module_key: "bills",
+      icon: <ReceiptIcon />,
+      path: "bills",
+    },
+    {
+      text: "Prescriptions",
+      module_key: "prescriptions",
+      icon: <ReceiptIcon />,
+      path: "prescriptions",
+    },
+    // {
+    //    text: "Ipd History",
+    //   module_key: "ipd_history",
+    //   icon: <ReceiptIcon />,
+    //   path: "ipdhistory",
+    // },
+    // {
+    //    text: "Ipd Bills",
+    //   module_key: "ipd_bills",
+    //   icon: <ReceiptIcon />,
+    //   path: "ipdbills",
+    // }
+    {
+      text: "IPD",
+      module_key: "ipd",
+      icon: <LocalHospitalIcon />,
+      children: [
+        { text: "History", module_key: "ipd_history", icon: <HistoryIcon />, path: "ipdhistory" },
+        { text: "Bills", module_key: "ipd_bills", icon: <HistoryIcon />, path: "ipdbills" },
+        { text: "Payments", module_key: "ipd_payments", icon: <CurrencyRupeeIcon />, path: "ipdpayments" }
+      ]
+    }
+  ];
+
+  const defaultModules = ["dashboard", "profile"];
+
+  moduleAccessMap.ipd = ["ipd_history", "ipd_bills", "ipd_payments"];
+
+  const ipdVisible = ipdSubMenu.some((sub) => hasAccess(sub.module_key));
+  const filteredMenu = menuItems.filter((item) => {
+    if (item.module_key === "ipd") {
+      return ipdVisible; // 👈 show only if DB has any IPD permission
     }
 
-    // fallback direct match
-    return module === itemKey;
+    return hasAccess(item.module_key);
   });
-};
-
-
-const menuItems = [
-  {
-    text: "Dashboard",
-    module_key: "dashboard",
-    icon: <DashboardIcon />,
-    path: "dashboard",
-  },
-  {
-    text: "Document Upload",
-    module_key: "documents",
-    icon: <UploadFileIcon />,
-    path: "documents",
-  },
-  {
-    text: "Appointment",
-    module_key: "appointments",
-    icon: <EventIcon />,
-    path: "appointment",
-  },
-  {
-    text: "Reviews",
-    module_key: "appointment_review", // ✅ FIXED
-    icon: <StarBorderIcon />,
-    path: "reviews",
-  },
-  {
-    text: "Bills",
-    module_key: "bills",
-    icon: <ReceiptIcon />,
-    path: "bills",
-  },
-  {
-    text: "Prescriptions",
-    module_key: "prescriptions",
-    icon: <ReceiptIcon />,
-    path: "prescriptions",
-  },
-];
-
-const defaultModules = ["dashboard", "profile"];
-
-const filteredMenu = menuItems.filter(
-  (item) =>
-    defaultModules.includes(item.module_key) || hasAccess(item.module_key)
-);
 
   const getAvatarLetters = (name = "") => {
     if (!name) return "?";
@@ -186,17 +248,20 @@ const filteredMenu = menuItems.filter(
   const [openProfile, setOpenProfile] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(new Date());
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
   const formattedTime = currentTime.toLocaleTimeString();
   const formattedDate = currentTime.toLocaleDateString();
 
   const [companyName, setCompanyName] = useState("");
   const [companyLogo, setCompanyLogo] = useState("");
+
   useEffect(() => {
     const fetchCompanyInfo = async () => {
       try {
@@ -333,47 +398,31 @@ const filteredMenu = menuItems.filter(
       <Box
         sx={{
           flex: 1,
-          background: `linear-gradient(180deg, ${COLORS.primary} 0%,${COLORS.softBg} 100%)`,
-
+          display: "flex",
+          flexDirection: "column",
+          background: `linear-gradient(180deg, ${COLORS.primary} 0%, ${COLORS.softBg} 100%)`,
           borderTopRightRadius: { md: 80, xs: 40 },
-          pt: { xs: 2, sm: 0 }, // ✅ 5 × 8px = 40px on mobile
-          overflowY: "auto", // ✅ ENABLE SCROLL
-          overflowX: "hidden",
-
-          // ✅ smooth scrollbar (optional but professional)
-          "&::-webkit-scrollbar": {
-            width: "6px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "rgba(90, 85, 85, 0.3)",
-            borderRadius: "4px",
-          },
+          overflow: "hidden", // important
         }}
       >
         {/* Decorative divider */}
-        <Box
+        {/* <Box
           sx={{
             height: "1px",
             backgroundColor: "rgba(255, 255, 255, 0.2)",
             mx: 2,
             my: 1,
           }}
-        />
+        /> */}
 
         {/* Toggle Button */}
 
         {/* ================= PROFILE ================= */}
         <Box
           sx={{
+            flexShrink: 0,
             py: { xs: 1, md: 4 },
             px: isOpen ? 3 : 0,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            position: "sticky",
-            top: 0,
-            zIndex: 10, // important for sidebar stickiness
           }}
         >
           {/* Avatar */}
@@ -439,7 +488,7 @@ const filteredMenu = menuItems.filter(
               }}
             />
 
-            <Box sx={{ fontSize: { xs: "10px", md: "18px" } }}>
+            <Box sx={{ fontSize: { xs: "10px", md: "15px" } }}>
               {formattedTime}
             </Box>
           </Typography>
@@ -447,9 +496,9 @@ const filteredMenu = menuItems.filter(
           {/* Divider (NOT sticky) */}
           <Box
             sx={{
-              height: "2px",
+              height: "1px",
               backgroundColor: "rgba(255, 255, 255, 0.53)",
-              mx: 2,
+              mx: 1,
               my: 1,
               width: "100%",
               borderRadius: 2,
@@ -460,101 +509,176 @@ const filteredMenu = menuItems.filter(
         {/* White divider after Profile */}
 
         {/* Menu */}
-        <List sx={{ px: 2 }}>
-          {filteredMenu.map((item) => (
-            <ListItem
-              key={item.text}
-              component={NavLink}
-              to={item.path}
-              end={item.path === "/"}
-              sx={{
-                mb: 0.5,
-                borderRadius: 2,
-                color: "white",
-                textDecoration: "none",
-                justifyContent: isOpen ? "flex-start" : "center",
-                px: isOpen ? 2 : 1,
-                py: 1,
-                minHeight: "44px",
-                transition: "all 0.2s",
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            overflowX: "hidden",
+            px: 1,
 
-                "&.active": {
-                  backgroundColor: "rgba(255, 255, 255, 0.25)",
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                },
-                "&.active .MuiListItemIcon-root": {
-                  color: "white",
-                  transform: "scale(1.1)",
-                },
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.15)",
-                },
-              }}
-            >
-              <Tooltip
-                title={!isOpen ? `${item.text}` : `${item.text}`}
-                placement="right"
-                arrow
-              >
-                <ListItemIcon
+            "&::-webkit-scrollbar": {
+              width: "6px",
+            },
+
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
+
+            "&::-webkit-scrollbar-thumb": {
+              background: "rgba(255,255,255,0.3)",
+              borderRadius: "20px",
+            },
+
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "rgba(255,255,255,0.5)",
+            },
+          }}
+        >
+          <List sx={{ px: 2 }}>
+            {menuItems.map((item) => {
+              // Parent Menu (IPD)
+              if (item.children) {
+                return (
+                  <Box key={item.module_key}>
+                    <ListItem
+                      onClick={() => setOpenIPD(!openIPD)}
+                      sx={{
+                        color: "white",
+                        borderRadius: 2,
+                        cursor: "pointer",
+                        justifyContent: isOpen ? "flex-start" : "center",
+                        "&:hover": {
+                          backgroundColor: "rgba(255,255,255,0.15)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          color: "white",
+                          minWidth: isOpen ? 36 : "auto",
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+
+                      {isOpen && <ListItemText primary={item.text} />}
+
+                      {isOpen &&
+                        (openIPD ? <ExpandLess /> : <ExpandMore />)}
+                    </ListItem>
+
+                    <Collapse in={openIPD} timeout="auto" unmountOnExit>
+                      <List component="div" disablePadding>
+                        {item.children.map((sub) => (
+                          <ListItem
+                            key={sub.module_key}
+                            component={NavLink}
+                            to={sub.path}
+                            sx={{
+                              pl: 4,
+                              color: "white",
+                              borderRadius: 2,
+                              "&.active": {
+                                backgroundColor:
+                                  "rgba(255,255,255,0.2)",
+                              },
+                            }}
+                          >
+                            <ListItemIcon
+                              sx={{
+                                color: "white",
+                                minWidth: 32,
+                              }}
+                            >
+                              {sub.icon}
+                            </ListItemIcon>
+
+                            <ListItemText primary={sub.text} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Collapse>
+                  </Box>
+                );
+              }
+
+              // Normal Menu
+              return (
+                <ListItem
+                  key={item.module_key}
+                  component={NavLink}
+                  to={item.path}
                   sx={{
-                    minWidth: isOpen ? 36 : "auto",
-                    justifyContent: "center",
-                    color: COLORS.texWhite,
-                    transition: "all 0.2s",
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-              </Tooltip>
-              {isOpen && (
-                <ListItemText
-                  primary={item.text}
-                  sx={{
-                    "& .MuiTypography-root": {
-                      fontSize: "14px",
-                      fontWeight: 500,
+                    mb: 0.5,
+                    borderRadius: 2,
+                    color: "white",
+                    textDecoration: "none",
+                    justifyContent: isOpen ? "flex-start" : "center",
+                    px: isOpen ? 2 : 1,
+                    py: 1,
+                    minHeight: "44px",
+
+                    "&.active": {
+                      backgroundColor:
+                        "rgba(255,255,255,0.25)",
+                    },
+
+                    "&:hover": {
+                      backgroundColor:
+                        "rgba(255,255,255,0.15)",
                     },
                   }}
-                />
-              )}
-            </ListItem>
-          ))}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: isOpen ? 36 : "auto",
+                      color: "white",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+
+                  {isOpen && (
+                    <ListItemText primary={item.text} />
+                  )}
+                </ListItem>
+              );
+            })}
+          </List>
+        </Box>
+
+        {/* Logout */}
+        <Box
+          sx={{
+            flexShrink: 0,
+            p: 2,
+            borderTop: "1px solid rgba(255,255,255,0.15)",
+          }}
+        >
           <ListItem
             onClick={handleConfirmLogout}
             sx={{
-              display: "flex", // ✅ force row
-              alignItems: "center", // ✅ vertical align
-              gap: 1, // ✅ space between icon & text
               color: "white",
               borderRadius: 2,
               cursor: "pointer",
               justifyContent: isOpen ? "flex-start" : "center",
-              "&:hover": { backgroundColor: "rgba(255,0,0,0.25)" },
+              "&:hover": {
+                backgroundColor: "rgba(255,0,0,0.25)",
+              },
             }}
           >
             <ListItemIcon
               sx={{
-                minWidth: "unset", // ✅ prevents extra spacing
+                minWidth: isOpen ? 36 : "auto",
                 color: "white",
               }}
             >
               <LogoutIcon />
             </ListItemIcon>
 
-            {isOpen && (
-              <ListItemText
-                primary="Logout"
-                sx={{
-                  "& .MuiTypography-root": {
-                    fontSize: "14px",
-                    fontWeight: 500,
-                  },
-                }}
-              />
-            )}
+            {isOpen && <ListItemText primary="Logout" />}
           </ListItem>
-        </List>
+        </Box>
       </Box>
 
       <ClientProfileModal
@@ -571,6 +695,6 @@ const filteredMenu = menuItems.filter(
           Thank you 👋 Logged out successfully
         </Alert>
       </Snackbar>
-    </Drawer>
+    </Drawer >
   );
 }

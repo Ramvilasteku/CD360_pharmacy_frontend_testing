@@ -360,6 +360,7 @@ export default function EditPrescription({ prescriptionId, onClose, onSaved }) {
   chiefComplaint: "",
   treatmentPlan: "",
   doctorNotes: "",
+  diagnosis: "",
 });
   // Ref to scroll the right panel to top when switching sections
   const rightPanelRef = useRef(null);
@@ -418,6 +419,7 @@ export default function EditPrescription({ prescriptionId, onClose, onSaved }) {
       setNotes({
     chiefComplaint: rx.appointment?.purpose || "",
     treatmentPlan: rx.description || "",
+    diagnosis: rx.diagnosis || "",
     doctorNotes: rx.notes || "",
 });
  
@@ -621,6 +623,33 @@ export default function EditPrescription({ prescriptionId, onClose, onSaved }) {
                             setNotes({
                               ...notes,
                               chiefComplaint: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div style={{ marginBottom: 20 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 600, mb: 1 }}
+                        >
+                          Diagnosis (or) Investigation
+                        </Typography>
+ 
+                        <textarea
+                          rows={4}
+                          style={{
+                            width: "100%",
+                            padding: "10px",
+                            borderRadius: "8px",
+                            border: "1px solid #d1d5db",
+                            resize: "vertical",
+                          }}
+                          value={notes.diagnosis}
+                          onChange={(e) =>
+                            setNotes({
+                              ...notes,
+                              diagnosis: e.target.value,
                             })
                           }
                         />

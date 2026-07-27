@@ -121,6 +121,7 @@ export default function PrescriptionTable({ refreshKey }) {
             chiefComplaint: json.data.appointment?.purpose || "",
             treatmentPlan: json.data.description || "",
             doctorNotes: json.data.notes || "",
+            diagnosis: json.data.diagnosis || "",
         }
     });
  

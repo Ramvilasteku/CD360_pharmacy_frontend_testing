@@ -122,6 +122,8 @@ export default function OtpVerification() {
                 localStorage.setItem("userName", data.name);
                 localStorage.setItem("role", data.role);
                 localStorage.setItem("adminId", data.adminId);
+               
+                localStorage.setItem("branch", data.branch || "");  // ← always set, even if empty
                 localStorage.setItem("modules", JSON.stringify(data.modules));
                 // localStorage.setItem("id", data.id);
                 // localStorage.setItem("role", data.user.role);

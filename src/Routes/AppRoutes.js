@@ -12,6 +12,8 @@ import ProtectedRoute from '../StaffComponents/ProtectedRoute';
 import Document from '../StaffComponents/Documents';
 import Profile from '../StaffComponents/Profile';
 import AddPrescription from "../StaffComponents/CreatePrescription";
+import Doctorvisits from "../StaffComponents/IPD/DoctorVisits";
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -33,6 +35,7 @@ export default function AppRoutes() {
         <Route path="profile" element={<Profile />} />
         <Route path="prescription" element={<AddPrescription />} />
         {/* <Route path="calculator" element={<Calculator />} /> */}
+         <Route path="doctorvisits" element={<Doctorvisits />} />
       </Route>
 
       {/* <Route path="/" element={<Navigate to="/dashboard" />} /> */}

@@ -3,13 +3,11 @@
    Print is handled via dedicated popup window in JSX
    A4 = 794px × 1123px @96dpi
 ========================================================= */
-
-*,
-*::before,
-*::after {
+ 
+*, *::before, *::after {
   box-sizing: border-box;
 }
-
+ 
 /* =========================
    SCROLL WRAPPER
 ========================= */
@@ -22,7 +20,7 @@
   flex-direction: column;
   align-items: center;
 }
-
+ 
 /* =========================
    A4 PAGE CARD
 ========================= */
@@ -41,18 +39,18 @@
   position: relative;
   flex-shrink: 0;
 }
-
+ 
 .rx-body-content {
   flex: 1;
 }
-
+ 
 .rx-page-num {
   text-align: right;
   font-size: 10px;
   color: #aaa;
   margin-top: 12px;
 }
-
+ 
 /* =========================
    HEADER
 ========================= */
@@ -60,7 +58,7 @@
   flex-shrink: 0;
   margin-bottom: 4px;
 }
-
+ 
 .rx-header-top {
   display: flex;
   align-items: center;
@@ -68,12 +66,12 @@
   gap: 12px;
   margin-bottom: 10px;
 }
-
+ 
 .rx-header-logo {
   flex-shrink: 0;
   width: 70px;
 }
-
+ 
 .rx-logo {
   width: 64px;
   height: 64px;
@@ -81,7 +79,7 @@
   border-radius: 6px;
   display: block;
 }
-
+ 
 .rx-logo-placeholder {
   width: 64px;
   height: 64px;
@@ -95,12 +93,12 @@
   justify-content: center;
   font-family: Georgia, serif;
 }
-
+ 
 .rx-header-center {
   flex: 1;
   text-align: center;
 }
-
+ 
 .rx-clinic-name {
   font-size: 22px;
   font-weight: 700;
@@ -108,13 +106,13 @@
   letter-spacing: 0.02em;
   line-height: 1.2;
 }
-
+ 
 .rx-branch {
   font-size: 11.5px;
   color: #666;
   margin-top: 3px;
 }
-
+ 
 .rx-header-right {
   font-size: 11px;
   line-height: 1.7;
@@ -123,42 +121,42 @@
   color: #333;
   flex-shrink: 0;
 }
-
+ 
 .clinic-address {
   color: #555;
   line-height: 1.45;
   margin-top: 2px;
 }
-
+ 
 .rx-divider {
   border: none;
   border-top: 2.5px solid #3f6f7a;
   margin: 0 0 10px;
 }
-
+ 
 .rx-divider-thin {
   border: none;
   border-top: 1px solid #ccc;
   margin: 10px 0 6px;
 }
-
+ 
 /* ── Meta row ── */
 .rx-meta {
   display: flex;
   justify-content: space-between;
 }
-
+ 
 .rx-meta-block {
   flex: 1;
   padding: 4px 0;
 }
-
-.rx-meta-block+.rx-meta-block {
+ 
+.rx-meta-block + .rx-meta-block {
   border-left: 1px solid #e8e8e8;
   padding-left: 16px;
   margin-left: 16px;
 }
-
+ 
 .rx-label {
   font-size: 9px;
   font-weight: 700;
@@ -167,21 +165,21 @@
   color: #3f6f7a;
   margin-bottom: 3px;
 }
-
+ 
 .rx-meta-val {
   font-size: 13.5px;
   font-weight: 700;
   color: #111;
   line-height: 1.3;
 }
-
+ 
 .rx-meta-small {
   font-size: 10.5px;
   color: #666;
   display: block;
   margin-top: 2px;
 }
-
+ 
 /* =========================
    CONTENT BODY
 ========================= */
@@ -195,19 +193,14 @@
   padding-bottom: 3px;
   margin: 16px 0 7px;
 }
-
-.rx-table-wrapper {
-  width: 100%;
-  margin-top: 16px;
-}
-
+ 
 .rx-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 11.5px;
   font-family: "Georgia", "Times New Roman", serif;
 }
-
+ 
 .rx-table th {
   background: #e8eaf6;
   color: #3f6f7a;
@@ -219,18 +212,18 @@
   text-align: left;
   border-bottom: 1px solid #c5cae9;
 }
-
+ 
 .rx-table td {
   padding: 6px 8px;
   border-bottom: 1px solid #f0f0f0;
   vertical-align: top;
   color: #222;
 }
-
+ 
 .rx-table tbody tr:nth-child(even) td {
   background: #fafafa;
 }
-
+ 
 .rx-notes {
   background: #f7f7f7;
   border-left: 3px solid #3f6f7a;
@@ -240,7 +233,6 @@
   line-height: 1.6;
   color: #333;
 }
-
 /* =========================
    SIGNATURE (body, when header is off)
 ========================= */
@@ -249,7 +241,7 @@
   margin-top: 16px;
   line-height: 1.55;
 }
-
+ 
 .rx-sign-label {
   font-size: 9px;
   font-weight: 700;
@@ -257,18 +249,18 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-
+ 
 .rx-sign-name {
   font-size: 12.5px;
   font-weight: 700;
   color: #1a1a2e;
 }
-
+ 
 .rx-sign-qual {
   font-size: 10px;
   color: #666;
 }
-
+ 
 /* =========================
    FOOTER — full layout, hidden via visibility when header is off
 ========================= */
@@ -278,7 +270,7 @@
   align-items: flex-start;
   gap: 12px;
 }
-
+ 
 .rx-footer {
   flex-shrink: 0;
   margin-top: auto;
@@ -287,144 +279,52 @@
   font-size: 11px;
   color: #333;
 }
-
+ 
 .rx-footer-left {
   display: flex;
   align-items: center;
   gap: 8px;
   flex: 1;
 }
-
+ 
 .rx-footer-logo {
   width: 32px;
   height: 32px;
   object-fit: contain;
   border-radius: 4px;
 }
-
+ 
 .rx-footer-name {
   font-weight: 700;
   color: #3f6f7a;
   font-size: 12px;
 }
-
+ 
 .rx-signature-area-center {
   text-align: center;
   flex: 1;
   line-height: 1.55;
 }
-
+ 
 .rx-footer-right {
   text-align: right;
   flex: 1;
   line-height: 1.7;
   font-size: 11px;
 }
-
+ 
 .rx-header-top-spacer {
   width: 100%;
   height: 120px;
 }
-
+ 
 .rx-hidden-branding {
   visibility: hidden;
 }
-
+ 
 .rx-continuation {
   font-size: 10px;
   color: #888;
   font-style: italic;
   padding-bottom: 6px;
-}
-
-@media (max-width:768px) {
-
-  .rx-preview-scroll {
-    padding: 10px;
-    align-items: center;
-  }
-
-  .rx-page {
-    width: 100%;
-    min-height: auto;
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
-  }
-
-  .rx-header-top {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .rx-header-right {
-    text-align: center;
-    max-width: 100%;
-  }
-
-  .rx-body-content {
-    flex: 1;
-  }
-
-  .rx-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .rx-table {
-    display: table !important;
-    width: 700px !important;
-    table-layout: fixed;
-    border-collapse: collapse;
-  }
-
-  .rx-table thead {
-    display: table-header-group !important;
-    font-size: 5px;
-  }
-
-  .rx-table tbody {
-    display: table-row-group !important;
-  }
-
-  .rx-table tr {
-    display: table-row !important;
-  }
-
-  .rx-table th,
-  .rx-table td {
-    display: table-cell !important;
-    vertical-align: top;
-    padding: 2px 2px;
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .rx-section-title {
-    font-size: 11px;
-  }
-
-  .rx-meta {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .rx-meta-block+.rx-meta-block {
-    border-left: none;
-    border-top: 1px solid #eee;
-    padding-left: 0;
-    margin-left: 0;
-    padding-top: 10px;
-  }
-
-  .rx-footer-full {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .rx-footer-right {
-    text-align: center;
-  }
 }

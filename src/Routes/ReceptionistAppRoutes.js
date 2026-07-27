@@ -17,6 +17,14 @@ import Slots from '../ReceptionistComponents/TimeSlots/TimeSlots';
 import Prescription from '../ReceptionistComponents/AddPrescription';
 import AddMedicine from '../ReceptionistComponents/AddMedicine';
 import AddTests from '../ReceptionistComponents/AddTests';
+// import Ipd from '../ReceptionistComponents/IPD/Ipd';
+import BedAllocation from '../ReceptionistComponents/IPD/BedAllocation.js';
+import BedCreation from '../ReceptionistComponents/IPD/BedCreation.js';
+import IpdAdmission from '../ReceptionistComponents/IPD/IpdAdmission.js';
+import IpdBills from '../ReceptionistComponents/IPD/IpdBills.js';
+import IpdDetails from '../ReceptionistComponents/IPD/IpdDetails.js';
+import IpdPayments from '../ReceptionistComponents/IPD/Payments.js';
+
 
 export default function ReceptionistAppRoutes() {
   return (
@@ -47,6 +55,15 @@ export default function ReceptionistAppRoutes() {
         <Route path="medicaltests" element={<AddTests />} />
         <Route path="prescription" element={<Prescription />} />
         {/* <Route path="calculator" element={<Calculator />} /> */}
+
+       
+                <Route path="ipd/bed-creation" element={<BedCreation />} />
+                <Route path="ipd/ipd-admission" element={<IpdAdmission />} />
+                <Route path="ipd/bed-allocation" element={<BedAllocation />} />
+                <Route path="ipd/ipd-bills" element={<IpdBills />} />
+                <Route path="ipd/ipd-details" element={<IpdDetails />} />
+                <Route path="ipd/ipd-payments" element={<IpdPayments />} />
+
       </Route>
 
       <Route path="*" element={<h2>404 | Page Not Found</h2>} />

@@ -2,75 +2,139 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function RoleModuleManager() {
+
+  const [initialLoaded, setInitialLoaded] = useState(false);
   const [selectedRole, setSelectedRole] = useState("doctor");
+
+  // ✅ Modules assigned to selected role
   const [selectedModules, setSelectedModules] = useState([]);
+
+  // ✅ All modules created by admin
+  const [allModules, setAllModules] = useState([]);
+
+  // ✅ Admin allowed modules
+  const [adminModules, setAdminModules] = useState([]);
+
+  // ✅ Modal state
+  const [showModal, setShowModal] = useState(false);
 
   const API = process.env.REACT_APP_SITE_URL;
 
-  // 🎯 Role Modules
-  const ROLE_MODULES = {
-    doctor: ["appointments", "attendance", "documents", "prescriptions"],
-    receptionist: ["appointments", "attendance", "documents", "bills", "clients"],
-    client: ["documents", "appointments", "bills", "prescriptions"],
-  };
-
-  // 📘 Descriptions (ROLE BASED)
+  // 📘 Descriptions
   const MODULE_DESCRIPTIONS = {
-    receptionist: {
-      appointments:
-        "Manage patient bookings, update/cancel appointments and handle reviews.",
-      attendance:
-        "Maintain attendance, manage leave requests and view leave status of doctors",
-      documents:
-        "Upload and manage patient documents.",
-      bills:
-        "Create, edit, update bills and generate invoices.",
-      clients:
-        "Add new patients and can delete patient records",
-    },
-    doctor: {
-      appointments:
-        "View appointments, update status, cancel and view reviews.",
-      attendance:
-        "Maintain the  attendance and manage leave requests.",
-      documents:
-        "Upload reports, view, download and delete patient files.",
-      prescriptions:
-        "Create, edit, delete, download and email the prescriptions.",
-    },
-    client: {
-      documents:
-        "Upload and view reports shared by doctors.",
-      appointments:
-        "View own appointments, cancel bookings and give reviews.",
-      bills:
-        "View and download bills.",
-      prescriptions:
-        "View and download prescriptions.",
-    },
+    appointments:
+      "Manage appointments, bookings and patient scheduling.",
+
+    attendance:
+      "Maintain attendance and leave management.",
+
+    documents:
+      "Upload, manage and download documents.",
+
+    bills:
+      "Create and manage billing and invoices.",
+
+    clients:
+      "Manage patients and client records.",
+
+    prescriptions:
+      "Create and manage prescriptions.",
+
+    ipd:
+      "Manage IPD admissions and inpatient details.",
   };
 
   useEffect(() => {
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+  if(initialLoaded){
     fetchRoleModules(selectedRole);
-  }, [selectedRole]);
+  }
+}, [selectedRole, initialLoaded]);
 
-  const fetchRoleModules = async (role) => {
-    try {
-      const res = await axios.get(`${API}/api/role-modules/${role}`, {
+  // ✅ Fetch all modules + admin allowed modules
+  const fetchInitialData = async () => {
+  try {
+    const [allRes, adminRes] = await Promise.all([
+      axios.get(`${API}/api/all-modules`, {
         withCredentials: true,
-      });
+      }),
 
-      setSelectedModules(res?.data?.modules || []);
-    } catch (err) {
-      console.error(err);
-      setSelectedModules([]);
-    }
-  };
+      axios.get(`${API}/api/modules`, {
+        withCredentials: true,
+      }),
+    ]);
 
+    console.log("===== ALL MODULES =====");
+    console.log(allRes.data);
+
+    console.log("===== ADMIN ALLOWED MODULES =====");
+    console.log(adminRes.data);
+
+
+    setAllModules(allRes.data || []);
+
+    setAdminModules(
+      Array.isArray(adminRes.data)
+        ? adminRes.data
+        : []
+    );
+
+    setInitialLoaded(true);
+
+  } catch(err){
+    console.log("Initial API Error:", err);
+  }
+};
+
+  // ✅ Fetch selected role modules
+ const fetchRoleModules = async (role) => {
+  try {
+
+    console.log("Fetching role modules for:", role);
+
+    const res = await axios.get(
+      `${API}/api/role-modules/${role}`,
+      {
+        withCredentials:true,
+      }
+    );
+
+
+    console.log(
+      "===== ROLE MODULE RESPONSE ====="
+    );
+
+    console.log(res.data);
+
+
+    setSelectedModules(
+      res?.data?.modules || []
+    );
+
+
+  } catch(err){
+
+    console.log(
+      "Role module API error:",
+      err.response?.data || err.message
+    );
+
+    setSelectedModules([]);
+  }
+};
+
+  // ✅ Toggle module
   const handleToggle = async (key) => {
-    let updatedModules = selectedModules.includes(key)
-      ? selectedModules.filter((m) => m !== key)
-      : [...selectedModules, key];
+    let updatedModules = [];
+
+    if (selectedModules.includes(key)) {
+      updatedModules = selectedModules.filter((m) => m !== key);
+    } else {
+      updatedModules = [...selectedModules, key];
+    }
 
     setSelectedModules(updatedModules);
 
@@ -81,22 +145,38 @@ export default function RoleModuleManager() {
           role: selectedRole,
           module_keys: updatedModules,
         },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        }
       );
     } catch (err) {
       console.error(err);
     }
   };
 
+  // ✅ Open modal
+  const handleLockedModule = () => {
+    setShowModal(true);
+  };
+
   return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: 30 }}>
-      <div style={{ width: "900px" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: 30,
+        padding: "20px",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: "1000px" }}>
         <h2 style={{ marginBottom: 20 }}>Role Module Access</h2>
 
-        {/* Dropdown */}
+        {/* Role Dropdown */}
         <div style={{ marginBottom: 25 }}>
           <label>Select Role</label>
+
           <br />
+
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
@@ -104,120 +184,239 @@ export default function RoleModuleManager() {
               marginTop: 8,
               padding: "10px",
               borderRadius: "8px",
-              width: "200px",
+              width: "220px",
+              border: "1px solid #ccc",
             }}
           >
             <option value="doctor">Doctor</option>
             <option value="receptionist">Receptionist</option>
-            <option value="client">Client</option>
           </select>
         </div>
 
-        {/* Cards Grid */}
+        {/* Cards */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
             gap: "20px",
           }}
         >
-          {ROLE_MODULES[selectedRole].map((mod) => (
-            <div
-              key={mod}
-              style={{
-                background: "#fff",
-                borderRadius: "14px",
-                padding: "15px",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "140px",
-              }}
-            >
-              {/* Top Row */}
+          {allModules.map((module) => {
+            const isAllowed =
+              Array.isArray(adminModules) &&
+              adminModules.includes(module.module_key);
+
+            const isSelected = selectedModules.includes(
+              module.module_key
+            );
+
+            return (
               <div
+                key={module.id}
                 style={{
+                  background: "#fff",
+                  borderRadius: "14px",
+                  padding: "18px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
                   display: "flex",
+                  flexDirection: "column",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  minHeight: "170px",
+                  border: isAllowed
+                    ? "1px solid #e5e7eb"
+                    : "1px solid #dfd5d5",
                 }}
               >
-                <h4 style={{ margin: 0, textTransform: "capitalize" }}>
-                  {mod}
-                </h4>
+                {/* Top */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: 0,
+                      textTransform: "capitalize",
+                      fontSize: "18px",
+                    }}
+                  >
+                    {module.module_name}
+                  </h4>
 
-                {/* Toggle */}
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={selectedModules.includes(mod)}
-                    onChange={() => handleToggle(mod)}
-                  />
-                  <span className="slider round"></span>
-                </label>
+                  {/* Toggle OR Lock */}
+                  {isAllowed ? (
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() =>
+                          handleToggle(module.module_key)
+                        }
+                      />
+
+                      <span className="slider round"></span>
+                    </label>
+                  ) : (
+                    <button
+                      onClick={handleLockedModule}
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        borderRadius: "8px",
+                        padding: "6px 10px",
+                        fontSize: "40px",
+                      }}
+                    >
+                      🔒
+                    </button>
+                  )}
+                </div>
+
+                {/* Description */}
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "#666",
+                    lineHeight: "1.5",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {MODULE_DESCRIPTIONS[module.module_key] ||
+                    "Module access configuration."}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ✅ Center Modal */}
+        {showModal && (
+          <div className="modalOverlay">
+            <div className="modalBox">
+              <div style={{ fontSize: "45px", marginBottom: "10px" }}>
+                🔒
               </div>
 
-              {/* Description */}
+              <h3 style={{ marginBottom: "10px" }}>
+                Access Restricted
+              </h3>
+
               <p
                 style={{
-                  fontSize: "13px",
                   color: "#666",
-                  marginTop: "10px",
-                  lineHeight: "1.4",
+                  lineHeight: "1.6",
+                  marginBottom: "20px",
                 }}
               >
-                {MODULE_DESCRIPTIONS[selectedRole][mod]}
+                Please contact Administrator for this module access.
               </p>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="closeBtn"
+              >
+                OK
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {/* Toggle CSS */}
         <style>
           {`
-          .switch {
-            position: relative;
-            display: inline-block;
-            width: 42px;
-            height: 22px;
-          }
+            .switch {
+              position: relative;
+              display: inline-block;
+              width: 42px;
+              height: 22px;
+            }
 
-          .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-          }
+            .switch input {
+              opacity: 0;
+              width: 0;
+              height: 0;
+            }
 
-          .slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 34px;
-          }
+            .slider {
+              position: absolute;
+              cursor: pointer;
+              inset: 0;
+              background-color: #ccc;
+              transition: 0.3s;
+              border-radius: 34px;
+            }
 
-          .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-          }
+            .slider:before {
+              position: absolute;
+              content: "";
+              height: 16px;
+              width: 16px;
+              left: 3px;
+              bottom: 3px;
+              background-color: white;
+              transition: 0.3s;
+              border-radius: 50%;
+            }
 
-          input:checked + .slider {
-            background-color: #3f6f7a;
-          }
+            input:checked + .slider {
+              background-color: #3f6f7a;
+            }
 
-          input:checked + .slider:before {
-            transform: translateX(20px);
-          }
-        `}
+            input:checked + .slider:before {
+              transform: translateX(20px);
+            }
+
+            /* ✅ Modal */
+            .modalOverlay {
+              position: fixed;
+              inset: 0;
+              background: rgba(0,0,0,0.45);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 9999;
+            }
+
+            .modalBox {
+              background: white;
+              width: 90%;
+              max-width: 400px;
+              border-radius: 16px;
+              padding: 30px 25px;
+              text-align: center;
+              box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+              animation: popup 0.25s ease;
+            }
+
+            .closeBtn {
+              border: none;
+              background: #3f6f7a;
+              color: white;
+              padding: 10px 22px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 14px;
+            }
+
+            .closeBtn:hover {
+              opacity: 0.9;
+            }
+
+            @keyframes popup {
+              from {
+                transform: scale(0.8);
+                opacity: 0;
+              }
+              to {
+                transform: scale(1);
+                opacity: 1;
+              }
+            }
+          `}
         </style>
       </div>
     </div>

@@ -3,7 +3,10 @@ import { HashLink } from "react-router-hash-link";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import Contactmodal from "./Contactmodal";
-import logo from "../Assets/caredesk360.png";
+import logo from "../Assets/caredesk360newlogo.jpeg";
+import { useMediaQuery } from "@mui/material";
+
+
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -12,7 +15,8 @@ const Navbar = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-
+  const isMobile = useMediaQuery("(max-width:600px)");
+  
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
 
@@ -30,16 +34,23 @@ const Navbar = () => {
             <img
               src={logo}
               alt="logo"
-              style={{ width: "40px", height: "40px" }}
+              style={{
+                width: isMobile ? "100px" : "150px",
+                height: isMobile ? "40px" : "60px",
+              }}
             />
           </div>
-          <span className="logo-text">CareDesk360</span>
+          {/* <span className="logo-text">CareDesk360</span> */}
         </HashLink>
 
         {/* Navigation */}
         <ul className={`navbar-links ${mobileOpen ? "open" : ""}`}>
           <li>
-            <HashLink smooth to="/#" onClick={() => setMobileOpen(false)}>
+            <HashLink
+              smooth
+              to="/#"
+              onClick={() => setMobileOpen(false)}
+            >
               Home
             </HashLink>
           </li>
@@ -74,19 +85,6 @@ const Navbar = () => {
             </NavLink>
           </li>
 
-          {/* <li>
-            <NavLink
-              to="/comparison"
-              onClick={() => {
-                setMobileOpen(false);
-                window.scrollTo(0, 0);
-              }}
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Comparison
-            </NavLink>
-          </li> */}
-
           <li>
             <HashLink smooth to="/#whyus" onClick={() => setMobileOpen(false)}>
               Why Us
@@ -96,7 +94,7 @@ const Navbar = () => {
           {/* Mobile Buttons */}
           <li className="mobile-buttons">
             <button onClick={() => setOpen(true)} className="btn-primary full">
-              Book A Demo
+              Get Started
             </button>
 
             <button
@@ -111,7 +109,7 @@ const Navbar = () => {
         {/* Desktop Buttons */}
         <div className="navbar-actions">
           <button onClick={() => setOpen(true)} className="btn-primary">
-            Book A Demo
+            Get Started
           </button>
         </div>
 

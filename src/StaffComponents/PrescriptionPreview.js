@@ -173,10 +173,11 @@ function buildPrintChunks({ consultations, medicines, tests, notes, description,
       </table>`);
   }
  
-  if (notes?.doctorNotes || description) {
+  if (notes?.doctorNotes || notes?.diagnosis || description) {
     chunks.push(`
       <div class="rx-notes">
         ${notes?.doctorNotes ? `<div><strong>Doctor Notes:</strong> ${notes.doctorNotes}</div>` : ""}
+        ${notes?.diagnosis ? `<div><strong>Diagnosis:</strong> ${notes.diagnosis}</div>` : ""}
         ${description        ? `<div><strong>Info:</strong> ${description}</div>`               : ""}
       </div>`);
   }
@@ -584,6 +585,11 @@ function Header({ clinic, branch, patient, doctor, appointment, notes, showBrand
               <div className="rx-label">Doctor Treatment Plan</div>
               <div>{notes?.treatmentPlan || "—"}</div>
             </div>
+
+            <div className="rx-meta-block">
+              <div className="rx-label">Diagnosis</div>
+              <div>{notes?.diagnosis || "—"}</div>
+            </div>
           </div>
         </>
       ) : (
@@ -692,6 +698,13 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
         <div><strong>Doctor Notes:</strong> ${notes.doctorNotes}</div>
       </div>`);
   }
+
+  // if (notes?.diagnosis) {
+  //   chunks.push(`
+  //     <div class="rx-notes">
+  //       <div><strong>Diagnosis:</strong> ${notes.diagnosis}</div>
+  //     </div>`);
+  // }
  
   // ── Signature only shown here when header/footer branding is OFF ──
   if (!showBranding) {
@@ -783,7 +796,7 @@ export default function PrescriptionPreview({
   const [pages, setPages]           = useState(null);
   const [saveStatus, setSaveStatus] = useState(null);
   const [saveError, setSaveError]   = useState("");
-  const [showBranding, setShowBranding] = useState(true);
+  const [showBranding, setShowBranding] = useState(true); 
  
   /* ── Build screen pages ── */
   useEffect(() => {

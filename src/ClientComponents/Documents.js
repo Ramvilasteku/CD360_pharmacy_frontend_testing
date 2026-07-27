@@ -1,664 +1,817 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+
 import {
   Box,
+  Paper,
   Typography,
-  Card,
-  CardContent,
-  IconButton,
   Button,
   TextField,
-  Paper,
   MenuItem,
-  Tooltip,
+  CircularProgress,
+  Card,
+  CardContent,
+  Stack,
+  Chip,
+  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
-  useMediaQuery,
-  colors,
+  DialogActions,
 } from "@mui/material";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
-import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
-import { COLORS } from "./Themes";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import {
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 
-const Documents = () => {
-  const isMobile = useMediaQuery("(max-width:900px)");
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import DownloadIcon from "@mui/icons-material/Download";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DescriptionIcon from "@mui/icons-material/Description";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import AddIcon from '@mui/icons-material/Add';
+
+const documentTypes = [
+  "Prescription",
+  "Blood Report",
+  "Lab Report",
+  "X-Ray",
+  "MRI Scan",
+  "CT Scan",
+  "Discharge Summary",
+  "Insurance Document",
+  "Medical Certificate",
+  "Other",
+];
+
+export default function Documents() {
+  const [openUpload, setOpenUpload] = useState(false);
+
+  const [documentType, setDocumentType] = useState("");
+  const [file, setFile] = useState(null);
+
+  const [uploading, setUploading] = useState(false);
 
   const [documents, setDocuments] = useState([]);
-  const [filteredDocs, setFilteredDocs] = useState([]);
-  const [roles, setRoles] = useState([]);
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [loadingDocs, setLoadingDocs] = useState(false);
 
-  const [file, setFile] = useState(null);
-  const [previewMap, setPreviewMap] = useState({});
-
-  const [openPreview, setOpenPreview] = useState(false);
-  const [activeDoc, setActiveDoc] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
-
-  /* ================= FILE TYPE ================= */
-  const isImage = (n) => /\.(jpg|jpeg|png|gif|webp)$/i.test(n);
-  const isPdf = (n) => /\.pdf$/i.test(n);
-
-  /* ================= FETCH DOCUMENTS ================= */
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
+  const [openRequests, setOpenRequests] = useState(false);
+  const [requests, setRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [processingRequest, setProcessingRequest] = useState(null);
+  const [previewOpen,setPreviewOpen] = useState(false);
+  const [previewDoc,setPreviewDoc] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null); // NEW: per-doc download loading state
 
   const fetchDocuments = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_URL}/api/documents`, {
-      withCredentials: true,
-    });
-    setDocuments(res.data);
-  };
+    try {
+      setLoadingDocs(true);
 
-  /* ================= ROLES ================= */
-  useEffect(() => {
-    if (documents.length) {
-      setRoles([...new Set(documents.map((d) => d.role))]);
-    }
-  }, [documents]);
-
-  useEffect(() => {
-    setFilteredDocs(
-      roleFilter === "all"
-        ? documents
-        : documents.filter((d) => d.role === roleFilter)
-    );
-  }, [roleFilter, documents]);
-
-  /* ================= PREVIEW CACHE ================= */
-  const fetchPreview = async (id) => {
-    const res = await axios.get(
-      `${process.env.REACT_APP_URL}/api/documents/view/${id}`,
-      { withCredentials: true, responseType: "blob" }
-    );
-    return URL.createObjectURL(res.data);
-  };
-
-  useEffect(() => {
-    if (!documents.length) return;
-    let mounted = true;
-
-    (async () => {
-      const map = {};
-      for (const doc of documents) {
-        if (isImage(doc.file_name) || isPdf(doc.file_name)) {
-          try {
-            map[doc.id] = await fetchPreview(doc.id);
-          } catch {}
+      const res = await axios.get(
+        `${process.env.REACT_APP_URL}/api/documents/client`,
+        {
+          withCredentials: true,
         }
+      );
+
+      setDocuments(res.data || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  const fetchRequests = async () => {
+  try {
+    setLoadingRequests(true);
+
+    const res = await axios.get(
+      `${process.env.REACT_APP_URL}/api/documents/pending-requests`,
+      {
+        withCredentials: true,
       }
-      if (mounted) setPreviewMap(map);
-    })();
+    );
 
-    return () => (mounted = false);
-  }, [documents]);
+    setRequests(res.data.data || []);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoadingRequests(false);
+  }
+};
 
-  /* ================= PREVIEW MODAL ================= */
-  const handleOpenPreview = async (doc) => {
-    try {
-      const url = await fetchPreview(doc.id);
-      setPreviewUrl(url);
-      setActiveDoc(doc);
-      setOpenPreview(true);
-    } catch {
-      showAlert("Unable to load preview", "error");
+  useEffect(() => {
+    fetchDocuments();
+    fetchRequests();
+  }, []);
+
+  const handleFileChange = (event) => {
+    if (event.target.files?.length) {
+      setFile(event.target.files[0]);
     }
   };
 
-  const handleClosePreview = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl("");
-    setActiveDoc(null);
-    setOpenPreview(false);
+  const handleOpenRequests = async () => {
+    setOpenRequests(true);
+    await fetchRequests();
   };
 
-  /* ================= DELETE ================= */
-  const deleteDocument = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
-
+  const approveRequest = async (requestId) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_URL}/api/documents/client/${id}`,
-        { withCredentials: true }
+      setProcessingRequest(requestId);
+
+      await axios.put(
+        `${process.env.REACT_APP_URL}/api/documents/approve-access`,
+        {
+          requestId,
+        },
+        {
+          withCredentials: true,
+        }
       );
 
-      setDocuments((p) => p.filter((d) => d.id !== id));
-      showAlert("Document deleted successfully", "success");
-    } catch (err) {
-      showAlert("Failed to delete document", "error");
-    }
-  };
+      await fetchRequests();
 
-  /* ================= UPLOAD ================= */
-  const handleUpload = async () => {
-    if (!file) {
-      showAlert("Please select a file first", "warning");
-      return;
-    }
-
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-
-      await axios.post(
-        `${process.env.REACT_APP_URL}/api/documents/upload`,
-        fd,
-        { withCredentials: true }
-      );
-
-      setFile(null);
-      fetchDocuments();
-      showAlert("File uploaded successfully", "success");
+      alert("Access approved");
     } catch (err) {
       console.error(err);
 
-      const status = err.response?.status;
-
-      if (status === 413) {
-        showAlert("File too large. Maximum allowed size is 20 MB.", "error");
-        return;
-      }
-
-      if (status === 400) {
-        showAlert(
-          err.response?.data?.message ||
-            "Invalid request. Please check your input.",
-          "warning",
-        );
-        return;
-      }
-
-      if (status === 401 || status === 403) {
-        showAlert("Session expired. Please login again.", "error");
-        // navigate("/login");
-        return;
-      }
-
-      if (status === 404) {
-        showAlert("Requested resource not found.", "info");
-        return;
-      }
-
-      if (status === 500) {
-        showAlert("Server error. Please try again later.", "error");
-        return;
-      }
-
-      // Network / unknown error
-      showAlert("Network error. Please check your connection.", "error");
+      alert(
+        err?.response?.data?.message ||
+        "Failed to approve request"
+      );
+    } finally {
+      setProcessingRequest(null);
     }
   };
 
-  const [openUpload, setOpenUpload] = useState(false);
+  const rejectRequest = async (requestId) => {
+    try {
+      setProcessingRequest(requestId);
 
-  const UploadContent = () => (
-    <>
-      <Typography
-        sx={{
-          fontSize: "18px",
-          color: COLORS.primary,
-        }}
-        fontWeight={600}
-      >
-        Upload New File
-      </Typography>
+      await axios.put(
+        `${process.env.REACT_APP_URL}/api/documents/reject-access`,
+        {
+          requestId,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-      <Box
-        mt={2}
-        py={8}
-        border="2px dashed"
-        borderColor="divider"
-        borderRadius={2}
-        sx={{ cursor: "pointer" }}
-        onDrop={(e) => {
-          e.preventDefault();
-          setFile(e.dataTransfer.files[0]);
-        }}
-        onClick={() => document.getElementById("fileInput").click()}
-      >
-        <UploadFileIcon sx={{ fontSize: "2.5rem", color: COLORS.primary }} />
+      await fetchRequests();
 
-        <Typography mt={1} fontSize="14px">
-          <b>Click to browse Files</b>
-        </Typography>
+      alert("Access rejected");
+    } catch (err) {
+      console.error(err);
 
-        {file && (
-          <Typography fontSize="12px" pt={2}>
-            {file.name}
-          </Typography>
-        )}
-      </Box>
-
-      <Button
-        fullWidth
-        variant="contained"
-        sx={{ mt: 2, bgcolor: COLORS.primary }}
-        disabled={!file}
-        onClick={() => {
-          handleUpload();
-          setOpenUpload(false);
-        }}
-      >
-        Upload File
-      </Button>
-
-      <input
-        hidden
-        id="fileInput"
-        type="file"
-        accept="image/*,application/pdf"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
-    </>
-  );
-
-  /* ================= ALERT SECTION  ================= */
-  const [alert, setAlert] = useState({
-    open: false,
-    message: "",
-    severity: "success", // success | error | warning | info
-  });
-
-  const showAlert = (message, severity = "success") => {
-    setAlert({ open: true, message, severity });
+      alert(
+        err?.response?.data?.message ||
+        "Failed to reject request"
+      );
+    } finally {
+      setProcessingRequest(null);
+    }
   };
 
-  const closeAlert = () => {
-    setAlert((prev) => ({ ...prev, open: false }));
+  const handleUpload = async () => {
+    try {
+      if (!documentType) {
+        alert("Please select document type");
+        return;
+      }
+
+      if (!file) {
+        alert("Please select a file");
+        return;
+      }
+
+      setUploading(true);
+
+      const formData = new FormData();
+
+      formData.append("file", file);
+      formData.append("document_type", documentType);
+
+      const res = await axios.post(
+        `${process.env.REACT_APP_URL}/api/documents/upload`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      alert(res.data.message);
+
+      setDocumentType("");
+      setFile(null);
+
+      setOpenUpload(false);
+
+      await fetchDocuments();
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        error?.response?.data?.message ||
+        "Failed to upload document"
+      );
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const actionBtnStyle = {
-    width: 32,
-    height: 32,
-    borderRadius: 1.5,
-    backgroundColor: COLORS.activeBg,
-    color: COLORS.primary,
-
-    "&:hover": {
-      backgroundColor: COLORS.softBg,
-    },
-
-    "&.Mui-disabled": {
-      backgroundColor: COLORS.activeBg,
-      color: "#9ca3af", // muted icon
-      opacity: 1, // prevent MUI fade
-      cursor: "not-allowed",
-    },
+  const isImage = (path) => {
+    return /\.(jpg|jpeg|png|gif|webp)$/i.test(path || "");
   };
+
+
+  // Used only for inline preview (view icon / thumbnail) — NOT for downloads
+  const getFileUrl = (id)=>{
+  return `${process.env.REACT_APP_URL}/api/documents/view/${id}`;
+};
+
+
+const handlePreview=(doc)=>{
+  setPreviewDoc(doc);
+  setPreviewOpen(true);
+};
+
+
+  // FIXED: was pointing an <a href> at the "view" endpoint, which has no
+  // Content-Disposition header and is cross-origin, so the browser just
+  // opened it in a new tab instead of downloading. Now we fetch the file
+  // as a blob from the "download-safe" endpoint (which sets
+  // Content-Disposition: attachment) and trigger a save from the blob.
+  const handleDownload = async (doc) => {
+    try {
+      setDownloadingId(doc.id);
+
+      const res = await axios.get(
+        `${process.env.REACT_APP_URL}/api/documents/download-safe/${doc.id}`,
+        {
+          responseType: "blob",
+          withCredentials: true,
+        }
+      );
+
+      const url = window.URL.createObjectURL(res.data);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = doc.file_name;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+
+      // err.response.data is a Blob here because responseType is "blob" —
+      // parse it to get the real error message from the server
+      if (err.response?.data instanceof Blob) {
+        try {
+          const text = await err.response.data.text();
+          const parsed = JSON.parse(text);
+          alert(parsed.message || "Download failed");
+        } catch {
+          alert("Download failed");
+        }
+      } else {
+        alert(err?.response?.data?.message || "Download failed");
+      }
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+
+  // FIXED: was calling DELETE /api/documents/:id, which doesn't exist on
+  // the backend (only /documents/client/:id, /documents/staff/:id,
+  // /documents/admin/:id do). Now hits the correct client-scoped route.
+  const handleDelete=async(id)=>{
+
+ try{
+
+   if(!window.confirm("Delete this document?"))
+      return;
+
+
+   await axios.delete(
+    `${process.env.REACT_APP_URL}/api/documents/client/${id}`,
+    {
+      withCredentials:true
+    }
+   );
+
+
+   fetchDocuments();
+
+
+ }
+ catch(err){
+
+   console.log(err);
+   alert(err?.response?.data?.message || "Delete failed");
+
+ }
+
+};
+
+
+const isPdf=(file)=>{
+
+ return /\.pdf$/i.test(file || "");
+
+};
+
+
+const isDoc=(file)=>{
+
+ return /\.(doc|docx)$/i.test(file || "");
+
+};
+
 
   return (
-    <Box
-      px={{ xs: "none", md: 1 }}
-      sx={{
-        pt: 3.7,
-      }}
-    >
-      {/* ================= HEADER ================= */}
-      <Paper
-        sx={{
-          p: 2.5,
-          borderRadius: 2,
-          borderTopRightRadius: { xs: 80, md: 40 },
-          borderBottomRightRadius: 0,
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          alignItems: { xs: "flex-start", md: "center" },
-          mb: 3,
-          width: { xs: "100%", md: "50%" },
-          backgroundColor: COLORS.primary, // teal background
-          color: COLORS.texWhite,
-          height: { xs: "auto", md: "15vh" },
-        }}
-      >
-        <Box>
-          <Typography
-            sx={{
-              fontSize: "18px",
-            }}
-            fontWeight={600}
-            lineHeight={1.2}
-          >
-            Select Type
-          </Typography>
-          <Typography
-            sx={{
-              color: "rgba(255,255,255,0.8)",
-              fontSize: "10px",
-            }}
-          >
-            To see the uploaded documents of you & doctor
-          </Typography>
-        </Box>
-
-        <TextField
-          select
-          size="small"
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          sx={{
-            minWidth: 120,
-            minHeight: 15,
-            mt: { xs: 1.5, md: 0 },
-            backgroundColor: COLORS.texWhite,
-            borderRadius: 2,
-            borderTopRightRadius: { xs: 80, md: 30 },
-            borderBottomRightRadius: 0,
-            "& .MuiOutlinedInput-root": {
-              // borderRadius: 2,
-              borderRadius: 2,
-              borderTopRightRadius: { xs: 80, md: 30 },
-              borderBottomRightRadius: 0,
-            },
-          }}
-        >
-          <MenuItem value="all">All</MenuItem>
-          {roles.map((r) => (
-            <MenuItem key={r} value={r}>
-              {r}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Paper>
-
-      {/* ================= MAIN ================= */}
+    <Box p={3}>
+      {/* Header */}
       <Box
         display="flex"
-        gap={3}
-        flexDirection={{ xs: "column", md: "row" }}
-        sx={{
-          height: { xs: 450, md: 440 },
-        }} // adjust header height
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
       >
-        {isMobile && (
-          <Box textAlign="center">
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{
-                bgcolor: COLORS.primary,
-                borderRadius: 3,
-                // py: 1.2,
-              }}
-              onClick={() => setOpenUpload(true)}
-            >
-              Upload Document
-            </Button>
-          </Box>
-        )}
-        {/* ================= LEFT ================= */}
-        <Box
-          sx={{
-            position: "relative",
-            flex: { xs: 0, md: 6 },
-            height: {
-              xs: 380, // 📱 fixed mobile height
-              md: 430, // 💻 desktop
-            },
-            borderRight: { xs: "none", md: `6px solid ${COLORS.softBg}` },
-          }}
-        >
-          {/* 🔹 SCROLLABLE CONTENT */}
-          <Box
+        <Typography variant="h5" fontWeight={700}>
+          My Documents
+        </Typography>
+
+        <Box display="flex" gap={2}>
+          <Button
+            variant="contained"
             sx={{
-              height: "100%",
-              overflowY: "auto",
-              p: 1,
-
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "repeat(2, 1fr)", // 📱 2 cards per row
-                md: "repeat(4, 1fr)", // 💻 4 cards
-              },
-              gap: 1.5,
-
-              "&::-webkit-scrollbar": {
-                width: 6,
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: COLORS.primary,
-                borderRadius: 3,
-              },
+              backgroundColor: "#437986",
+              textTransform: "none",
+              color: "white",
             }}
+            onClick={() => setOpenUpload(true)}
           >
-            {filteredDocs.length === 0 && (
-              <Box
-                sx={{
-                  gridColumn: "1 / -1",
-                  textAlign: "center",
-                  mt: 6,
-                  color: "#9ca3af",
-                }}
+            <AddIcon />
+            Upload Document
+          </Button>
+        </Box>
+      </Box>
+
+<Dialog
+ open={previewOpen}
+ onClose={()=>setPreviewOpen(false)}
+ fullWidth
+ maxWidth="md"
+>
+
+<DialogTitle>
+ {previewDoc?.file_name}
+</DialogTitle>
+
+
+<DialogContent>
+
+{
+previewDoc && isImage(previewDoc.file) &&
+
+<img
+ src={getFileUrl(previewDoc.id)}
+ alt=""
+ style={{
+ width:"100%",
+ maxHeight:"600px",
+ objectFit:"contain"
+ }}
+/>
+}
+
+
+{
+previewDoc && isPdf(previewDoc.file) &&
+
+<iframe
+ src={getFileUrl(previewDoc.id)}
+ width="100%"
+ height="600px"
+ title="preview"
+/>
+
+}
+
+
+
+{
+previewDoc && isDoc(previewDoc.file) &&
+
+<Box
+ textAlign="center"
+ py={5}
+>
+
+<DescriptionIcon
+ sx={{
+ fontSize:80,
+ color:"#437986"
+ }}
+/>
+
+<Typography>
+ Word document preview is not supported.
+</Typography>
+
+
+<Button
+ variant="contained"
+ sx={{
+ mt:2,
+ background:"#437986"
+ }}
+ onClick={()=>handleDownload(previewDoc)}
+>
+Download File
+</Button>
+
+
+</Box>
+
+}
+
+
+</DialogContent>
+
+
+<DialogActions>
+
+<Button
+ onClick={()=>setPreviewOpen(false)}
+>
+Close
+</Button>
+
+</DialogActions>
+
+
+</Dialog>
+
+
+      {/* Upload Dialog */}
+      <Dialog
+        open={openUpload}
+        onClose={() => setOpenUpload(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          Upload Medical Document
+        </DialogTitle>
+
+        <DialogContent>
+          <TextField
+            select
+            fullWidth
+            label="Document Type"
+            value={documentType}
+            onChange={(e) =>
+              setDocumentType(e.target.value)
+            }
+            sx={{ mt: 2 }}
+          >
+            {documentTypes.map((type) => (
+              <MenuItem
+                key={type}
+                value={type}
               >
-                <Typography fontSize="16px" fontWeight={600}>
-                  No documents have been uploaded
-                </Typography>
-                <Typography fontSize="12px">
-                  Upload a document to see it listed here
-                </Typography>
-              </Box>
+                {type}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <Button
+            variant="outlined"
+            component="label"
+            fullWidth
+            sx={{ mt: 3 }}
+          >
+            Select File
+
+            <input
+              hidden
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={handleFileChange}
+            />
+          </Button>
+
+          {file && (
+            <Typography
+              variant="body2"
+              mt={2}
+            >
+              {file.name}
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => setOpenUpload(false)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "#437986", textTransform: "none", color: "white" }}
+            onClick={handleUpload}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <CircularProgress
+                size={20}
+                color="inherit"
+              />
+            ) : (
+              "Upload"
             )}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            {filteredDocs
-              .slice()
-              .sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at))
-              .map((doc) => (
-                <Card
-                  key={doc.id}
-                  sx={{
-                    borderRadius: 3,
-                    boxShadow: 2,
-                    height: {
-                      xs: 180,
-                      md: 210,
-                    },
-                    width: { xs: "100%", md: 150 },
-                    border: `2px solid ${COLORS.primary}`,
-                    transition: "0.3s",
+      {/* requests Dialog */}
+      <Dialog
+        open={openRequests}
+        onClose={() => setOpenRequests(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          Document Access Requests
+        </DialogTitle>
 
-                    "@media (hover: hover)": {
-                      "&:hover": {
-                        boxShadow: 6,
-                        transform: "translateY(-4px)",
-                      },
-                    },
-                  }}
-                >
-                  <CardContent sx={{ p: 1 }}>
-                    {/* PREVIEW */}
-                    <Box
-                      sx={{
-                        height: {
-                          xs: 70,
-                          md: 100,
-                        },
-                        bgcolor: "grey.100",
-                        borderRadius: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mb: 1,
-                        overflow: "hidden",
-                      }}
-                    >
-                      {isImage(doc.file_name) ? (
-                        <img
-                          src={previewMap[doc.id]}
-                          alt=""
-                          style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
-                            objectFit: "contain",
-                          }}
-                        />
-                      ) : isPdf(doc.file_name) ? (
-                        <iframe
-                          src={previewMap[doc.id]}
-                          title="pdf"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            border: 0,
-                          }}
-                        />
-                      ) : null}
-                    </Box>
-                    <Tooltip
-                      arrow
-                      title={doc.file_name}
-                      placement="bottom"
-                      enterTouchDelay={0}
-                      leaveTouchDelay={3000}
-                    >
-                      <Typography fontWeight={600} fontSize={13} noWrap>
-                        {doc.file_name}
-                      </Typography>
-                    </Tooltip>
-
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(doc.uploaded_at).toLocaleDateString()}
+        <DialogContent>
+          {loadingRequests ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              py={4}
+            >
+              <CircularProgress />
+            </Box>
+          ) : requests.length === 0 ? (
+            <Typography>
+              No pending requests.
+            </Typography>
+          ) : (
+            <Stack spacing={2} mt={1}>
+              {requests.map((req) => (
+                <Card key={req.request_id}>
+                  <CardContent>
+                    <Typography fontWeight={600}>
+                      Dr. {req.doctor_name}
                     </Typography>
 
-                    {/* ACTIONS */}
-                    <Box
-                      display="flex"
-                      gap={{ xs: 0.1, md: 1 }}
-                      mt={1}
-                      justifyContent="center"
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
                     >
-                      <Tooltip title="View" arrow>
-                        <IconButton
-                          size="small"
-                          sx={actionBtnStyle}
-                          onClick={() => handleOpenPreview(doc)}
-                        >
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                      Requested access to:
+                      {" "}
+                      {req.file_name}
+                    </Typography>
 
-                      <Tooltip title="Download" arrow>
-                        <IconButton
-                          size="small"
-                          sx={actionBtnStyle}
-                          href={`${process.env.REACT_APP_URL}/api/documents/${doc.id}`}
-                        >
-                          <DownloadForOfflineIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                    <Typography
+                      variant="caption"
+                      display="block"
+                      mt={1}
+                    >
+                      {new Date(
+                        req.requested_at
+                      ).toLocaleString()}
+                    </Typography>
 
-                      <Tooltip title="Delete" arrow>
-                        <IconButton
-                          size="small"
-                          sx={actionBtnStyle}
-                          disabled={doc.role !== "client"}
-                          onClick={() => deleteDocument(doc.id)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                    <Box
+                      mt={2}
+                      display="flex"
+                      gap={2}
+                    >
+                      <Button
+                        variant="contained"
+                        color="success"
+                        disabled={
+                          processingRequest === req.request_id
+                        }
+                        onClick={() =>
+                          approveRequest(req.request_id)
+                        }
+                      >
+                        Approve
+                      </Button>
+
+                      <Button
+                        variant="contained"
+                        color="error"
+                        disabled={
+                          processingRequest === req.request_id
+                        }
+                        onClick={() =>
+                          rejectRequest(req.request_id)
+                        }
+                      >
+                        Reject
+                      </Button>
                     </Box>
                   </CardContent>
                 </Card>
               ))}
-          </Box>
-        </Box>
-
-        {/* ================= RIGHT ================= */}
-        {!isMobile && (
-          <Box
-            sx={{
-              flex: 3,
-              borderRadius: 3,
-              textAlign: "center",
-              position: "sticky",
-              top: 20,
-            }}
-          >
-            <UploadContent />
-          </Box>
-        )}
-      </Box>
-
-      {/* ================= PREVIEW MODAL ================= */}
-      <Dialog
-        open={openPreview}
-        onClose={handleClosePreview}
-        fullWidth
-        maxWidth="md"
-        fullScreen={isMobile}
-      >
-        <DialogTitle>
-          {activeDoc?.file_name}
-          <IconButton
-            onClick={handleClosePreview}
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent dividers>
-          {previewUrl &&
-            (isPdf(activeDoc?.file_name) ? (
-              <iframe
-                src={previewUrl}
-                title="preview"
-                style={{ width: "100%", height: "70vh", border: 0 }}
-              />
-            ) : (
-              <img
-                src={previewUrl}
-                alt=""
-                style={{
-                  width: "100%",
-                  maxHeight: "70vh",
-                  objectFit: "contain",
-                }}
-              />
-            ))}
+            </Stack>
+          )}
         </DialogContent>
-      </Dialog>
 
-      {/* ================= Upload MODAL in Mobile ================= */}
-      <Dialog open={openUpload} onClose={() => setOpenUpload(false)} fullWidth>
-        <DialogContent>
-          <IconButton
-            onClick={() => setOpenUpload(false)}
-            sx={{ position: "absolute", right: 8, top: 8 }}
+        <DialogActions>
+          <Button
+            onClick={() => setOpenRequests(false)}
           >
-            <CloseIcon />
-          </IconButton>
-
-          <Box textAlign="center" pt={4}>
-            <UploadContent />
-          </Box>
-        </DialogContent>
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
+      {/* request Dialog */}
 
-      <Snackbar
-        open={alert.open}
-        autoHideDuration={4000}
-        onClose={closeAlert}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={closeAlert}
-          severity={alert.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
+      {/* Documents */}
+      {loadingDocs ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          mt={5}
         >
-          {alert.message}
-        </Alert>
-      </Snackbar>
+          <CircularProgress />
+        </Box>
+      ) : documents.length === 0 ? (
+        <Paper sx={{ p: 4 }}>
+          <Typography>
+            No documents uploaded yet
+          </Typography>
+        </Paper>
+      ) : (
+        <Grid container spacing={2}>
+          {documents.map((doc) => (
+            <Grid
+              size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+              key={doc.id}
+            >
+              <Card
+                sx={{
+                  height: "100%",
+                  borderRadius: 3,
+                }}
+              >
+                {/* THUMBNAIL: shows the actual image for image docs,
+                    falls back to a file-type icon otherwise */}
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: 140,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: "#f0f4f5",
+                    borderTopLeftRadius: 12,
+                    borderTopRightRadius: 12,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handlePreview(doc)}
+                >
+                  {isImage(doc.file) ? (
+                    <img
+                      src={getFileUrl(doc.id)}
+                      alt={doc.file_name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : isPdf(doc.file) ? (
+                    <PictureAsPdfIcon
+                      sx={{ fontSize: 60, color: "#437986" }}
+                    />
+                  ) : (
+                    <DescriptionIcon
+                      sx={{ fontSize: 60, color: "#437986" }}
+                    />
+                  )}
+                </Box>
+
+                <CardContent>
+
+
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    noWrap
+                  >
+                    {doc.file_name}
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    mt={2}
+                  >
+                    {new Date(
+                      doc.uploaded_at
+                    ).toLocaleString()}
+                  </Typography>
+
+                  <Stack
+                direction="row"
+                justifyContent="center"
+                spacing={1}
+                mt={2}
+                >
+
+
+                <Tooltip title="View">
+
+                <IconButton
+                sx={{
+                color:"#437986"
+                }}
+                onClick={()=>handlePreview(doc)}
+                >
+
+                <VisibilityIcon/>
+
+                </IconButton>
+
+                </Tooltip>
+
+
+
+                <Tooltip title="Download">
+
+                <IconButton
+                sx={{
+                color:"#437986"
+                }}
+                disabled={downloadingId === doc.id}
+                onClick={()=>handleDownload(doc)}
+                >
+
+                {downloadingId === doc.id ? (
+                  <CircularProgress size={20} sx={{ color: "#437986" }} />
+                ) : (
+                  <DownloadIcon/>
+                )}
+
+                </IconButton>
+
+                </Tooltip>
+
+
+
+
+                {
+                /* FIXED: API returns uploaded_by_role, not uploaded_by —
+                   this condition never matched before, so the delete
+                   button never rendered for anyone. */
+                doc.uploaded_by_role === "client" &&
+
+                <Tooltip title="Delete">
+
+                <IconButton
+                color="error"
+                onClick={()=>handleDelete(doc.id)}
+                >
+
+                <DeleteIcon/>
+
+                </IconButton>
+
+                </Tooltip>
+
+                }
+
+
+                </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   );
-};
-
-export default Documents;
+}

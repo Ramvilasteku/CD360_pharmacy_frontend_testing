@@ -1,5 +1,6 @@
 import './App.css';
 import Login from './components/Login';
+import PatientRegister from './components/PatientRegister';
 import AdminDashboard from './components/AdminDashboard';
 import OtpVerification from './components/Otpverification';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -41,19 +42,21 @@ import FeaturesStrip from "./landingcomponents/components/FeaturesStrip";
 import DigitalVisibilityPlan from './landingcomponents/components/DigitalVisibilityPlan';
 import FeatureSections from "./landingcomponents/components/FeatureSections";
 import CTABanner from "./landingcomponents/components/CTABanner";
-import Pricing from "./landingcomponents/components/Pricing";
+import Comparison from "./landingcomponents/components/Comparison";
 import WhyUs from "./landingcomponents/components/WhyUs";
 import Footer from "./landingcomponents/components/Footer";
 import './Styles/global.css';
 import SuperAdminLogin from "./Pages/Login";
 import SuperAdminDashboard from './Pages/SuperAdminDashboard';
 import ClientPrescriptions from './ClientComponents/ClientPrescriptions';
+import IpdAdmission from './ClientComponents/Ipd/IpdAdmission';
+import IpdClientBills from './ClientComponents/Ipd/ipdbills';
+import IpdPayments from './ClientComponents/Ipd/IpdPayments';
+
 import AboutCareDesk360 from './landingcomponents/components/About';
 import Register from './landingcomponents/components/Register';
 import Payment from './landingcomponents/components/payment';
 import PaymentStatus from './payments/paymentstatus';
-import Comparison from './landingcomponents/components/Comparison';
-import OurWork from './landingcomponents/components/OurWork';
 
 
 function App() {
@@ -70,8 +73,8 @@ function LandingPage() {
         <FeaturesStrip />
         <FeatureSections />
         <CTABanner />
+        {/* <Comparison /> */}
         <AboutCareDesk360 />
-        <OurWork />
         <WhyUs />
         <Footer />
       </div>
@@ -94,8 +97,7 @@ function ProtectedRoute({ children }) {
       <SocketProvider userId={userId}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/comparison" element={<Comparison/>} />
+          <Route path="/pricing" element={<Comparison />} />
           <Route path="/paymentstatus" element={<PaymentStatus />} />
         <Route path="/admin" element={<SuperAdminLogin />} />
         <Route
@@ -108,6 +110,7 @@ function ProtectedRoute({ children }) {
         />
           <Route path='/login' element={<Login />} />
           <Route path='/otp-verify' element={<OtpVerification />} />
+          <Route path='/register' element={<PatientRegister />} />
           <Route path='/AdminDashboard' element={<AdminDashboard />} />
           <Route path="/doctor/*" element={<AppRoutes />} />
           <Route path="/receptionist/*" element={<ReceptionistAppRoutes />} />
@@ -120,6 +123,9 @@ function ProtectedRoute({ children }) {
             <Route path="reviews" element={<Reviews />} />
             <Route path="bills" element={<Bills />} />
             <Route path="prescriptions" element={<ClientPrescriptions />} />
+             <Route path="ipdhistory" element={<IpdAdmission />} />
+            <Route path="ipdbills" element={<IpdClientBills />} />
+            <Route path="ipdpayments" element={<IpdPayments />} />
           </Route>
           <Route path="/" element={<Register />} />
 

@@ -74,10 +74,16 @@ const AppointmentsPage = () => {
         to_time: a.to_time,
         status: a.status,
         selected_branch: a.selected_branch,
+        company_name: a.company_name,
+        company_logo: a.company_logo,
+        admin_name: a.admin_name,
+        doctor_name: a.doctor_name,
       }));
 
       setAllAppointments(list);
       setFilteredAppointments(list);
+
+      
     } catch (err) {
       console.error(err);
     }
@@ -427,10 +433,13 @@ const AppointmentsPage = () => {
               <TableRow>
                 {[
                   "ID",
+                   "Hospital Name",
+                   "Doctor",
                   "Date",
                   "From Time",
                   "To Time",
                   "Purpose",
+                 
                   "Selected Branch",
                   "Status",
                   "Action",
@@ -477,6 +486,12 @@ const AppointmentsPage = () => {
                     }}
                   >
                     <TableCell align="center">{row.id}</TableCell>
+                     <TableCell fontSize="12px">
+                        {row.company_name}
+                      </TableCell>
+                      <TableCell align="center">
+                      {row.doctor_name}
+                    </TableCell>
                     <TableCell align="center">{row.date}</TableCell>
                     <TableCell align="center">
                       {formatTime(row.from_time)}
@@ -484,15 +499,20 @@ const AppointmentsPage = () => {
                     <TableCell align="center">
                       {formatTime(row.to_time)}
                     </TableCell>
-                    <TableCell
-                      align="center"
+                   <TableCell
                       sx={{
-                        width: 500, // 👈 set column width
-                        maxWidth: 500,
+                        minWidth: 250,
+                        maxWidth: 250,
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                        verticalAlign: "top",
+                        py: 2,
                       }}
                     >
                       {row.purpose}
                     </TableCell>
+                    
 
                     <TableCell align="center">{row.selected_branch}</TableCell>
                     <TableCell align="center">
@@ -615,11 +635,16 @@ const AppointmentsPage = () => {
                         <b>Time:</b> {formatTime(row.from_time)} –{" "}
                         {formatTime(row.to_time)}
                       </Typography>
+
+                      
                     </Box>
                     <Typography fontSize="12px">
                       <b>Purpose :</b> {row.purpose}
                     </Typography>
 
+                      <Typography fontSize="12px">
+                        <b>Hospital Name:</b> {row.company_name}
+                      </Typography>
                     <Typography fontSize="12px">
                       <b>Selected Branch:</b> {row.selected_branch}
                     </Typography>
@@ -668,15 +693,21 @@ const AppointmentsPage = () => {
       )}
 
       {/* ================= MODAL & SNACKBAR ================= */}
-      <AppointmentForm
-        open={openForm}
-        onClose={() => setOpenForm(false)}
-        onSuccess={() => {
-          setOpenForm(false);
-          setSuccessMsg("Appointment booked successfully");
-          fetchAppointments();
-        }}
-      />
+     <AppointmentForm
+      open={openForm}
+      onClose={() => setOpenForm(false)}
+      onSuccess={(data) => {
+
+  console.log("SUCCESS FROM FORM:", data);
+
+  setOpenForm(false);
+
+  setSuccessMsg(data?.msg || "Appointment booked");
+
+  fetchAppointments();
+
+}}
+    />
 
       <Snackbar
         open={!!successMsg}
