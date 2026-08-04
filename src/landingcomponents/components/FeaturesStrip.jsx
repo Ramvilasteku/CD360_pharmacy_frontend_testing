@@ -48,6 +48,11 @@ const features = [
     label: "Admin Portal",
     sectionId: "admin-portal",
   },
+  {
+    animation: "/animations/concierge.json",
+    label: "Concierge Services",
+    sectionId: "admin-portal",
+  },
 ];
 
 const FeaturesStrip = () => {
@@ -60,11 +65,7 @@ const FeaturesStrip = () => {
 
         <div className="strip-grid">
           {features.map((feature, index) => (
-            <a
-              key={index}
-              href={`#${feature.sectionId}`}
-              className="strip-item-link"
-            >
+         
               <div className="strip-item">
                 <lord-icon
                   src={feature.animation}
@@ -76,7 +77,7 @@ const FeaturesStrip = () => {
 
                 <span className="strip-label">{feature.label}</span>
               </div>
-            </a>
+
           ))}
         </div>
       </div>

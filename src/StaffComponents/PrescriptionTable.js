@@ -16,14 +16,17 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
- 
+
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
- 
+import ShareIcon from '@mui/icons-material/Share';
+
+
 import PrescriptionPreview from "./PrescriptionPreview";
 import EditPrescription from "./Editprescription";
- 
+import SharePrescriptionModal from "./SharePrescriptionModal";
+
 export default function PrescriptionTable({ refreshKey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,31 +34,33 @@ export default function PrescriptionTable({ refreshKey }) {
   const [company, setCompany] = useState(null);
   const [doctor, setDoctor] = useState(null);
   const [editId, setEditId] = useState(null);
- 
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareId, setShareId] = useState(null);
+
   /* ───────── Responsive + Pagination ───────── */
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
- 
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
- 
+
   const paginatedRows = rows.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
- 
+
   const handleChangePage = (_, newPage) => setPage(newPage);
- 
+
   const handleChangeRowsPerPage = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
- 
+
   /* ───────── Fetch Data ───────── */
   useEffect(() => {
     fetchPrescriptions();
   }, [refreshKey]);
- 
+
   const fetchPrescriptions = async () => {
     setLoading(true);
     try {
@@ -71,7 +76,7 @@ export default function PrescriptionTable({ refreshKey }) {
       setLoading(false);
     }
   };
- 
+
   useEffect(() => {
     fetch(`${process.env.REACT_APP_SITE_URL}/api/company-info/full`, {
       credentials: "include",
@@ -79,7 +84,7 @@ export default function PrescriptionTable({ refreshKey }) {
       .then((r) => r.json())
       .then((d) => d.success && setCompany(d.data));
   }, []);
- 
+
   useEffect(() => {
     fetch(`${process.env.REACT_APP_SITE_URL}/api/staff/self`, {
       credentials: "include",
@@ -87,7 +92,7 @@ export default function PrescriptionTable({ refreshKey }) {
       .then((r) => r.json())
       .then((d) => d.success && setDoctor(d.data));
   }, []);
- 
+
   /* ───────── Actions ───────── */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this prescription?")) return;
@@ -97,37 +102,37 @@ export default function PrescriptionTable({ refreshKey }) {
     );
     fetchPrescriptions();
   };
- 
+
   const handleEdit = (id) => {
     setPreviewData(null);
     setEditId(id);
   };
- 
+
   const handlePreview = async (id) => {
     const res = await fetch(
       `${process.env.REACT_APP_SITE_URL}/api/prescriptions/${id}`,
       { credentials: "include" }
     );
-   const json = await res.json();
- 
-    console.log("preview data is",json.data);
- 
+    const json = await res.json();
+
+    console.log("preview data is", json.data);
+
     if (json.success) {
- 
-    setPreviewData({
+
+      setPreviewData({
         ...json.data,
- 
+
         notes: {
-            chiefComplaint: json.data.appointment?.purpose || "",
-            treatmentPlan: json.data.description || "",
-            doctorNotes: json.data.notes || "",
-            diagnosis: json.data.diagnosis || "",
+          chiefComplaint: json.data.appointment?.purpose || "",
+          treatmentPlan: json.data.description || "",
+          doctorNotes: json.data.notes || "",
+          diagnosis: json.data.diagnosis || "",
         }
-    });
- 
-}
+      });
+
+    }
   };
- 
+
   /* ───────── Render ───────── */
   return (
     <>
@@ -136,7 +141,7 @@ export default function PrescriptionTable({ refreshKey }) {
           <Typography variant="h6" gutterBottom>
             All Prescriptions
           </Typography>
- 
+
           {/* ───── Mobile Card View ───── */}
           {isMobile ? (
             paginatedRows.map((rx) => (
@@ -145,32 +150,32 @@ export default function PrescriptionTable({ refreshKey }) {
                   <Typography variant="subtitle2">
                     Prescription #{rx.id}
                   </Typography>
- 
+
                   <Typography variant="body2">
                     <b>Patient:</b> {rx.patient_name}
                   </Typography>
- 
+
                   <Typography variant="body2">
                     <b>Appointment:</b> {rx.appointment_id || "-"}
                   </Typography>
- 
+
                   <Typography variant="body2">
                     <b>Date:</b>{" "}
                     {new Date(rx.created_at).toLocaleDateString("en-IN")}
                   </Typography>
- 
+
                   <Typography variant="body2">
                     <b>Medicines:</b> {rx.medicine_count} | <b>Tests:</b>{" "}
                     {rx.test_count}
                   </Typography>
- 
+
                   <Stack direction="row" spacing={1} mt={1}>
                     <IconButton size="small" onClick={() => handleEdit(rx.id)}>
                       <EditIcon />
                     </IconButton>
-                  <IconButton size="small" onClick={() => handlePreview(rx.id)}>
-  <PictureAsPdfIcon sx={{ color: "blue" }} />
-</IconButton>
+                    <IconButton size="small" onClick={() => handlePreview(rx.id)}>
+                      <PictureAsPdfIcon sx={{ color: "blue" }} />
+                    </IconButton>
                     <IconButton
                       size="small"
                       color="error"
@@ -185,15 +190,15 @@ export default function PrescriptionTable({ refreshKey }) {
           ) : (
             /* ───── Desktop Table View ───── */
             <Table size="small">
-              <TableHead sx={{backgroundColor:"#3f6f7a",color:"#ffffff"}}>
-                <TableRow sx={{color:"#ffffff"}}>
-                  <TableCell sx={{color:"#ffffff"}}>ID</TableCell>
-                  <TableCell sx={{color:"#ffffff"}}>Patient</TableCell>
-                  <TableCell sx={{color:"#ffffff"}}>Appointment</TableCell>
-                  <TableCell sx={{color:"#ffffff"}}>Prescription Date</TableCell>
-                  <TableCell sx={{color:"#ffffff"}}>Medicines</TableCell>
-                  <TableCell sx={{color:"#ffffff"}}>Tests</TableCell>
-                  <TableCell  sx={{color:"#ffffff"}}>Actions</TableCell>
+              <TableHead sx={{ backgroundColor: "#3f6f7a", color: "#ffffff" }}>
+                <TableRow sx={{ color: "#ffffff" }}>
+                  <TableCell sx={{ color: "#ffffff" }}>ID</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>Patient</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>Appointment</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>Prescription Date</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>Medicines</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>Tests</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -209,6 +214,9 @@ export default function PrescriptionTable({ refreshKey }) {
                     <TableCell>{rx.test_count}</TableCell>
                     <TableCell align="right">
                       <Stack direction="row" spacing={1}>
+                        <IconButton size="small" onClick={() => setShareId(rx.id)}>
+                          <ShareIcon sx={{ width: "18px", height: "18px" }} />
+                        </IconButton>
                         <IconButton size="small" onClick={() => handleEdit(rx.id)}>
                           <EditIcon />
                         </IconButton>
@@ -229,7 +237,7 @@ export default function PrescriptionTable({ refreshKey }) {
               </TableBody>
             </Table>
           )}
- 
+
           {/* ───── Pagination ───── */}
           <TablePagination
             component="div"
@@ -242,7 +250,7 @@ export default function PrescriptionTable({ refreshKey }) {
           />
         </CardContent>
       </Card>
- 
+
       {/* Edit Dialog */}
       <Dialog open={Boolean(editId)} onClose={() => setEditId(null)} fullScreen>
         {editId && (
@@ -253,7 +261,7 @@ export default function PrescriptionTable({ refreshKey }) {
           />
         )}
       </Dialog>
- 
+
       {/* Preview Dialog */}
       <Dialog
         open={Boolean(previewData)}
@@ -270,6 +278,12 @@ export default function PrescriptionTable({ refreshKey }) {
           )}
         </Box>
       </Dialog>
+      <SharePrescriptionModal
+        open={Boolean(shareId)}
+        prescriptionId={shareId}
+        onClose={() => setShareId(null)}
+        base={process.env.REACT_APP_SITE_URL || ""}
+      />
     </>
   );
 }

@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { Box, Button, CircularProgress, Backdrop } from "@mui/material";
 import "./PrescriptionPreview.css";
 import {   Select, MenuItem } from "@mui/material";
+
 /* ─────────────────────────────────────────────────────────────────
    SCREEN CONSTANTS  (A4 card: 794×1123px @ 96dpi, pad 36v/48h)
 ───────────────────────────────────────────────────────────────── */
@@ -768,6 +769,8 @@ function SaveOverlay({ status }) {
     </Backdrop>
   );
 }
+
+const BASE = process.env.REACT_APP_SITE_URL;
  
 /* ─────────────────────────────────────────────────────────────────
    MAIN COMPONENT
@@ -778,6 +781,7 @@ export default function PrescriptionPreview({
   onClose,
   saving        = false,
 }) {
+  const rx_id = data.id || "—";
   const consultations = data.consultations ?? [];
   const patient       = data.patient       ?? {};
   const doctor        = data.doctor        ?? {};
@@ -797,6 +801,7 @@ export default function PrescriptionPreview({
   const [saveStatus, setSaveStatus] = useState(null);
   const [saveError, setSaveError]   = useState("");
   const [showBranding, setShowBranding] = useState(true); 
+  
  
   /* ── Build screen pages ── */
   useEffect(() => {
@@ -844,6 +849,23 @@ export default function PrescriptionPreview({
     };
     setTimeout(tryPrint, 600);
   };
+
+
+  // Send through the whatsapp message to patient relative
+  const sharePrescription = async (prescriptionId, phone) => {
+  const res = await fetch(
+    `${BASE}/api/prescriptions/${prescriptionId}/share-whatsapp`,
+    {
+      method: "POST",
+      credentials: "include",          // ← sends the cookie
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ phone }),
+    }
+  );
+  return await res.json();
+};
  
   /* ── Save / send email ──
      Passes the current header preference through so the backend can
@@ -907,6 +929,7 @@ export default function PrescriptionPreview({
               ✖ Close
             </Button>
           )}
+          
           <Button variant="outlined" size="small" onClick={handlePrint} disabled={!!saveStatus}>
             🖨 Print / Save as PDF
           </Button>
@@ -958,6 +981,7 @@ export default function PrescriptionPreview({
           )}
         </div>
       </Box>
+       
     </>
   );
 }

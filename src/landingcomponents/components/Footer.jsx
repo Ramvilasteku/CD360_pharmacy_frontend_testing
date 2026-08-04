@@ -9,6 +9,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { HashLink } from "react-router-hash-link";
 import { NavLink, useNavigate } from "react-router-dom";
 
+import nameLogo from "../Assets/caredesk360newlogo.jpeg";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -28,11 +30,18 @@ const Footer = () => {
   const [tcopen, setTcopen] = useState(false);
   const [ppopen, setPpopen] = useState(false);
 
-  const handleClose = () => setOpen(false);
+  // const handleClose = () => setOpen(false);
   const handleTcClose = () => setTcopen(false);
   const handlePpClose = () => setPpopen(false);
 
   const navigate = useNavigate();
+
+  const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
 
   return (
     <footer className="footer">
@@ -41,7 +50,7 @@ const Footer = () => {
           {/* BRAND */}
           <div className="footer-brand">
             <div className="footer-logo">
-              <span style={{ fontWeight: 800 }}>CareDesk360</span>
+              <img src={nameLogo} alt="logo" style={{ width: "40%" }} />
             </div>
 
             <p>
@@ -143,18 +152,19 @@ const Footer = () => {
                   </HashLink>
                 </li>
 
-                <li>
-                  <NavLink to="/pricing">Pricing</NavLink>
-                </li>
-
-                <li>
-                  <HashLink smooth to="/#about">
+                 <li>
+                  <HashLink smooth to="/aboutus" onClick={scrollToTop}>
                     About Us
                   </HashLink>
                 </li>
 
                 <li>
-                  <HashLink smooth to="/#whyus">
+                  <NavLink to="/pricing"  onClick={scrollToTop}>Pricing</NavLink>
+                </li>
+              
+
+                <li>
+                  <HashLink smooth to="/whyus" onClick={scrollToTop}>
                     Why CareDesk360
                   </HashLink>
                 </li>
@@ -269,10 +279,8 @@ const Footer = () => {
           </p>
 
           <p>Powered by CareDesk360</p>
-
         </div>
-        <div>
-        </div>
+        <div></div>
       </div>
       <Contactmodal open={open} handleClose={() => setOpen(false)} />
 

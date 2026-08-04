@@ -4,32 +4,32 @@ const API = `${process.env.REACT_APP_SITE_URL}/api`;
 
 export function usePrescriptionAPI() {
   const [availableMedicines, setAvailableMedicines] = useState([]);
-  const [availableTests, setAvailableTests]         = useState([]);
-  const [patients, setPatients]                     = useState([]);
-  const [doctors, setDoctors]                       = useState([]);
-  const [currentUser, setCurrentUser]               = useState(null);
-  const [loading, setLoading]                       = useState(true);
-  const [error, setError]                           = useState(null);
+  const [availableTests, setAvailableTests] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}` };
 
     const fetches = [
-      fetch(`${API}/medicines`,         { headers }).then(r => r.json()),
-      fetch(`${API}/tests`,             { headers }).then(r => r.json()),
-      fetch(`${API}/patients`,          { headers }).then(r => r.json()),
-      fetch(`${API}/staff/self`,        { headers }).then(r => r.json()),
+      fetch(`${API}/medicines`, { headers }).then(r => r.json()),
+      fetch(`${API}/tests`, { headers }).then(r => r.json()),
+      fetch(`${API}/patients`, { headers }).then(r => r.json()),
+      fetch(`${API}/staff/self`, { headers }).then(r => r.json()),
       fetch(`${API}/staff?role=doctor`, { headers }).then(r => r.json()),
     ];
 
     Promise.all(fetches)
       .then(([meds, tests, pats, self, docs]) => {
-        if (meds.success)  setAvailableMedicines(meds.data);
+        if (meds.success) setAvailableMedicines(meds.data);
         if (tests.success) setAvailableTests(tests.data);
-        if (pats.success)  setPatients(pats.data);
-        if (self.success)  setCurrentUser(self.data);
-        if (docs.success)  setDoctors(docs.data);
+        if (pats.success) setPatients(pats.data);
+        if (self.success) setCurrentUser(self.data);
+        if (docs.success) setDoctors(docs.data);
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
@@ -49,6 +49,30 @@ export function usePrescriptionAPI() {
     } catch (err) {
       console.error("Send mail error:", err);
       return { success: false, message: "Server error" };
+    }
+  };
+
+  const sendWhatsappById = async (prescriptionId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${API}/prescriptions/${prescriptionId}/send-whatsapp`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return await res.json();
+    } catch (err) {
+      console.error("WhatsApp Send Error:", err);
+      return {
+        success: false,
+        message: "Failed to send WhatsApp",
+      };
     }
   };
 
@@ -75,11 +99,21 @@ export function usePrescriptionAPI() {
 
         // ── Auto send mail after successful save ──────────────────────────
         if (prescriptionId) {
-          const mailRes = await sendMailById(prescriptionId);
+          const [mailRes, whatsappRes] = await Promise.all([
+            sendMailById(prescriptionId),
+            sendWhatsappById(prescriptionId),
+          ]);
+
           if (mailRes.success) {
-            console.log("✅ Mail sent automatically after save");
+            console.log("✅ Email sent");
           } else {
-            console.warn("⚠ Prescription saved but mail failed:", mailRes.message);
+            console.warn("⚠ Email failed:", mailRes.message);
+          }
+
+          if (whatsappRes.success) {
+            console.log("✅ WhatsApp sent");
+          } else {
+            console.warn("⚠ WhatsApp failed:", whatsappRes.message);
           }
         }
       }

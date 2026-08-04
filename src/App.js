@@ -1,6 +1,5 @@
 import './App.css';
 import Login from './components/Login';
-import PatientRegister from './components/PatientRegister';
 import AdminDashboard from './components/AdminDashboard';
 import OtpVerification from './components/Otpverification';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -42,29 +41,27 @@ import FeaturesStrip from "./landingcomponents/components/FeaturesStrip";
 import DigitalVisibilityPlan from './landingcomponents/components/DigitalVisibilityPlan';
 import FeatureSections from "./landingcomponents/components/FeatureSections";
 import CTABanner from "./landingcomponents/components/CTABanner";
-import Comparison from "./landingcomponents/components/Comparison";
+import Pricing from "./landingcomponents/components/Pricing";
 import WhyUs from "./landingcomponents/components/WhyUs";
 import Footer from "./landingcomponents/components/Footer";
 import './Styles/global.css';
 import SuperAdminLogin from "./Pages/Login";
 import SuperAdminDashboard from './Pages/SuperAdminDashboard';
 import ClientPrescriptions from './ClientComponents/ClientPrescriptions';
-import IpdAdmission from './ClientComponents/Ipd/IpdAdmission';
-import IpdClientBills from './ClientComponents/Ipd/ipdbills';
-import IpdPayments from './ClientComponents/Ipd/IpdPayments';
-
 import AboutCareDesk360 from './landingcomponents/components/About';
 import Register from './landingcomponents/components/Register';
 import Payment from './landingcomponents/components/payment';
 import PaymentStatus from './payments/paymentstatus';
-
-
+import Comparison from './landingcomponents/components/Comparison';
+import OurWork from './landingcomponents/components/OurWork';
+ 
+ 
 function App() {
   const userId =
     localStorage.getItem("adminId") ||
     localStorage.getItem("userId") ||
     localStorage.getItem("id");
-
+ 
 function LandingPage() {
     return (
       <div>
@@ -73,31 +70,31 @@ function LandingPage() {
         <FeaturesStrip />
         <FeatureSections />
         <CTABanner />
-        {/* <Comparison /> */}
-        <AboutCareDesk360 />
-        <WhyUs />
+        <OurWork />
         <Footer />
       </div>
     );
   }
-
+ 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/admin" />;
 }
-
-
+ 
+ 
   return (
     <BrowserRouter>
       {/* LISTEN FOR SOCKET EVENTS */}
       <NotificationListener />
-
+ 
       {/* REQUIRED FOR TOASTS */}
       <ToastContainer position="top-right" autoClose={5000} />
       <SocketProvider userId={userId}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/pricing" element={<Comparison />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/aboutus" element={ <AboutCareDesk360 />} />
+          <Route path="/whyus" element={<WhyUs />} />
           <Route path="/paymentstatus" element={<PaymentStatus />} />
         <Route path="/admin" element={<SuperAdminLogin />} />
         <Route
@@ -110,11 +107,10 @@ function ProtectedRoute({ children }) {
         />
           <Route path='/login' element={<Login />} />
           <Route path='/otp-verify' element={<OtpVerification />} />
-          <Route path='/register' element={<PatientRegister />} />
           <Route path='/AdminDashboard' element={<AdminDashboard />} />
           <Route path="/doctor/*" element={<AppRoutes />} />
           <Route path="/receptionist/*" element={<ReceptionistAppRoutes />} />
-
+ 
           <Route path="/client" element={<Sidebar />}>
             <Route index element={<Navigate to="dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
@@ -123,21 +119,18 @@ function ProtectedRoute({ children }) {
             <Route path="reviews" element={<Reviews />} />
             <Route path="bills" element={<Bills />} />
             <Route path="prescriptions" element={<ClientPrescriptions />} />
-             <Route path="ipdhistory" element={<IpdAdmission />} />
-            <Route path="ipdbills" element={<IpdClientBills />} />
-            <Route path="ipdpayments" element={<IpdPayments />} />
           </Route>
           <Route path="/" element={<Register />} />
-
+ 
         <Route
           path="/payment/:registrationId"
           element={<Payment />}
         />
         </Routes>
-
+ 
       </SocketProvider>
     </BrowserRouter>
   );
 }
-
+ 
 export default App;

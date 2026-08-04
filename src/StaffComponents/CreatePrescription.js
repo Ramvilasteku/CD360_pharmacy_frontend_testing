@@ -40,7 +40,7 @@ export default function CreatePrescription() {
     chiefComplaint: "",
     treatmentPlan: "",
     doctorNotes: "",
-    diagnosis:"",
+    diagnosis: "",
   });
   const [draftNotes, setDraftNotes] = useState({
     chiefComplaint: "",
@@ -177,6 +177,45 @@ export default function CreatePrescription() {
      3. Show a toast for success / failure
      4. onClose() is called by PrescriptionPreview AFTER this resolves
   ───────────────────────────────────────────────────────────────── */
+  const sendWhatsappById = async (prescriptionId) => {
+    try {
+
+      const res = await fetch(
+        `${BASE}/api/prescriptions/${prescriptionId}/send-whatsapp`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return await res.json();
+    } catch (err) {
+      console.error("WhatsApp Send Error:", err);
+      return {
+        success: false,
+        message: "Failed to send WhatsApp",
+      };
+    }
+  };
+
+  const sharePrescription = async (prescriptionId, phone) => {
+    const res = await fetch(
+      `${BASE}/api/prescriptions/${prescriptionId}/share-whatsapp`,
+      {
+        method: "POST",
+        credentials: "include",          // ← sends the cookie
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone }),
+      }
+    );
+    return await res.json();
+  };
+
   const savePrescription = async () => {
     if (!patientId) throw new Error("Please select a patient");
 
@@ -211,6 +250,7 @@ export default function CreatePrescription() {
     const prescriptionId = data?.data?.prescription_id || rxId || null;
 
     setSavedId(prescriptionId);
+    sendWhatsappById(prescriptionId); // Attempt to send WhatsApp notification
     setRefreshRxTable(v => v + 1);
 
     showToast("Prescription saved & email sent ✓", "success");

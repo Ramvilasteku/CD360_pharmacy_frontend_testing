@@ -1,5 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import "./WhyUs.css";
+import Comparison from "./Comparison";
+import Footer from "./Footer";
+import Navbar from "./Navbar";
+import heroImage from "../Assets/whyus.png";
+import Contactmodal from "./Contactmodal";
 
 const reasons = [
   {
@@ -49,55 +54,99 @@ const reasons = [
   },
 ];
 
-const WhyUs = () => (
-  <section className="why-us" id="whyus">
-    <div className="container">
-      <div className="about-header">
-        <span className="badge">Smarter Healthcare Starts Here</span>
-        <h1>Why Choose CareDesk360</h1>
-        <p className="subtitle">
-          CareDesk360 is designed to simplify healthcare management while
-          improving efficiency, accuracy, and patient satisfaction. Our platform
-          brings everything you need into one secure and easy-to-use system.
-        </p>
-      </div>
-      <div className="section-header">
-        <div className="section-label"></div>
-        <h2 className="section-title"></h2>
-        <p className="section-subtitle"></p>
-      </div>
-      <div className="why-grid">
-        {reasons.map((r, i) => (
-          <div className="why-card" key={i}>
-            <lord-icon
-              src={r.icon}
-              trigger="loop"
-              delay="1000"
-              colors="primary:#0f172a,secondary:#2563eb"
-              style={{ width: "60px", height: "60px" }}
-            ></lord-icon>
-            <h3 className="why-title">{r.title}</h3>
-            <p className="why-desc">{r.desc}</p>
+const WhyUs = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Navbar />
+
+      {/* Hero Section */}
+      <section className="why-hero">
+        <div className="why-hero-container">
+          <div className="why-hero-content">
+            <span className="why-badge">Why CareDesk360</span>
+
+            <h1>
+              Why Healthcare
+              <span> Professionals Choose Us</span>
+            </h1>
+
+            <p>
+              CareDesk360 combines Practice Management, Patient Relationship
+              Management (PRM), and Healthcare Marketing into one AI-powered
+              platform that helps clinics operate smarter, serve patients
+              better, and grow faster.
+            </p>
+
+            <h4>
+              We Give 2x More Results at 5x Less Cost
+            </h4>
+
+            <div className="why-buttons">
+              <button
+                className="primary-btn"
+                onClick={() =>
+                  document
+                    .getElementById("whyus")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                Explore Features
+              </button>
+
+              <button className="secondary-btn" onClick={() => setOpen(true)}>
+                Book Demo
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <iframe
-        src="https://widgets.sociablekit.com/google-reviews/iframe/25687238"
-        frameborder="0"
-        width="100%"
-        height="1000px"
-      ></iframe>
+          <div className="why-hero-image">
+            <img src={heroImage} alt="Why CareDesk360" />
+          </div>
+        </div>
+      </section>
 
-      <iframe
-        src="https://widgets.sociablekit.com/instagram-reels/iframe/25687241"
-        frameborder="0"
-        width="100%"
-        height="1000px"
-      ></iframe>
+      <section className="why-us" id="whyus">
+        <div className="container">
+          <div className="about-header">
+            <span className="badge">Smarter Healthcare Starts Here</span>
+            <h1>Why Choose CareDesk360</h1>
+            <p className="subtitle">
+              CareDesk360 is designed to simplify healthcare management while
+              improving efficiency, accuracy, and patient satisfaction. Our
+              platform brings everything you need into one secure and
+              easy-to-use system.
+            </p>
+          </div>
+          <div className="section-header">
+            <div className="section-label"></div>
+            <h2 className="section-title"></h2>
+            <p className="section-subtitle"></p>
+          </div>
+          <div className="why-grid">
+            {reasons.map((r, i) => (
+              <div className="why-card" key={i}>
+                <lord-icon
+                  src={r.icon}
+                  trigger="loop"
+                  delay="1000"
+                  colors="primary:#0f172a,secondary:#2563eb"
+                  style={{ width: "60px", height: "60px" }}
+                ></lord-icon>
+                <h3 className="why-title">{r.title}</h3>
+                <p className="why-desc">{r.desc}</p>
+              </div>
+            ))}
+          </div>
 
-    </div>
-  </section>
-);
+          <Comparison />
+        </div>
+      </section>
 
+      <Footer />
+
+      <Contactmodal open={open} handleClose={() => setOpen(false)} />
+    </>
+  );
+};
 export default WhyUs;

@@ -2,11 +2,11 @@
    DIGITAL VISIBILITY PLAN
 =========================== */
 
-/* * {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-} */
+}
 
 .dvp-wrapper {
   width: 100%;
@@ -33,13 +33,6 @@
   color: var(--navy);
 }
 
-.dvp-line {
-  flex: 1;
-  height: 2px;
-  background: var(--navy);
-  max-width: 200px;
-}
-
 .dvp-heading-content {
   text-align: center;
   color: var(--navy);
@@ -47,7 +40,7 @@
 
 .dvp-main-title {
   color: var(--navy);
-  font-size: 38px;
+  font-size: 48px;
   font-weight: 700;
   margin: 20px 0;
 }
@@ -66,7 +59,6 @@
 .dvp-sub-title {
   color: var(--navy);
   font-size: 16px;
-  margin-top: 5px;
 }
 
 /* ===========================
@@ -84,9 +76,9 @@
 }
 
 .dvp-price-layout {
-  display: grid;
-  grid-template-columns: 350px 2fr;
+  display: flex;
   border: 2px solid var(--navy);
+  align-items: center;
   margin-bottom: 30px;
   border-radius: 20px;
   border-top-left-radius: 22px;
@@ -108,17 +100,37 @@
   font-size: 30px;
   font-weight: 700;
   color: var(--white);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .dvp-price-amount {
   font-size: 52px;
   color: var(--white);
   font-weight: bold;
+  display: block;
+  margin-bottom: 12px;
+  line-height: 1.2;
 }
 
 .dvp-price-amount span {
   font-size: 30px;
+}
+
+.dvp-price-tag {
+  display: inline;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 10px;
+  color: var(--white);
+  white-space: normal;
+}
+
+.dvp-price-month {
+  display: block;
+  font-size: 26px;
+  margin-top: 6px;
+  font-weight: 600;
+  color: var(--white);
 }
 
 .dvp-price-description {
@@ -131,6 +143,125 @@
   font-size: 22px;
   line-height: 1.7;
   color: #333;
+}
+
+/* ===========================
+   PLAN TABS - STYLISH & TENDER
+=========================== */
+
+.dvp-plan-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 60px auto;
+  background: linear-gradient(
+    135deg,
+    rgba(31, 51, 102, 0.04) 0%,
+    rgba(31, 51, 102, 0.02) 100%
+  );
+  backdrop-filter: blur(10px);
+  border-radius: 60px;
+  padding: 14px 18px;
+  border: 1px solid rgba(31, 51, 102, 0.08);
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.dvp-plan-tabs button {
+  border: none;
+  background: transparent;
+  padding: 14px 38px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 50px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  color: rgba(31, 51, 102, 0.6);
+  position: relative;
+  letter-spacing: 0.4px;
+  text-transform: capitalize;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+
+.dvp-plan-tabs button:hover:not(.active) {
+  color: var(--navy);
+  background: rgba(31, 51, 102, 0.06);
+  transform: translateY(-1px);
+}
+
+.dvp-plan-tabs button:focus-visible {
+  outline: 2px solid var(--navy);
+}
+
+.dvp-plan-tabs button.active {
+  background: linear-gradient(
+    135deg,
+    var(--navy) 0%,
+    rgba(31, 51, 102, 0.95) 100%
+  );
+  color: white;
+  box-shadow:
+    0 8px 32px rgba(31, 51, 102, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.dvp-plan-tabs button.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 80%
+  );
+  border-radius: 50px;
+  pointer-events: none;
+}
+
+.dvp-plan-tabs button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--navy) 0%,
+    rgba(31, 51, 102, 0.4) 100%
+  );
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(31, 51, 102, 0.2);
+  animation: slideDownTender 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dvp-price-layout.annual-popular .dvp-price-heading::before {
+  content: "⭐ MOST POPULAR";
+  display: block;
+  font-size: 12px;
+  color: #ffd700;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+@keyframes slideDownTender {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ===========================
@@ -170,7 +301,6 @@
 .dvp-card-title {
   font-size: 25px;
   color: var(--white);
-
   font-weight: 700;
 }
 
@@ -221,6 +351,36 @@
   color: #444;
 }
 
+.plan-content {
+  animation: slideIn 0.35s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===========================
+   LINES (DECORATIVE)
+=========================== */
+
+.dvp-line {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--navy) 50%,
+    transparent 100%
+  );
+}
+
 /* ===========================
    RESPONSIVE
 =========================== */
@@ -240,7 +400,6 @@
 
   .dvp-price-card {
     text-align: center;
-    /* border-radius: 20px; */
     border-bottom-left-radius: 0;
     border-top-right-radius: 20px;
   }
@@ -253,9 +412,7 @@
 }
 
 @media (max-width: 768px) {
-  .dvp-wrapper {
-    padding: 15px;
-  }
+ 
 
   .dvp-header-section {
     flex-direction: column;
@@ -304,5 +461,331 @@
 
   .dvp-list li {
     font-size: 15px;
+  }
+
+  .dvp-plan-tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+    margin: 40px auto;
+  }
+
+  .dvp-plan-tabs button {
+    padding: 12px 32px;
+    font-size: 14px;
+  }
+
+  .dvp-plan-tabs button.active::after {
+    bottom: -8px;
+  }
+
+  .dvp-price-month {
+  display: block;
+  font-size: 2em;
+  margin-top: 6px;
+  font-weight: 600;
+  color: var(--white);
+}
+}
+
+@media (max-width: 480px) {
+  .dvp-plan-tabs {
+    margin: 30px auto;
+  }
+
+  .dvp-plan-tabs button {
+    padding: 12px 24px;
+    font-size: 13px;
+  }
+
+  .dvp-main-title {
+    font-size: 24px;
+  }
+
+  .dvp-price-amount {
+    font-size: 36px;
+  }
+
+  
+  .dvp-price-month {
+  display: block;
+  font-size: 1.3em;
+  margin-top: 6px;
+  font-weight: 600;
+  color: var(--white);
+}
+}
+
+@media (max-width: 768px) {
+  .dvp-plan-tabs {
+    gap: 4px;
+    padding: 10px 8px;
+  }
+
+  .dvp-plan-tabs button {
+    padding: 12px 16px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .dvp-plan-tabs button.active::after {
+    bottom: -6px;
+    width: 20px;
+  }
+}
+
+.full-text {
+  display: inline;
+}
+.short-text {
+  display: none;
+}
+
+@media (max-width: 399px) {
+  .full-text {
+    display: none;
+  }
+  .short-text {
+    display: inline;
+  }
+}
+
+
+/* ===========================
+   RESPONSIVE IMPROVEMENTS FOR PRICING CARDS
+=========================== */
+
+/* Base - Desktop */
+.dvp-price-layout {
+  display: flex;
+  border: 2px solid var(--navy);
+  align-items: stretch;
+  margin-bottom: 30px;
+  border-radius: 20px;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+  overflow: hidden;
+}
+
+.dvp-price-card {
+  background: var(--navy);
+  color: var(--white);
+  padding: 35px;
+  display: flex;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 300px;
+  flex-shrink: 0;
+}
+
+.dvp-price-description {
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  flex: 1;
+}
+
+.btn-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 40px;
+  flex-shrink: 0;
+}
+
+/* Tablet - 992px and below */
+@media (max-width: 992px) {
+  .dvp-price-layout {
+    flex-direction: column;
+    border-radius: 20px;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 22px;
+  }
+
+  .dvp-price-card {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 30px;
+    min-width: auto;
+    text-align: center;
+  }
+
+  .dvp-price-description {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+  }
+
+  .dvp-price-description p {
+    font-size: 18px;
+  }
+
+  .btn-div {
+    padding: 0 30px 30px 30px;
+    padding-right: 30px;
+    justify-content: center;
+  }
+
+  .lifetime-plan-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Mobile - 768px and below */
+@media (max-width: 768px) {
+  .dvp-price-layout {
+    margin-bottom: 25px;
+    border-radius: 16px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+  }
+
+  .dvp-price-card {
+    border-radius: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 25px;
+  }
+
+  .dvp-price-heading {
+    font-size: 22px;
+  }
+
+  .dvp-price-amount {
+    font-size: 38px;
+    line-height: 1.2;
+  }
+
+  .dvp-price-amount span {
+    font-size: 24px;
+  }
+
+  .dvp-price-month {
+    font-size: 18px;
+    margin-top: 8px;
+  }
+
+  .dvp-price-description {
+    padding: 25px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .dvp-price-description p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .dvp-price-description p strong {
+    font-weight: 600;
+  }
+
+  .btn-div {
+    padding: 0 25px 25px 25px;
+    width: 100%;
+  }
+
+  .lifetime-plan-btn {
+    width: 100%;
+    padding: 14px 30px;
+    font-size: 15px;
+  }
+}
+
+/* Small Mobile - 480px and below */
+@media (max-width: 480px) {
+  .dvp-price-layout {
+    margin-bottom: 20px;
+    border-radius: 14px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+
+  .dvp-price-card {
+    padding: 20px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+  }
+
+  .dvp-price-heading {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .dvp-price-amount {
+    font-size: 32px;
+  }
+
+  .dvp-price-amount span {
+    font-size: 18px;
+  }
+
+  .dvp-price-month {
+    font-size: 16px;
+  }
+
+  .dvp-price-description {
+    padding: 20px;
+  }
+
+  .dvp-price-description p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .dvp-price-description p br {
+    display: none;
+  }
+
+  .btn-div {
+    padding: 0 20px 20px 20px;
+  }
+
+  .lifetime-plan-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+}
+
+/* Extra Small - 360px and below */
+@media (max-width: 360px) {
+  .dvp-price-card {
+    padding: 16px;
+  }
+
+  .dvp-price-heading {
+    font-size: 16px;
+  }
+
+  .dvp-price-amount {
+    font-size: 28px;
+  }
+
+  .dvp-price-amount span {
+    font-size: 16px;
+  }
+
+  .dvp-price-month {
+    font-size: 14px;
+  }
+
+  .dvp-price-description {
+    padding: 16px;
+  }
+
+  .dvp-price-description p {
+    font-size: 13px;
+  }
+
+  .btn-div {
+    padding: 0 16px 16px 16px;
   }
 }

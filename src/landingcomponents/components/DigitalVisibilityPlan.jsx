@@ -1,7 +1,49 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./DigitalVisibilityPlan.css";
+import { useState } from "react";
+import { Box } from "@mui/material";
+import Register from "./Register";
 
 const DigitalVisibilityPlan = () => {
+  const [activePlan, setActivePlan] = useState("annual");
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [paymentopen, setPaymentOpen] = useState(false);
+
+  const fetchSubscriptionPlans = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_PAYMENT_BACKEND_URL}/api/phonepe/plans`,
+      );
+      const data = await response.json();
+      setSubscriptions(data.data);
+      console.log("Fetched subscription plans:", data);
+    } catch (error) {
+      console.error("Error fetching subscription plans:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubscriptionPlans();
+  }, []);
+
+  const getSelectedPlan = (name) => {
+    const plan = subscriptions.find((p) => p.plan_name === name);
+
+    if (!plan) return null;
+    return {
+      id: plan.id,
+      name: plan.plan_name,
+
+      monthlyPrice: Number(plan.quarterly_price) / 3,
+      quarterlyPrice: Number(plan.quarterly_price),
+      yearlyPrice: Number(plan.yearly_price),
+
+      quarterly: `₹${(Number(plan.quarterly_price) / 3).toLocaleString("en-IN")} × 3`,
+      annual: `₹${(Number(plan.yearly_price) / 10).toLocaleString("en-IN")} × 10`,
+    };
+  };
+
   return (
     <section className="dvp-wrapper">
       {/* Heading */}
@@ -10,62 +52,140 @@ const DigitalVisibilityPlan = () => {
 
         <div className="dvp-heading-content">
           <h2 className="dvp-main-title">DIGITAL VISIBILITY PLAN</h2>
-          <h3 className="dvp-price">
-            ₹48,000 <span>+ GST</span>
-          </h3>
-          <p className="dvp-sub-title">(Annually)</p>
           <p className="dvp-sub-title">
             Website + Clinic/Hospital Management Software
           </p>
         </div>
-
         <div className="dvp-line"></div>
       </div>
 
-      
-      {/* Month Plan */}
-      <div className="dvp-price-layout">
-        <div className="dvp-price-card">
-          <h3 className="dvp-price-heading">Monthly Plan</h3>
+      {/* Slider section start */}
 
-          <h1 className="dvp-price-amount">
-            ₹10,000  <span> + ₹3,999/month</span>
-          </h1>
-        </div>
+      <div className="dvp-plan-tabs">
+        <button
+          className={activePlan === "monthly" ? "active" : ""}
+          onClick={() => setActivePlan("monthly")}
+        >
+          <span className="full-text">Monthly</span>
+          <span className="short-text">1Mon</span>
+        </button>
 
-        <div className="dvp-price-description">
-          <p>
-            Annual website and clinic software setup:{" "}
-            <strong>₹10,000/year</strong>.
-            <br />
-            <p>
-              Build your digital presence, streamline operations,
-              <br />
-              and grow your patient base.
-            </p>
-          </p>
-        </div>
+        <button
+          className={activePlan === "quarterly" ? "active" : ""}
+          onClick={() => setActivePlan("quarterly")}
+        >
+          <span className="full-text">Quarterly</span>
+          <span className="short-text">3Mon</span>
+        </button>
+
+        <button
+          className={activePlan === "annual" ? "active" : ""}
+          onClick={() => setActivePlan("annual")}
+        >
+          <span className="full-text">Annual</span>
+          <span className="short-text">12Mon</span>
+        </button>
       </div>
 
-      {/* Annual Plan */}
-      <div className="dvp-price-layout">
-        <div className="dvp-price-card">
-          <h3 className="dvp-price-heading">Annual Plan</h3>
+      <div key={activePlan} className="plan-content">
+        {activePlan === "monthly" && (
+          <div className="dvp-price-layout">
+            <div className="dvp-price-card">
+              <h3 className="dvp-price-heading">Monthly Plan</h3>
+              <h1 className="dvp-price-amount">₹10,000 +</h1>
+              <span className="dvp-price-month">₹3,999/month</span>
+            </div>
 
-          <h1 className="dvp-price-amount">
-            ₹3,999 <span>x 12</span>
-          </h1>
-        </div>
+            <div className="dvp-price-description">
+              <p>
+                Website and setup fee :<strong> ₹10,000/year</strong>.
+                <br />
+                <p>
+                  Build your digital presence, streamline operations,
+                  <br />
+                  and grow your patient base.
+                </p>
+              </p>
+            </div>
 
-        <div className="dvp-price-description">
-          <p>
-            Build your digital presence, streamline operations,
-            <br />
-            and grow your patient base.
-          </p>
-        </div>
+            <div className="btn-div">
+              <button
+                onClick={() => {
+                  setSelectedPlan(getSelectedPlan("Digital Visibility"));
+                  setPaymentOpen(true);
+                }}
+                className="lifetime-plan-btn"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activePlan === "quarterly" && (
+          <div className="dvp-price-layout">
+            <div className="dvp-price-card">
+              <h3 className="dvp-price-heading">Quarterly Plan</h3>
+
+              <h1 className="dvp-price-amount">
+                ₹4,999 <span>x 3</span>
+              </h1>
+            </div>
+
+            <div className="dvp-price-description">
+              <p>
+                Build your digital presence, streamline operations,
+                <br />
+                and grow your patient base.
+              </p>
+            </div>
+            <div className="btn-div">
+              <button
+                onClick={() => {
+                  setSelectedPlan(getSelectedPlan("Digital Visibility"));
+                  setPaymentOpen(true);
+                }}
+                className="lifetime-plan-btn"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activePlan === "annual" && (
+          <div className="dvp-price-layout annual-popular">
+            <div className="dvp-price-card">
+              <h3 className="dvp-price-heading">Annual Plan</h3>
+
+              <h1 className="dvp-price-amount">
+                ₹3,999 <span>x 12</span>
+              </h1>
+            </div>
+
+            <div className="dvp-price-description">
+              <p>
+                Build your digital presence, streamline operations,
+                <br />
+                and grow your patient base.
+              </p>
+            </div>
+            <div className="btn-div">
+              <button
+                onClick={() => {
+                  setSelectedPlan(getSelectedPlan("Digital Visibility"));
+                  setPaymentOpen(true);
+                }}
+                className="lifetime-plan-btn"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Slider section end */}
 
       {/* Cards */}
 
@@ -162,7 +282,8 @@ const DigitalVisibilityPlan = () => {
             <ul className="dvp-list">
               <li>Design of 12 Creatives for Social Media Every Month</li>
               <li>
-                12 Reel Videos per Year (1 Reel per Month, up to 60 Seconds Each)
+                12 Reel Videos per Year (1 Reel per Month, up to 60 Seconds
+                Each)
               </li>
               <li>1 Ad Campaign Management Per Month</li>
             </ul>
@@ -180,6 +301,12 @@ const DigitalVisibilityPlan = () => {
           </div>
         </div>
       </div>
+
+      <Register
+        open={paymentopen}
+        onClose={() => setPaymentOpen(false)}
+        selectedPlan={selectedPlan}
+      />
     </section>
   );
 };

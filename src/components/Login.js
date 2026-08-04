@@ -98,7 +98,7 @@ const Login = () => {
 
       setSnackbar({
         open: true,
-        message: "Login successful. OTP has been sent to your email.",
+        message: "Login successful. OTP has been sent to your whatsapp.",
         severity: "success",
       });
 

@@ -2,23 +2,26 @@ import React from "react";
 import "./FeatureSections.css";
 import branding from "../Assets/Brandingimage.png";
 import content from "../Assets/content.png";
+import conciergeImg from "../Assets/concierge.png";
 
 const MockScheduler = () => (
-  <div className="mock-ui" id="scheduling">
-    <div className="mock-header">
-      <span className="mock-title">📅 Dashboard / Appointment</span>
+  <div className="patient-appointment-container" id="scheduling">
+    <div className="patient-appointment-header">
+      <span className="patient-appointment-title">📅 Dashboard / Appointment</span>
     </div>
 
-    <div className="appointment-layout">
-      {/* Right Side - Static Calendar Card */}
-      <div className="appointment-popup">
-        <div className="popup-left">
+    <div className="patient-appointment-layout">
+      <div className="patient-appointment-popup">
+        <div className="patient-appointment-left">
           <h4>Select Date</h4>
           <div className="calendar-box">
-            <div className="month">June</div>
-            <div className="days-grid">
+            <div className="patient-appointment-month">June</div>
+            <div className="patient-appointment-days-grid">
               {[...Array(30)].map((_, i) => (
-                <div key={i} className={`day ${i === 18 ? "active-day" : ""}`}>
+                <div 
+                  key={i} 
+                  className={`patient-appointment-day ${i === 18 ? "active" : ""}`}
+                >
                   {i + 1}
                 </div>
               ))}
@@ -26,12 +29,12 @@ const MockScheduler = () => (
           </div>
         </div>
 
-        <div className="popup-right">
+        <div className="patient-appointment-right">
           <h4>Appointment Details</h4>
-          <div className="form-field" />
-          <div className="form-field" />
-          <div className="form-field large" />
-          <div className="submit-btn">Submit</div>
+          <div className="patient-appointment-field" />
+          <div className="patient-appointment-field" />
+          <div className="patient-appointment-field large" />
+          <div className="patient-appointment-submit">Submit</div>
         </div>
       </div>
     </div>
@@ -39,34 +42,32 @@ const MockScheduler = () => (
 );
 
 const MockDocuments = () => (
-  <div className="mock-ui" id="documents">
-    <div className="mock-header">
-      <span className="mock-title">📂 Dashboard / Documents</span>
+  <div className="digital-documents-container" id="documents">
+    <div className="digital-documents-header">
+      <span className="digital-documents-title">📂 Dashboard / Documents</span>
     </div>
 
-    <div className="documents-layout">
-      {/* LEFT SIDE - 2x2 GRID */}
-      <div className="documents-left-grid">
+    <div className="digital-documents-layout">
+      <div className="digital-documents-left-grid">
         {[
           { title: "Prescription", date: "Dec 18, 2025" },
           { title: "Lab Report", date: "Dec 15, 2025" },
           { title: "X-Ray Report", date: "Dec 12, 2025" },
           { title: "Invoice Copy", date: "Dec 10, 2025" },
         ].map((doc, i) => (
-          <div className="doc-card" key={i}>
-            <div className="doc-icon">📁</div>
-            <div className="doc-title">{doc.title}</div>
-            <div className="doc-date">{doc.date}</div>
+          <div className="digital-documents-card" key={i}>
+            <div className="digital-documents-icon">📁</div>
+            <div className="digital-documents-card-title">{doc.title}</div>
+            <div className="digital-documents-date">{doc.date}</div>
           </div>
         ))}
       </div>
 
-      {/* RIGHT SIDE - Upload */}
-      <div className="documents-right">
-        <div className="upload-box">
-          <div className="upload-icon">📂</div>
+      <div className="digital-documents-right">
+        <div className="digital-documents-upload-box">
+          <div className="digital-documents-upload-icon">📂</div>
           <p>Drop your documents or</p>
-          <span className="browse-link">Click to browse</span>
+          <span className="digital-documents-browse-link">Click to browse</span>
         </div>
 
         <div className="file-input-mock">
@@ -74,37 +75,34 @@ const MockDocuments = () => (
           <div className="file-label">File Name</div>
         </div>
 
-        <div className="upload-btn">Upload File</div>
+        <div className="digital-documents-upload-btn">Upload File</div>
       </div>
     </div>
   </div>
 );
 
 const MockDigitalPrescription = () => (
-  <div className="mock-ui" id="eprescribing">
-    <div className="mock-header">
-      <span className="mock-title">💊 Dashboard / Digital Prescriptions</span>
+  <div className="digital-rx-container" id="eprescribing">
+    <div className="digital-rx-header">
+      <span className="digital-rx-title">💊 Dashboard / Digital Prescriptions</span>
     </div>
 
-    <div className="prescription-layout">
-      {/* LEFT SIDE */}
-      <div className="prescription-left">
-        {/* Summary */}
-        <div className="prescription-summary">
-          <div className="rx-card">
-            <div className="rx-count">24</div>
-            <div className="rx-label">Total Prescriptions</div>
+    <div className="digital-rx-layout">
+      <div className="digital-rx-left">
+        <div className="digital-rx-summary">
+          <div className="digital-rx-card">
+            <div className="digital-rx-count">24</div>
+            <div className="digital-rx-label">Total Prescriptions</div>
           </div>
 
-          <div className="rx-card">
-            <div className="rx-count">06</div>
-            <div className="rx-label">Pending Review</div>
+          <div className="digital-rx-card">
+            <div className="digital-rx-count">06</div>
+            <div className="digital-rx-label">Pending Review</div>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="rx-table">
-          <div className="rx-head">
+        <div className="digital-rx-table">
+          <div className="digital-rx-head">
             <span>Patient</span>
             <span>Medication</span>
             <span>Date</span>
@@ -132,11 +130,11 @@ const MockDigitalPrescription = () => (
               status: "Issued",
             },
           ].map((rx, i) => (
-            <div className="rx-row" key={i}>
+            <div className="digital-rx-row" key={i}>
               <span>{rx.name}</span>
               <span>{rx.med}</span>
               <span>{rx.date}</span>
-              <span className={`rx-badge ${rx.status.toLowerCase()}`}>
+              <span className={`digital-rx-badge ${rx.status.toLowerCase()}`}>
                 {rx.status}
               </span>
             </div>
@@ -144,133 +142,26 @@ const MockDigitalPrescription = () => (
         </div>
       </div>
 
-      {/* RIGHT SIDE - Create Prescription */}
-      <div className="prescription-right">
-        <div className="form-title">Create Prescription</div>
+      <div className="digital-rx-right">
+        <div className="digital-rx-form-title">Create Prescription</div>
 
-        <div className="rx-input" />
-        <div className="rx-input" />
-        <div className="rx-input large" />
-        <div className="rx-input" />
+        <div className="digital-rx-input" />
+        <div className="digital-rx-input" />
+        <div className="digital-rx-input large" />
+        <div className="digital-rx-input" />
 
-        <div className="rx-submit">Generate Prescription</div>
+        <div className="digital-rx-submit">Generate Prescription</div>
       </div>
     </div>
   </div>
 );
 
-// const MockDigitalPrescription = () => (
-//   <div className="prescription-print">
-
-//     {/* Header */}
-//     <div className="print-header">
-//       <div className="clinic-logo">🏥</div>
-//       <div className="clinic-info">
-//         <h2>Hospital</h2>
-//         <p>Branch: Hyderabad</p>
-//       </div>
-//       <div className="clinic-contact">
-//         <p>📞 9000889999</p>
-//         <p>✉ demo@mail.com</p>
-//         <p>demo</p>
-//       </div>
-//     </div>
-
-//     {/* Patient Info */}
-//     <div className="patient-info">
-//       <div>
-//         <span className="info-label">PATIENT</span>
-//         <p><strong>BSR</strong></p>
-//         <p>ID: 316882331</p>
-//       </div>
-//       <div>
-//         <span className="info-label">DOCTOR</span>
-//         <p><strong>Dr. Roopa Sirigade</strong></p>
-//         <p>(Gynecologist)</p>
-//         <p>MBBS, FRCS</p>
-//       </div>
-//       <div>
-//         <span className="info-label">DATE</span>
-//         <p><strong>20 February 2026</strong></p>
-//       </div>
-//     </div>
-
-//     {/* Medicines */}
-//     <div className="section">
-//       <h3>MEDICINES</h3>
-//       <table className="print-table">
-//         <thead>
-//           <tr>
-//             <th>#</th>
-//             <th>Medicine</th>
-//             <th>Type</th>
-//             <th>Strength</th>
-//             <th>When</th>
-//             <th>Duration</th>
-//             <th>Notes</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           <tr>
-//             <td>1</td>
-//             <td>Paracetamol</td>
-//             <td>Tablet</td>
-//             <td>500mg</td>
-//             <td>Morning/Night</td>
-//             <td>3 Days</td>
-//             <td>For fever</td>
-//           </tr>
-//           <tr>
-//             <td>2</td>
-//             <td>Azithromycin</td>
-//             <td>Tablet</td>
-//             <td>250mg</td>
-//             <td>Morning</td>
-//             <td>3 Days</td>
-//             <td>Antibiotic course</td>
-//           </tr>
-//         </tbody>
-//       </table>
-//     </div>
-
-//     {/* Tests */}
-//     <div className="section">
-//       <h3>TESTS</h3>
-//       <table className="print-table">
-//         <thead>
-//           <tr>
-//             <th>#</th>
-//             <th>Test</th>
-//             <th>Type</th>
-//             <th>Notes</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           <tr>
-//             <td>1</td>
-//             <td>CT Scan</td>
-//             <td>Scan</td>
-//             <td>Follow instructions</td>
-//           </tr>
-//           <tr>
-//             <td>2</td>
-//             <td>Urine Test</td>
-//             <td>Lab Test</td>
-//             <td>Detect infection</td>
-//           </tr>
-//         </tbody>
-//       </table>
-//     </div>
-
-//   </div>
-// );
-
 const MockBilling = () => (
-  <div className="mock-ui" id="billing">
-    <div className="mock-header">
-      <span className="mock-title">💰 Billing & Claims</span>
+  <div className="smart-billing-container" id="billing">
+    <div className="smart-billing-header">
+      <span className="smart-billing-title">💰 Billing & Claims</span>
     </div>
-    <div className="billing-rows">
+    <div className="smart-billing-rows">
       {[
         {
           id: "BI - 1245",
@@ -327,12 +218,12 @@ const MockBilling = () => (
           status: "Pending",
         },
       ].map((r, i) => (
-        <div className="billing-row" key={i}>
-          <span className="bill-id">{r.id}</span>
-          <span className="bill-id">{r.appid}</span>
-          <span className="bill-amount">{r.total}</span>
+        <div className="smart-billing-row" key={i}>
+          <span className="smart-billing-id">{r.id}</span>
+          <span className="smart-billing-id">{r.appid}</span>
+          <span className="smart-billing-amount">{r.total}</span>
           <span>{r.date}</span>
-          <span className={`status-badge status-${r.status.toLowerCase()}`}>
+          <span className={`smart-billing-status ${r.status.toLowerCase()}`}>
             {r.status}
           </span>
         </div>
@@ -342,37 +233,34 @@ const MockBilling = () => (
 );
 
 const MockAttendance = () => (
-  <div className="mock-ui" id="admin-portal">
-    <div className="mock-header">
-      <span className="mock-title">📊 Dashboard / Attendance</span>
+  <div className="staff-attendance-container" id="admin-portal">
+    <div className="staff-attendance-header">
+      <span className="staff-attendance-title">📊 Dashboard / Attendance</span>
     </div>
 
-    <div className="attendance-wrapper">
-      {/* Date Badge */}
-      <div className="attendance-date">Mon, 16 January 2026</div>
+    <div className="staff-attendance-wrapper">
+      <div className="staff-attendance-date">Mon, 16 January 2026</div>
 
-      {/* Summary Cards */}
-      <div className="attendance-summary">
-        <div className="summary-card">
-          <div className="summary-circle"></div>
+      <div className="staff-attendance-summary">
+        <div className="staff-attendance-card">
+          <div className="staff-attendance-circle"></div>
           <div>
-            <div className="summary-label">Present</div>
-            <div className="summary-value">08</div>
+            <div className="staff-attendance-label">Present</div>
+            <div className="staff-attendance-value">08</div>
           </div>
         </div>
 
-        <div className="summary-card">
-          <div className="summary-circle absent"></div>
+        <div className="staff-attendance-card">
+          <div className="staff-attendance-circle absent"></div>
           <div>
-            <div className="summary-label">Absent</div>
-            <div className="summary-value">05</div>
+            <div className="staff-attendance-label">Absent</div>
+            <div className="staff-attendance-value">05</div>
           </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="attendance-table">
-        <div className="attendance-head">
+      <div className="staff-attendance-table">
+        <div className="staff-attendance-head">
           <span>Doctor Name</span>
           <span>Attendance</span>
           <span>Check In</span>
@@ -405,9 +293,9 @@ const MockAttendance = () => (
             out: "05:00 PM",
           },
         ].map((row, i) => (
-          <div className="attendance-row" key={i}>
+          <div className="staff-attendance-row" key={i}>
             <span>{row.name}</span>
-            <span className={`att-badge ${row.status.toLowerCase()}`}>
+            <span className={`staff-attendance-badge ${row.status.toLowerCase()}`}>
               {row.status}
             </span>
             <span>{row.in}</span>
@@ -420,14 +308,20 @@ const MockAttendance = () => (
 );
 
 const Branding = () => (
-  <div className="mock-ui" id="marketing">
+  <div className="branding-marketing-container" id="marketing">
     <img src={branding} alt="Branding&Marketing" />
   </div>
 );
 
 const Content = () => (
-  <div className="mock-ui" id="content-creation">
+  <div className="content-creation-container" id="content-creation">
     <img src={content} alt="Content Creation" />
+  </div>
+);
+
+const concierge = () => (
+  <div className="content-creation-container" id="content-creation">
+    <img src={conciergeImg} alt="Concierge" />
   </div>
 );
 
@@ -443,7 +337,6 @@ const sections = [
     ],
     Visual: MockScheduler,
     tagline: "Better scheduling means better patient experience.",
-
     reverse: true,
   },
   {
@@ -451,14 +344,13 @@ const sections = [
     tag: "Digital Document Management System",
     title: "Keep all medical and operational documents in one secure location.",
     bullets: [
-      " Patient reports and medical history",
+      "Patient reports and medical history",
       "Lab results and diagnostic files",
       "Prescriptions and treatment records",
       "Administrative documents",
     ],
     Visual: MockDocuments,
     tagline: "Everything is organized and accessible when you need it.",
-
     reverse: false,
   },
   {
@@ -481,14 +373,13 @@ const sections = [
     tag: "Smart Billing System",
     title: "Simplify financial management with automated billing.",
     bullets: [
-      " Generate patient invoices instantly",
+      "Generate patient invoices instantly",
       "Track payments",
       "Billing history and reports",
       "Transparent transaction records",
       "Efficient financial tracking",
     ],
     Visual: MockBilling,
-
     tagline: "Improve accuracy and save administrative time.",
     reverse: false,
   },
@@ -534,6 +425,20 @@ const sections = [
     Visual: Content,
     reverse: true,
   },
+
+{
+  id: "Concierge Services",
+  tag: "CONCIERGE SERVICES",
+  title: "Personalized patient assistance from hospital to home.",
+  bullets: [
+    "Dedicated support from hospital admission until safe arrival home",
+    "Doorstep pickup and drop services for patients and attendants",
+    "End-to-end coordination for appointments, transportation, and discharge",
+    "Comfortable, reliable, and hassle-free assistance throughout the journey",
+  ],
+  Visual: concierge,
+  reverse: false,
+},
 ];
 
 const FeatureSections = () => (

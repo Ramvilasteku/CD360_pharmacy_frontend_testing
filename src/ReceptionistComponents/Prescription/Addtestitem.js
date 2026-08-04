@@ -39,7 +39,7 @@ export default function AddTestItem({ onAdd }) {
       test_name: selected.test_name,
       test_type: selected.test_type,
       description: selected.description,
-      cost: Number(cost) || 0,
+      cost: Number(cost) || Number(selected.amount) || 0,
     });
     reset();
   };
@@ -82,6 +82,7 @@ export default function AddTestItem({ onAdd }) {
             isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={(event, value) => {
               setSelected(value);
+              setCost(value?.amount != null ? String(value.amount) : "");  // ← prefill here
             }}
             renderInput={(params) => (
               <TextField
