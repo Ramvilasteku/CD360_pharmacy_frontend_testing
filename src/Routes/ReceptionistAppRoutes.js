@@ -14,7 +14,7 @@ import Appointmentdoctorschedule from '../ReceptionistComponents/Appointmentdoct
 import Bills from "../ReceptionistComponents/Bills";
 import Clients from '../ReceptionistComponents/Clients/Clients';
 import Slots from '../ReceptionistComponents/TimeSlots/TimeSlots';
-import Prescription from '../ReceptionistComponents/AddPrescription';
+import PrescriptionTable from '../ReceptionistComponents/PrescriptionTable';
 import AddMedicine from '../ReceptionistComponents/AddMedicine';
 import AddTests from '../ReceptionistComponents/AddTests';
 // import Ipd from '../ReceptionistComponents/IPD/Ipd';
@@ -53,7 +53,7 @@ export default function ReceptionistAppRoutes() {
         <Route path="profile" element={<Profile />} />
         <Route path="medicine" element={<AddMedicine />} />
         <Route path="medicaltests" element={<AddTests />} />
-        <Route path="prescription" element={<Prescription />} />
+        <Route path="prescription" element={<PrescriptionTable />} />
         {/* <Route path="calculator" element={<Calculator />} /> */}
 
        

@@ -174,7 +174,7 @@ export default function OtpVerification() {
                     </Typography>
 
                     <Typography variant="body2" align="center" color="text.secondary" mb={3}>
-                        Enter the 6-digit OTP sent to your registered Gmail
+                        Enter the 6-digit OTP sent to your registered Whatsapp number.
                     </Typography>
 
                     <Box
