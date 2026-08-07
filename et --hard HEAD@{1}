@@ -1,0 +1,53 @@
+[33m3419e70[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD~3
+[33mf30fab4[m HEAD@{1}: commit: receptionistupdate
+[33m916d74f[m HEAD@{2}: commit: receptionistupdate
+[33md619aa6[m HEAD@{3}: commit: prescription
+[33m3419e70[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: commit: updatedprescription
+[33m457eed1[m HEAD@{5}: commit: updatedIPD
+[33m108649c[m HEAD@{6}: 
+[33maf580eb[m HEAD@{7}: commit: Track videos with Git LFS
+[33m4a12b94[m HEAD@{8}: pull origin master: Merge made by the 'ort' strategy.
+[33me14995a[m HEAD@{9}: commit: updated ourwork
+[33m10dfad3[m HEAD@{10}: pull origin master: Merge made by the 'ort' strategy.
+[33mee6f654[m HEAD@{11}: commit: updated medicines
+[33meab1cd0[m HEAD@{12}: pull origin master: Merge made by the 'ort' strategy.
+[33ma0108c7[m HEAD@{13}: commit: updatedpriscription
+[33m6d2667d[m HEAD@{14}: commit (merge): Resolve merge conflict and update payment
+[33mfc903d0[m HEAD@{15}: commit: paymentgateway
+[33m820d687[m HEAD@{16}: commit (merge): resolved map conflict
+[33m64c5529[m HEAD@{17}: commit: updated about section
+[33m474ccf4[m HEAD@{18}: commit: updatedterms
+[33mc87333e[m HEAD@{19}: commit: updatediconrouting
+[33mf290126[m HEAD@{20}: commit: updatedprivacypolicy
+[33m03d8308[m HEAD@{21}: commit: updatedplan
+[33mee1007b[m HEAD@{22}: pull origin master: Merge made by the 'ort' strategy.
+[33m767805b[m HEAD@{23}: commit: module update
+[33mdcb395f[m HEAD@{24}: commit: updated prescription
+[33md84901e[m HEAD@{25}: commit: updatedbranding
+[33mb972bae[m HEAD@{26}: commit: demoentry
+[33m477dad7[m HEAD@{27}: commit: addedmarketing
+[33m6f9684b[m HEAD@{28}: commit: updatedappointement
+[33mb939e1f[m HEAD@{29}: commit: updateddoctor
+[33m0f492ac[m HEAD@{30}: commit: allupdates
+[33m4ce2915[m HEAD@{31}: commit: allchanges
+[33m25b6294[m HEAD@{32}: commit: documentpreview
+[33m9e2ef01[m HEAD@{33}: commit: updatedclient
+[33m1585750[m HEAD@{34}: commit: updateddocuments
+[33m7404c6d[m HEAD@{35}: commit: updatedappointments
+[33md60ddbe[m HEAD@{36}: commit: updatedchanges
+[33m888ed58[m HEAD@{37}: commit: logout
+[33m0303399[m HEAD@{38}: commit: updatedapi
+[33mffd5aa3[m HEAD@{39}: commit: updatednotifications
+[33mb35d86f[m HEAD@{40}: commit: updatedappointmentstatus
+[33m76a7a57[m HEAD@{41}: commit: appointments updation
+[33mafa30fd[m HEAD@{42}: commit: updatedsidebar
+[33m3ba4898[m HEAD@{43}: commit: updatedenv
+[33m5c2cc4a[m HEAD@{44}: commit: updatedverify
+[33ma540b3a[m HEAD@{45}: commit: otpverify
+[33mbdfef3b[m HEAD@{46}: commit: updatedotp
+[33mec01021[m HEAD@{47}: commit: otpverify
+[33m50974e9[m HEAD@{48}: commit: ymlwithdel
+[33mc9e1fe3[m HEAD@{49}: commit: yamlagain
+[33m799f9da[m HEAD@{50}: commit: updatedyaml
+[33m642d56a[m HEAD@{51}: commit: updatedotp
+[33mf52cc08[m HEAD@{52}: commit (initial): firstcommit
