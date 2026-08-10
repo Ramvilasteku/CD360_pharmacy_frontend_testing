@@ -87,37 +87,37 @@ export const clientReels = [
   {
     id: 1,
     name: "Digital Bite Dental Hospital",
-    reel: "/OurWork/Reels/Digital bite.mp4",
+    reel: "https://s3-noi.aces3.ai/caredesk360/caredesk360/Workreels/Digital bite.mp4",
     specialty: "General Medicine",
   },
   {
     id: 2,
     name: "Krishna Clinics",
-    reel: "/OurWork/Reels/krishna clinics.mp4",
+    reel: "https://s3-noi.aces3.ai/caredesk360/caredesk360/Workreels/krishna clinics.mp4",
     specialty: "Dentistry",
   },
   {
     id: 3,
     name: "S Dental Care",
-    reel: "/OurWork/Reels/s dental.mp4",
+    reel: "https://s3-noi.aces3.ai/caredesk360/caredesk360/Workreels/s dental.mp4",
     specialty: "Dental Care",
   },
   {
     id: 4,
     name: "Shishuraksha Childrens Hospitals",
-    reel: "/OurWork/Reels/Shishuraksha.mp4",
+    reel: "https://s3-noi.aces3.ai/caredesk360/caredesk360/Workreels/Shishuraksha.mp4",
     specialty: "Ayurvedic",
   },
   {
     id: 5,
     name: "Trayoveda",
-    reel: "/OurWork/Reels/Trayoveda.mp4",
+    reel: "https://s3-noi.aces3.ai/caredesk360/caredesk360/Workreels/Trayoveda.mp4",
     specialty: "Dentistry",
   },
   {
     id: 6,
     name: "Asya Clinic",
-    reel: "/OurWork/Reels/Asya reel.mp4",
+    reel: "https://s3-noi.aces3.ai/caredesk360/caredesk360/Workreels/Asya reel.mp4",
     specialty: "General Medicine",
   },
 
