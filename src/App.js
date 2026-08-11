@@ -54,6 +54,7 @@ import Payment from './landingcomponents/components/payment';
 import PaymentStatus from './payments/paymentstatus';
 import Comparison from './landingcomponents/components/Comparison';
 import OurWork from './landingcomponents/components/OurWork';
+import PatientRegister from './components/PatientRegister';
  
  
 function App() {
@@ -95,6 +96,7 @@ function ProtectedRoute({ children }) {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/aboutus" element={ <AboutCareDesk360 />} />
           <Route path="/whyus" element={<WhyUs />} />
+          <Route path="/register" element={<PatientRegister />} />
           <Route path="/paymentstatus" element={<PaymentStatus />} />
         <Route path="/admin" element={<SuperAdminLogin />} />
         <Route
