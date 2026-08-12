@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./DigitalVisibilityPlan.css";
-import { useState } from "react";
-import { Box } from "@mui/material";
 import Register from "./Register";
+import { resolvePlan } from "./planPricing";
 
 const DigitalVisibilityPlan = () => {
   const [activePlan, setActivePlan] = useState("annual");
@@ -16,8 +15,7 @@ const DigitalVisibilityPlan = () => {
         `${process.env.REACT_APP_PAYMENT_BACKEND_URL}/api/phonepe/plans`,
       );
       const data = await response.json();
-      setSubscriptions(data.data);
-      console.log("Fetched subscription plans:", data);
+      setSubscriptions(data.data || []);
     } catch (error) {
       console.error("Error fetching subscription plans:", error);
     }
@@ -27,21 +25,10 @@ const DigitalVisibilityPlan = () => {
     fetchSubscriptionPlans();
   }, []);
 
-  const getSelectedPlan = (name) => {
-    const plan = subscriptions.find((p) => p.plan_name === name);
-
-    if (!plan) return null;
-    return {
-      id: plan.id,
-      name: plan.plan_name,
-
-      monthlyPrice: Number(plan.quarterly_price) / 3,
-      quarterlyPrice: Number(plan.quarterly_price),
-      yearlyPrice: Number(plan.yearly_price),
-
-      quarterly: `₹${(Number(plan.quarterly_price) / 3).toLocaleString("en-IN")} × 3`,
-      annual: `₹${(Number(plan.yearly_price) / 10).toLocaleString("en-IN")} × 10`,
-    };
+  // same for all three tabs — the cycle comes from activePlan
+  const openPayment = () => {
+    setSelectedPlan(resolvePlan("digitalVisibility", subscriptions));
+    setPaymentOpen(true);
   };
 
   return (
@@ -60,7 +47,6 @@ const DigitalVisibilityPlan = () => {
       </div>
 
       {/* Slider section start */}
-
       <div className="dvp-plan-tabs">
         <button
           className={activePlan === "monthly" ? "active" : ""}
@@ -93,29 +79,20 @@ const DigitalVisibilityPlan = () => {
             <div className="dvp-price-card">
               <h3 className="dvp-price-heading">Monthly Plan</h3>
               <h1 className="dvp-price-amount">₹10,000 +</h1>
-              <span className="dvp-price-month">₹3,999/month</span>
+              <span className="dvp-price-month">₹4,999/month</span>
             </div>
 
             <div className="dvp-price-description">
               <p>
-                Website and setup fee :<strong> ₹10,000/year</strong>.
+                Website and setup fee: <strong>₹10,000/year</strong>.
                 <br />
-                <p>
-                  Build your digital presence, streamline operations,
-                  <br />
-                  and grow your patient base.
-                </p>
+                Build your digital presence, streamline operations,
+                and grow your patient base.
               </p>
             </div>
 
             <div className="btn-div">
-              <button
-                onClick={() => {
-                  setSelectedPlan(getSelectedPlan("Digital Visibility"));
-                  setPaymentOpen(true);
-                }}
-                className="lifetime-plan-btn"
-              >
+              <button onClick={openPayment} className="lifetime-plan-btn">
                 Get Started
               </button>
             </div>
@@ -139,14 +116,9 @@ const DigitalVisibilityPlan = () => {
                 and grow your patient base.
               </p>
             </div>
+
             <div className="btn-div">
-              <button
-                onClick={() => {
-                  setSelectedPlan(getSelectedPlan("Digital Visibility"));
-                  setPaymentOpen(true);
-                }}
-                className="lifetime-plan-btn"
-              >
+              <button onClick={openPayment} className="lifetime-plan-btn">
                 Get Started
               </button>
             </div>
@@ -170,28 +142,20 @@ const DigitalVisibilityPlan = () => {
                 and grow your patient base.
               </p>
             </div>
+
             <div className="btn-div">
-              <button
-                onClick={() => {
-                  setSelectedPlan(getSelectedPlan("Digital Visibility"));
-                  setPaymentOpen(true);
-                }}
-                className="lifetime-plan-btn"
-              >
+              <button onClick={openPayment} className="lifetime-plan-btn">
                 Get Started
               </button>
             </div>
           </div>
         )}
       </div>
-
       {/* Slider section end */}
 
       {/* Cards */}
-
       <div className="dvp-grid-layout">
         {/* LEFT */}
-
         <div className="dvp-info-card">
           <div className="dvp-card-top">
             <lord-icon
@@ -205,7 +169,7 @@ const DigitalVisibilityPlan = () => {
               <h3 className="dvp-card-title">WHAT'S INCLUDED</h3>
 
               <p className="dvp-card-subtext">
-                Everything you need to grow digitally & efficiently.
+                Everything you need to grow digitally &amp; efficiently.
               </p>
             </div>
           </div>
@@ -216,10 +180,10 @@ const DigitalVisibilityPlan = () => {
             <ul className="dvp-list">
               <li>Professional, Mobile-Friendly Website</li>
               <li>SEO-Optimized Pages</li>
-              <li>Contact Forms & Click-to-Call</li>
+              <li>Contact Forms &amp; Click-to-Call</li>
               <li>Google Maps Integration</li>
-              <li>SSL Certificate & Basic Security</li>
-              <li>Website Hosting & Maintenance</li>
+              <li>SSL Certificate &amp; Basic Security</li>
+              <li>Website Hosting &amp; Maintenance</li>
             </ul>
           </div>
 
@@ -230,19 +194,18 @@ const DigitalVisibilityPlan = () => {
 
             <ul className="dvp-list">
               <li>Appointment Scheduling</li>
-              <li>Patient Registration & Records</li>
+              <li>Patient Registration &amp; Records</li>
               <li>OPD Management</li>
-              <li>Billing & Invoicing</li>
+              <li>Billing &amp; Invoicing</li>
               <li>Prescription Management</li>
               <li>Inventory Management</li>
-              <li>Staff & Role Management</li>
-              <li>Reports & Analytics Dashboard</li>
+              <li>Staff &amp; Role Management</li>
+              <li>Reports &amp; Analytics Dashboard</li>
             </ul>
           </div>
         </div>
 
         {/* RIGHT */}
-
         <div className="dvp-info-card">
           <div className="dvp-card-top">
             <lord-icon
@@ -253,7 +216,9 @@ const DigitalVisibilityPlan = () => {
             ></lord-icon>
 
             <div>
-              <h3 className="dvp-card-title">DIGITAL VISIBILITY & MARKETING</h3>
+              <h3 className="dvp-card-title">
+                DIGITAL VISIBILITY &amp; MARKETING
+              </h3>
 
               <p className="dvp-card-subtext">
                 Get discovered, build trust and attract more patients.
@@ -263,7 +228,7 @@ const DigitalVisibilityPlan = () => {
 
           <div className="dvp-card-section">
             <h4 className="dvp-section-heading">
-              3. PROFILE OPTIMIZATION & MANAGEMENT
+              3. PROFILE OPTIMIZATION &amp; MANAGEMENT
             </h4>
 
             <ul className="dvp-list">
@@ -277,7 +242,7 @@ const DigitalVisibilityPlan = () => {
           </div>
 
           <div className="dvp-card-section">
-            <h4 className="dvp-section-heading">4. CONTENT & MARKETING</h4>
+            <h4 className="dvp-section-heading">4. CONTENT &amp; MARKETING</h4>
 
             <ul className="dvp-list">
               <li>Design of 12 Creatives for Social Media Every Month</li>
@@ -292,10 +257,10 @@ const DigitalVisibilityPlan = () => {
           <div className="dvp-card-section">
             <h4 className="dvp-section-heading">5. ADD-ONS</h4>
 
-            <ul>
+            <ul className="dvp-list">
               <li>
-                Each service starts at ₹3,000 - Video Editing, AI Clone Videos &
-                Shoot Services (2 videos, 30 seconds each).
+                Each service starts at ₹3,000 - Video Editing, AI Clone Videos
+                &amp; Shoot Services (2 videos, 30 seconds each).
               </li>
             </ul>
           </div>
@@ -306,6 +271,7 @@ const DigitalVisibilityPlan = () => {
         open={paymentopen}
         onClose={() => setPaymentOpen(false)}
         selectedPlan={selectedPlan}
+        defaultBillingCycle={activePlan}
       />
     </section>
   );

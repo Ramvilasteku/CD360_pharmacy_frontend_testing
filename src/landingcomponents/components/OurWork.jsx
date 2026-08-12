@@ -10,67 +10,195 @@ import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import { clientsLogo } from "./OurWorkData";
-import { clientReels } from "./OurWorkData";
-import { clientPosts } from "./OurWorkData";
+import {
+  clientsLogo,
+  clientReels,
+  clientPosts,
+  onlyActive,
+} from "./OurWorkData";
+
+/* =========================================================
+   YOUTUBE IFRAME API — loaded once, shared by every player
+========================================================= */
+
+let ytApiPromise = null;
+
+const loadYouTubeApi = () => {
+  if (ytApiPromise) return ytApiPromise;
+
+  ytApiPromise = new Promise((resolve) => {
+    if (window.YT && window.YT.Player) return resolve(window.YT);
+
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (typeof prev === "function") prev();
+      resolve(window.YT);
+    };
+
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+  });
+
+  return ytApiPromise;
+};
+
+/* shorts/ID | youtu.be/ID | watch?v=ID | embed/ID */
+const getYouTubeId = (url = "") => {
+  const match = url.match(
+    /(?:shorts\/|youtu\.be\/|[?&]v=|embed\/)([A-Za-z0-9_-]{11})/,
+  );
+  return match ? match[1] : null;
+};
+
+/* =========================================================
+   ONE REEL — renders an <video> or a YouTube player.
+   Only the active slide plays; everything else is paused
+   and muted so two audio tracks can never overlap.
+========================================================= */
+
+const ReelPlayer = ({ client, isActive, isMuted, onEnded }) => {
+  const isYouTube = client.type === "youtube";
+
+  /* ---------- mp4 ---------- */
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (isYouTube) return;
+
+    const el = videoRef.current;
+    if (!el) return;
+
+    if (isActive) {
+      el.muted = isMuted;
+      el.play().catch(() => {});
+    } else {
+      el.pause();
+      el.muted = true;
+      el.currentTime = 0;
+    }
+  }, [isActive, isMuted, isYouTube]);
+
+  /* ---------- youtube ---------- */
+  const hostRef = useRef(null);
+  const playerRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  const videoId = isYouTube ? getYouTubeId(client.reel) : null;
+
+  useEffect(() => {
+    if (!isYouTube || !videoId) return;
+
+    let cancelled = false;
+
+    loadYouTubeApi().then((YT) => {
+      if (cancelled || !hostRef.current) return;
+
+      playerRef.current = new YT.Player(hostRef.current, {
+        videoId,
+        playerVars: {
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          playsinline: 1,
+          fs: 0,
+          disablekb: 1,
+        },
+        events: {
+          onReady: () => {
+            if (!cancelled) setReady(true);
+          },
+          onStateChange: (e) => {
+            if (e.data === YT.PlayerState.ENDED) onEnded?.();
+          },
+        },
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      try {
+        playerRef.current?.destroy();
+      } catch (_) {
+        /* player already gone */
+      }
+      playerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isYouTube, videoId]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!isYouTube || !ready || !player) return;
+
+    if (isActive) {
+      if (isMuted) player.mute();
+      else player.unMute();
+      player.seekTo(0);
+      player.playVideo();
+    } else {
+      player.mute();
+      player.pauseVideo();
+      player.seekTo(0);
+    }
+  }, [isActive, isMuted, ready, isYouTube]);
+
+  /* ---------- render ---------- */
+
+  if (isYouTube) {
+    if (!videoId) {
+      return <div className="ow-reel-error">Invalid video link</div>;
+    }
+
+    return (
+      <div className="ow-yt-frame">
+        <div ref={hostRef} />
+      </div>
+    );
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      src={client.reel}
+      playsInline
+      preload="metadata"
+      onEnded={onEnded}
+      style={{ borderRadius: "20px", width: "100%" }}
+    />
+  );
+};
+
+/* =========================================================
+   OUR WORK
+========================================================= */
 
 const OurWork = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const swiperRef = useRef(null);
 
-  // Handle video end - auto swipe to next
+  // Auto-advance when a reel finishes
   const handleVideoEnd = () => {
     if (swiperRef.current) {
       swiperRef.current.slideNext();
     }
   };
 
-  // Handle slide change - only play current video
+  // Each ReelPlayer reacts to isActive/isMuted itself
   const handleSlideChange = (swiper) => {
-    const newIndex = swiper.realIndex;
-    setCurrentIndex(newIndex);
+    setCurrentIndex(swiper.realIndex);
     setIsMuted(true);
   };
 
-  // Effect to control video playback - ensure only current video plays with audio
-  useEffect(() => {
-    // Get all videos in the swiper
-    const allVideos = document.querySelectorAll(".ow-swiper-slide video");
+  const toggleMute = () => setIsMuted((prev) => !prev);
 
-    allVideos.forEach((video, index) => {
-      if (index === currentIndex) {
-        // This is the current video - play it with correct mute state
-        video.muted = isMuted;
-        video.currentTime = 0;
-        video.play().catch((err) => console.log("Play error:", err));
-      } else {
-        // All other videos - pause and mute them completely
-        video.pause();
-        video.muted = true;
-        video.currentTime = 0;
-      }
-    });
-  }, [currentIndex, isMuted]);
+  const handleNext = () => swiperRef.current?.slideNext();
+  const handlePrev = () => swiperRef.current?.slidePrev();
 
-  // Handle mute/unmute
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  // Handle next slide
-  const handleNext = () => {
-    if (swiperRef.current) {
-      swiperRef.current.slideNext();
-    }
-  };
-
-  // Handle previous slide
-  const handlePrev = () => {
-    if (swiperRef.current) {
-      swiperRef.current.slidePrev();
-    }
-  };
+  const activeReels = React.useMemo(() => onlyActive(clientReels), []);
+  const activePosts = React.useMemo(() => onlyActive(clientPosts), []);
+  const activeLogos = React.useMemo(() => onlyActive(clientsLogo), []);
 
   return (
     <section className="our-work-section">
@@ -85,12 +213,9 @@ const OurWork = () => {
           </p>
         </div>
 
-        {/* Main Content - Reels with Posts Background */}
+        {/* Main Content - Reels */}
         <div className="ow-main-content-wrapper">
-          {/* Posts Background - Three Rows */}
-          {/* Centered Reels - Foreground */}
           <div className="ow-main-content">
-            {/* Left Side - Reels Swiper */}
             <div className="ow-reels-container">
               <Swiper
                 onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -104,31 +229,31 @@ const OurWork = () => {
                 }}
                 className="ow-swiper"
               >
-                {clientReels.map((client, index) => (
+                {activeReels.map((client, index) => (
                   <SwiperSlide key={client.id} className="ow-swiper-slide">
                     <div className="ow-reel-wrapper">
-                      {/* Video Player - Controlled by useEffect to avoid multiple audios */}
-                      <video
+                      <ReelPlayer
+                        client={client}
+                        isActive={index === currentIndex}
+                        isMuted={isMuted}
                         onEnded={handleVideoEnd}
-                        src={client.reel}
-                        style={{ borderRadius: "20px", width: "100%" }}
                       />
 
-                      {/* Video Controls Overlay */}
+                      {/* Controls Overlay */}
                       <div className="ow-video-overlay">
                         {/* Client Info - Top Left */}
                         <div className="ow-client-info">
                           <h3>{client.name}</h3>
                         </div>
 
-                        {/* Video Counter - Top Right */}
+                        {/* Counter */}
                         <div className="ow-counter">
                           <span>{currentIndex + 1}</span>
                           <span>/</span>
-                          <span>{clientReels.length}</span>
+                          <span>{activeReels.length}</span>
                         </div>
 
-                        {/* Video Controls - Bottom Left - Only Mute/Unmute */}
+                        {/* Mute / Unmute */}
                         <div className="ow-video-controls">
                           <button
                             className="ow-control-btn mute-btn"
@@ -140,7 +265,7 @@ const OurWork = () => {
                           </button>
                         </div>
 
-                        {/* Navigation Arrows - Right Side */}
+                        {/* Navigation Arrows */}
                         <div className="ow-nav-arrows">
                           <button
                             className="ow-nav-btn"
@@ -181,23 +306,14 @@ const OurWork = () => {
               disableOnInteraction: false,
             }}
             breakpoints={{
-              320: {
-                slidesPerView: 2,
-                spaceBetween: 30,
-              },
-              768: {
-                slidesPerView: 5,
-                spaceBetween: 20,
-              },
-              1200: {
-                slidesPerView: 7,
-                spaceBetween: 45,
-              },
+              320: { slidesPerView: 2, spaceBetween: 30 },
+              768: { slidesPerView: 5, spaceBetween: 20 },
+              1200: { slidesPerView: 7, spaceBetween: 45 },
             }}
             modules={[Autoplay]}
             className="ow-post-swiper"
           >
-            {clientPosts.map((client) => (
+            {activePosts.map((client) => (
               <SwiperSlide key={client.id}>
                 <div className="ow-post-image">
                   <img src={client.image} alt={client.title} />
@@ -207,7 +323,7 @@ const OurWork = () => {
           </Swiper>
         </div>
 
-        {/*Client Logos */}
+        {/* Client Logos */}
         <div className="ow-clients-sidebar">
           <h1>Our Clients</h1>
           <Swiper
@@ -220,23 +336,14 @@ const OurWork = () => {
               disableOnInteraction: false,
             }}
             breakpoints={{
-              320: {
-                slidesPerView: 2,
-                spaceBetween: 30,
-              },
-              768: {
-                slidesPerView: 5,
-                spaceBetween: 20,
-              },
-              1200: {
-                slidesPerView: 7,
-                spaceBetween: 25,
-              },
+              320: { slidesPerView: 2, spaceBetween: 30 },
+              768: { slidesPerView: 5, spaceBetween: 20 },
+              1200: { slidesPerView: 7, spaceBetween: 25 },
             }}
             modules={[Autoplay]}
             className="ow-logo-swiper"
           >
-            {clientsLogo.map((client) => (
+            {activeLogos.map((client) => (
               <SwiperSlide key={client.id}>
                 <div className="ow-logo-image">
                   <img src={client.logo} alt={client.name} />
@@ -249,18 +356,19 @@ const OurWork = () => {
 
       <div className="gmb-instagram-links">
         <iframe
+          title="Google Reviews"
           src="https://widgets.sociablekit.com/google-reviews/iframe/25687238"
-          frameborder="0"
+          frameBorder="0"
           width="100%"
           height="550px"
         ></iframe>
 
         <iframe
+          title="Instagram Reels"
           src="https://widgets.sociablekit.com/instagram-reels/iframe/25687241"
-          frameborder="0"
+          frameBorder="0"
           width="100%"
           height="1000px"
-
         ></iframe>
       </div>
     </section>

@@ -11,62 +11,71 @@ import {
   MenuItem,
   CircularProgress,
   Typography,
-  Grid,
   Paper,
   Divider,
   Box,
   IconButton,
 } from "@mui/material";
-import logo from "../Assets/caredesk360.png";
 import CloseIcon from "@mui/icons-material/Close";
 
-export default function Register({ open, onClose, selectedPlan }) {
-  const initialForm = {
-    companyName: "",
-    gst: "",
-    adminName: "",
-    email: "",
-    mobile: "",
-    password: "",
-    planId: "",
-    billingCycle: "",
-  };
+import logo from "../Assets/caredesk360.png";
+import { GST_RATE, inr, normalizeCycle } from "./planPricing";
 
+
+const initialForm = {
+  companyName: "",
+  gst: "",
+  adminName: "",
+  email: "",
+  mobile: "",
+  password: "",
+  planId: "",
+  billingCycle: "",
+};
+
+export default function Register({
+  open,
+  onClose,
+  selectedPlan,
+  defaultBillingCycle,
+}) {
   const [form, setForm] = useState(initialForm);
-
   const [loading, setLoading] = useState(false);
 
+  const cycles = selectedPlan?.cycles || [];
+
   useEffect(() => {
-    if (open) {
-      setForm({
-        ...initialForm,
-        planId: selectedPlan?.id || "",
-      });
-    } else {
+    if (!open) {
       setForm(initialForm);
       setLoading(false);
+      return;
     }
-  }, [open, selectedPlan]);
 
+    const wanted = normalizeCycle(defaultBillingCycle);
+    const match = cycles.find((c) => c.value === wanted);
 
-  const selectedPrice =
-    form.billingCycle === "QUARTERLY"
-      ? {
-          display: selectedPlan?.quarterly,
-          total: selectedPlan?.quarterlyPrice,
-        }
-      : form.billingCycle === "YEARLY"
-        ? {
-            display: selectedPlan?.annual,
-            total: selectedPlan?.yearlyPrice,
-          }
-        : {
-            display: "",
-            total: "",
-          };
+    setForm({
+      ...initialForm,
+      planId: selectedPlan?.id || "",
+      // plans with a single cycle lock to it automatically
+      billingCycle:
+        match?.value || (cycles.length === 1 ? cycles[0].value : ""),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, selectedPlan, defaultBillingCycle]);
 
-  const yearlySaving =
-    form.billingCycle === "YEARLY" ? selectedPlan?.monthlyPrice * 2 : 0;
+  /* ---------- price maths ---------- */
+
+  const activeCycle = cycles.find((c) => c.value === form.billingCycle) || null;
+  const lineItems = activeCycle?.lineItems || [];
+
+  const subTotal = lineItems.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+  const gstAmount = Math.round(subTotal * GST_RATE);
+  const grandTotal = subTotal + gstAmount;
+
+  const isFree = Boolean(activeCycle) && grandTotal === 0;
+
+  /* ---------- handlers ---------- */
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -82,24 +91,35 @@ export default function Register({ open, onClose, selectedPlan }) {
 
   const register = async (e) => {
     e.preventDefault();
-    const paymentTab = window.open("", "_blank");
+
+    if (!form.billingCycle) {
+      alert("Please select a billing cycle");
+      return;
+    }
+
+    if (!selectedPlan?.id) {
+      alert("This plan is unavailable right now. Please try again shortly.");
+      return;
+    }
+
+    // free plans never touch the payment gateway
+    const paymentTab = isFree ? null : window.open("", "_blank");
 
     try {
       setLoading(true);
 
-      console.log("Sending registration:", form);
-
-      // Step 1: Register
       const registerResponse = await axios.post(
         `${process.env.REACT_APP_PAYMENT_BACKEND_URL}/api/phonepe/register`,
         form,
       );
-
       const registrationId = registerResponse.data.registrationId;
 
-      console.log("Registration ID:", registrationId);
+      if (isFree) {
+        alert("Registration successful. Our team will contact you shortly.");
+        onClose();
+        return;
+      }
 
-      // Step 2: Create Payment
       const paymentResponse = await axios.post(
         `${process.env.REACT_APP_PAYMENT_BACKEND_URL}/api/phonepe/create-payment`,
         {
@@ -107,17 +127,11 @@ export default function Register({ open, onClose, selectedPlan }) {
         },
       );
 
-      console.log("Payment Response:", paymentResponse.data);
-
-      // Step 3: Redirect to PhonePe payment page
-      // Replace paymentUrl with the actual key returned by your API
       paymentTab.location.href = paymentResponse.data.redirectUrl;
-
       onClose();
     } catch (err) {
       console.error(err);
       if (paymentTab) paymentTab.close();
-
       alert(err.response?.data?.message || "Registration Failed");
     } finally {
       setLoading(false);
@@ -128,6 +142,7 @@ export default function Register({ open, onClose, selectedPlan }) {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 2,
     py: 1,
   };
 
@@ -139,45 +154,22 @@ export default function Register({ open, onClose, selectedPlan }) {
       maxWidth="lg"
       PaperProps={{
         sx: {
-          width: {
-            xs: "95%",
-            sm: "95%",
-            md: "1000px",
-          },
+          width: { xs: "95%", sm: "95%", md: "1000px" },
           maxWidth: "1000px",
-          height: {
-            xs: "100vh",
-            sm: "90vh",
-          },
-          m: {
-            xs: 0,
-            sm: 2,
-          },
-          borderRadius: {
-            xs: 4,
-            sm: 4,
-          },
+          height: { xs: "100vh", sm: "90vh" },
+          m: { xs: 0, sm: 2 },
+          borderRadius: 4,
           overflow: "hidden",
         },
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          height: "100%",
-          overflow: "hidden",
-        }}
-      >
-        {/* Left Panel */}
-
+      <Box sx={{ display: "flex", height: "100%", overflow: "hidden" }}>
+        {/* ---------- Left Panel ---------- */}
         <Box
           className="modal-left"
           sx={{
             width: "38%",
-            display: {
-              xs: "none",
-              md: "flex",
-            },
+            display: { xs: "none", md: "flex" },
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
@@ -185,46 +177,26 @@ export default function Register({ open, onClose, selectedPlan }) {
             p: 5,
           }}
         >
-          <Box
-            component="img"
-            src={logo}
-            sx={{
-              width: 170,
-              mb: 3,
-            }}
-          />
+          <Box component="img" src={logo} sx={{ width: 170, mb: 3 }} />
 
           <Typography
             variant="h4"
             fontWeight={800}
-            sx={{
-              opacity: 0.9,
-              lineHeight: 1.8,
-              color: "#233D81",
-            }}
+            sx={{ opacity: 0.9, lineHeight: 1.8, color: "#233D81" }}
           >
             CareDesk360
           </Typography>
 
-          <Typography
-            sx={{
-              opacity: 0.9,
-              lineHeight: 1.8,
-              color: "#233D81",
-            }}
-          >
-            Intelligent Practice Management & Digital Growth Platform for Modern
-            Healthcare.
+          <Typography sx={{ opacity: 0.9, lineHeight: 1.8, color: "#233D81" }}>
+            Intelligent Practice Management &amp; Digital Growth Platform for
+            Modern Healthcare.
           </Typography>
         </Box>
 
-        {/* Right Panel */}
+        {/* ---------- Right Panel ---------- */}
         <Box
           sx={{
-            width: {
-              xs: "100%",
-              md: "62%",
-            },
+            width: { xs: "100%", md: "62%" },
             display: "flex",
             flexDirection: "column",
             height: "100%",
@@ -234,9 +206,7 @@ export default function Register({ open, onClose, selectedPlan }) {
           {/* Header */}
           <Box
             sx={{
-              position: "sticky",
-              top: 0,
-              zIndex: 10,
+              flexShrink: 0,
               bgcolor: "#fff",
               borderBottom: "1px solid #e5e7eb",
               px: { xs: 2, sm: 4 },
@@ -246,25 +216,12 @@ export default function Register({ open, onClose, selectedPlan }) {
               justifyContent: "space-between",
             }}
           >
-            <Box
-              sx={{
-                flexShrink: 0,
-                position: "sticky",
-                top: 0,
-                zIndex: 20,
-                bgcolor: "#fff",
-                py: 1.5,
-              }}
-            >
+            <Box sx={{ py: 1.5 }}>
               <DialogTitle
                 sx={{
                   p: 0,
                   fontWeight: 700,
-                  fontSize: {
-                    xs: 14,
-                    sm: 24,
-                  },
-
+                  fontSize: { xs: 14, sm: 24 },
                   color: "#1976d2",
                 }}
               >
@@ -275,24 +232,21 @@ export default function Register({ open, onClose, selectedPlan }) {
                 color="text.secondary"
                 sx={{
                   display: { xs: "none", md: "block" },
-                  fontSize: {
-                    xs: 9,
-                    sm: 16,
-                  },
+                  fontSize: { xs: 9, sm: 16 },
                 }}
               >
-                Complete your registration and proceed to secure payment.
+                {isFree
+                  ? "Complete your registration to activate your free plan."
+                  : "Complete your registration and proceed to secure payment."}
               </Typography>
             </Box>
 
-            <Box>
-              <IconButton onClick={handleClose} disabled={loading}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
+            <IconButton onClick={handleClose} disabled={loading}>
+              <CloseIcon />
+            </IconButton>
           </Box>
 
-          {/* Form And Footer */}
+          {/* Form + Footer */}
           <form
             onSubmit={register}
             style={{
@@ -302,21 +256,13 @@ export default function Register({ open, onClose, selectedPlan }) {
               overflow: "hidden",
             }}
           >
-            {/* Form Fileds */}
             <DialogContent
               sx={{
                 flex: 1,
                 overflowY: "auto",
-                px: {
-                  xs: 2,
-                  sm: 4,
-                },
+                px: { xs: 2, sm: 4 },
                 py: 1.5,
-
-                "&::-webkit-scrollbar": {
-                  width: 6,
-                },
-
+                "&::-webkit-scrollbar": { width: 6 },
                 "&::-webkit-scrollbar-thumb": {
                   bgcolor: "#C7C7C7",
                   borderRadius: 5,
@@ -411,21 +357,9 @@ export default function Register({ open, onClose, selectedPlan }) {
                 />
               </Box>
 
-              <TextField
-                select
-                fullWidth
-                margin="normal"
-                label="Billing Cycle"
-                name="billingCycle"
-                value={form.billingCycle}
-                onChange={handleChange}
-                required
-              >
-                <MenuItem value="QUARTERLY">Quarterly</MenuItem>
-                <MenuItem value="YEARLY">Yearly</MenuItem>
-              </TextField>
-
+              {/* ---------- PAYMENT SUMMARY ---------- */}
               <Paper
+                elevation={0}
                 sx={{
                   mt: 2,
                   p: 2.5,
@@ -440,51 +374,83 @@ export default function Register({ open, onClose, selectedPlan }) {
 
                 <Box sx={summaryRow}>
                   <Typography color="text.secondary">Selected Plan</Typography>
-                  <Typography fontWeight={600}>{selectedPlan?.name}</Typography>
+                  <Typography fontWeight={600}>
+                    {selectedPlan?.name || "--"}
+                  </Typography>
                 </Box>
 
                 <Box sx={summaryRow}>
                   <Typography color="text.secondary">Billing Cycle</Typography>
+
+                  {cycles.length > 1 ? (
+                    <TextField
+                      select
+                      size="small"
+                      name="billingCycle"
+                      value={form.billingCycle}
+                      onChange={handleChange}
+                      SelectProps={{ displayEmpty: true }}
+                      sx={{
+                        minWidth: 170,
+                        "& .MuiOutlinedInput-root": {
+                          bgcolor: "#fff",
+                          borderRadius: 2,
+                          fontWeight: 600,
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        Select cycle
+                      </MenuItem>
+                      {cycles.map((c) => (
+                        <MenuItem key={c.value} value={c.value}>
+                          {c.label} {c.note}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  ) : (
+                    <Typography fontWeight={600}>
+                      {activeCycle?.label || "--"}{" "}
+                      <Typography
+                        component="span"
+                        sx={{ fontSize: "0.8rem", color: "text.secondary" }}
+                      >
+                        {activeCycle?.note}
+                      </Typography>
+                    </Typography>
+                  )}
+                </Box>
+
+                {/* one row per charge */}
+                {lineItems.map((item) => (
+                  <Box sx={summaryRow} key={item.label}>
+                    <Typography color="text.secondary" sx={{ fontSize: 14 }}>
+                      {item.label}
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      color={item.amount === 0 ? "success.main" : "inherit"}
+                      sx={{ whiteSpace: "nowrap" }}
+                    >
+                      {item.amount === 0 ? "FREE" : inr(item.amount)}
+                    </Typography>
+                  </Box>
+                ))}
+
+                <Divider sx={{ my: 1.5 }} />
+
+                <Box sx={summaryRow}>
+                  <Typography color="text.secondary">Sub Total</Typography>
                   <Typography fontWeight={600}>
-                    {form.billingCycle || "--"}
+                    {activeCycle ? inr(subTotal) : "--"}
                   </Typography>
                 </Box>
 
                 <Box sx={summaryRow}>
-                  <Typography color="text.secondary">
-                    Amount
-                    {form.billingCycle === "YEARLY" && yearlySaving > 0 && (
-                      <Typography
-                        component="span"
-                        sx={{
-                          ml: 0.3,
-                          color: "success.main",
-                          fontWeight: 600,
-                          fontSize: "0.8rem",
-                        }}
-                      >
-                        (2 Months Free)
-                      </Typography>
-                    )}
+                  <Typography color="text.secondary">GST (18%)</Typography>
+                  <Typography fontWeight={600}>
+                    {activeCycle ? inr(gstAmount) : "--"}
                   </Typography>
-                  <Box textAlign="right">
-                    <Typography fontWeight={600}>
-                      {selectedPrice.display}
-                      {form.billingCycle === "YEARLY" && yearlySaving > 0 && (
-                        <Typography
-                          component="span"
-                          sx={{
-                            ml: 0.5,
-                            color: "success.main",
-                            fontWeight: 600,
-                            fontSize: "0.8rem",
-                          }}
-                        >
-                          (Save ₹{yearlySaving.toLocaleString("en-IN")} )
-                        </Typography>
-                      )}
-                    </Typography>
-                  </Box>
                 </Box>
 
                 <Divider sx={{ my: 2 }} />
@@ -497,31 +463,30 @@ export default function Register({ open, onClose, selectedPlan }) {
                   }}
                 >
                   <Typography variant="h6" fontWeight={700}>
-                    Total
+                    Total{" "}
+                    <Typography
+                      component="span"
+                      sx={{ fontSize: "0.8rem", color: "text.secondary" }}
+                    >
+                      (incl. GST)
+                    </Typography>
                   </Typography>
 
                   <Typography variant="h5" fontWeight={800} color="#1565C0">
-                    {selectedPrice.total
-                      ? `₹${Number(selectedPrice.total).toLocaleString("en-IN")}`
-                      : "--"}
+                    {activeCycle ? inr(grandTotal) : "--"}
                   </Typography>
                 </Box>
               </Paper>
             </DialogContent>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <div className="button-wrapper">
               <DialogActions
                 sx={{
                   flexShrink: 0,
-                  position: "sticky",
-                  bottom: 0,
                   bgcolor: "#fff",
                   borderTop: "1px solid #ECECEC",
-                  px: {
-                    xs: 2,
-                    sm: 4,
-                  },
+                  px: { xs: 2, sm: 4 },
                   py: 2,
                 }}
               >
@@ -529,11 +494,8 @@ export default function Register({ open, onClose, selectedPlan }) {
                   type="submit"
                   variant="contained"
                   size="large"
-                  disabled={loading}
-                  sx={{
-                    px: 1,
-                    borderRadius: 2,
-                  }}
+                  disabled={loading || !form.billingCycle}
+                  sx={{ px: 3, borderRadius: 2 }}
                 >
                   {loading ? (
                     <>
@@ -544,6 +506,8 @@ export default function Register({ open, onClose, selectedPlan }) {
                       />
                       Please Wait...
                     </>
+                  ) : isFree ? (
+                    "Create Free Account"
                   ) : (
                     "Continue to Payment"
                   )}

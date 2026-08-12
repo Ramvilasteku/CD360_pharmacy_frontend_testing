@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { HashLink } from "react-router-hash-link";
 import { NavLink, useNavigate } from "react-router-dom";
 
-import nameLogo from "../Assets/caredesk360newlogo.jpeg";
+import nameLogo from "../Assets/caredesk360  new logo-03.png";
 
 const style = {
   position: "absolute",

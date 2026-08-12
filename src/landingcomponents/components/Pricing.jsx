@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -11,6 +11,7 @@ import Navbar from "./Navbar";
 import heroImage from "../Assets/pricehero.png";
 import Footer from "./Footer";
 import { Box } from "@mui/material";
+import { resolvePlan } from "./planPricing";
 
 const Pricing = () => {
   const [open, setOpen] = useState(false);
@@ -19,10 +20,91 @@ const Pricing = () => {
   const [paymentopen, setPaymentOpen] = useState(false);
 
   const [openFeature, setOpenFeature] = useState(null);
+  const [activeTopPlan, setActiveTopPlan] = useState("lifetime");
+  const [billingCycle, setBillingCycle] = useState("annual");
+  const [activeCompare, setActiveCompare] = useState("Growth");
+
+  /* Horizontal scroll progress for the mobile compare tabs */
+  const cmpTabsRef = useRef(null);
+  const [tabIndicator, setTabIndicator] = useState({ width: 100, left: 0 });
 
   const toggleFeatures = (plan) => {
     setOpenFeature(openFeature === plan ? null : plan);
   };
+
+  const updateTabIndicator = () => {
+    const el = cmpTabsRef.current;
+    if (!el) return;
+
+    const max = el.scrollWidth - el.clientWidth;
+
+    // Nothing to scroll - fill the whole track
+    if (max <= 0) {
+      setTabIndicator({ width: 100, left: 0 });
+      return;
+    }
+
+    const width = Math.max((el.clientWidth / el.scrollWidth) * 100, 22);
+    const progress = el.scrollLeft / max;
+
+    setTabIndicator({ width, left: progress * (100 - width) });
+  };
+
+  useEffect(() => {
+    const el = cmpTabsRef.current;
+    if (!el) return;
+
+    updateTabIndicator();
+    el.addEventListener("scroll", updateTabIndicator, { passive: true });
+    window.addEventListener("resize", updateTabIndicator);
+
+    return () => {
+      el.removeEventListener("scroll", updateTabIndicator);
+      window.removeEventListener("resize", updateTabIndicator);
+    };
+  }, []);
+
+  const topPlans = [
+    {
+      id: "software",
+      label: "Software Plan",
+      shortLabel: "Software",
+      isFree: true,
+      price: "FREE",
+      tag: "One Year CMS",
+      highlight: false,
+      features: ["Clinic/Hospital Management Software"],
+    },
+    {
+      id: "website",
+      label: "Website Plan",
+      shortLabel: "Website",
+      isFree: false,
+      price: "₹10,000",
+      tag: "One Year CMS Free",
+      highlight: false,
+      features: [
+        "Custom Advanced Website",
+        "Clinic/Hospital Management Software",
+      ],
+    },
+    {
+      id: "lifetime",
+      label: "Lifetime Plan",
+      shortLabel: "Lifetime",
+      isFree: false,
+      price: "₹10,000",
+      tag: "Offer First 100 Clinics/Hospitals",
+      highlight: true,
+      features: [
+        "Lifetime Clinic/Hospital Management Software (10yrs)",
+        "No Monthly or Annual Subscription Fees",
+      ],
+    },
+  ];
+
+  const currentTopPlan =
+    topPlans.find((p) => p.id === activeTopPlan) || topPlans[0];
 
   const plans = [
     {
@@ -30,6 +112,7 @@ const Pricing = () => {
       quarterly: "₹10,000 x 3",
       annual: "₹8,333 x 12",
       planId: "Growth",
+      buttonName: "Choose Growth",
       features: [
         "Website and Clinic/Hospital Management Software.",
         "Social media management and content creation (up to 6 posts and 2 reels per month).",
@@ -49,6 +132,7 @@ const Pricing = () => {
       annual: "₹12,500 x 12",
       planId: "Scale",
       bestSeller: true,
+      buttonName: "Choose Scale",
       features: [
         "Website and Clinic/Hospital Management Software.",
         "Social media management and content creation (up to 8 posts and 4 reels per month).",
@@ -65,34 +149,11 @@ const Pricing = () => {
       ],
     },
     {
-      name: "Legacy",
-      quarterly: "₹45,000 x 3",
-      annual: "₹37,500 x 12",
-      planId: "Legacy",
-      features: [
-        "Website and Clinic/Hospital Management Software.",
-        "Social media management and content creation (up to 20 posts and 12 reels per month).",
-        "Festive Posts.",
-        "GMB and LinkedIn optimization, 8 blogs every month, and 2–3 LinkedIn articles every month.",
-        "4 UGC influencers, OOH, and DOOH ad support.",
-        "Multi Meta & Google awareness campaigns.",
-        "Dedicated Account Manager.",
-        "4 content shoots and training for your team.",
-        "Multi specialties.",
-        "Priority support, branding support, reputation management, content shoots, and training.",
-        "Custom landing pages for the website and ads.",
-        "Dedicated ad specialist.",
-        "3 YouTube videos every month.",
-        "8 blogs every month.",
-        "High-quality reels every month covering preventive care, treatment awareness, aftercare guidance, patient education, and patient testimonials.",
-        "Multiple patient touchpoints across 6 powerful digital platforms, ensuring patients find and trust you wherever they search.",
-      ],
-    },
-    {
       name: "Scale Advantage",
       quarterly: "₹20,000 x 3",
       annual: "₹16,666 x 12",
       planId: "Scale Advantage",
+      buttonName: "Choose Advantage",
       features: [
         "Website and Clinic/Hospital Management Software.",
         "Social media management and content creation (up to 8 posts and 6 reels per month).",
@@ -114,6 +175,7 @@ const Pricing = () => {
       quarterly: "₹30,000 x 3",
       annual: "₹25,000 x 12",
       planId: "Scale Advantage Plus",
+      buttonName: "Choose Adv Plus",
       features: [
         "Website and Clinic/Hospital Management Software.",
         "Social media management and content creation (up to 10 posts and 8 reels per month).",
@@ -131,15 +193,148 @@ const Pricing = () => {
         "Multiple patient touchpoints across 6 powerful digital platforms, ensuring patients find and trust you wherever they search.",
       ],
     },
+    {
+      name: "Legacy",
+      quarterly: "₹45,000 x 3",
+      annual: "₹37,500 x 12",
+      planId: "Legacy",
+      buttonName: "Choose Legacy",
+      features: [
+        "Website and Clinic/Hospital Management Software.",
+        "Social media management and content creation (up to 20 posts and 12 reels per month).",
+        "Festive Posts.",
+        "GMB and LinkedIn optimization, 8 blogs every month, and 2–3 LinkedIn articles every month.",
+        "4 UGC influencers, OOH, and DOOH ad support.",
+        "Multi Meta & Google awareness campaigns.",
+        "Dedicated Account Manager.",
+        "4 content shoots and training for your team.",
+        "Multi specialties.",
+        "Priority support, branding support, reputation management, content shoots, and training.",
+        "Custom landing pages for the website and ads.",
+        "Dedicated ad specialist.",
+        "3 YouTube videos every month.",
+        "8 blogs every month.",
+        "High-quality reels every month covering preventive care, treatment awareness, aftercare guidance, patient education, and patient testimonials.",
+        "Multiple patient touchpoints across 6 powerful digital platforms, ensuring patients find and trust you wherever they search.",
+      ],
+    },
   ];
 
   const basicPlans = plans.slice(0, 5);
+
+  /* =========================================================
+     FEATURE COMPARISON MATRIX
+     values[] follows the same order as comparePlans below.
+     true  -> shows a tick
+     false -> shows a dash
+     "6"   -> shows the number / text as-is
+  ========================================================= */
+  const comparePlans = [
+    "Growth",
+    "Scale",
+    "Scale Advantage",
+    "Scale Advantage Plus",
+    "Legacy",
+  ];
+
+  const compareRows = [
+    {
+      feature: "Website & Clinic/Hospital Management Software",
+      values: [true, true, true, true, true],
+    },
+    {
+      feature: "Social Media Posts (per month)",
+      values: ["6", "8", "8", "10", "20"],
+    },
+    { feature: "Reels (per month)", values: ["2", "4", "6", "8", "12"] },
+    {
+      feature: "YouTube Shorts (per month)",
+      values: ["2", "4", "6", "8", "12"],
+    },
+    { feature: "Festive Posts", values: [true, true, true, true, true] },
+    { feature: "Blogs (per month)", values: ["4", "6", "6", "6", "10"] },
+
+    { feature: "GMB Optimization", values: [true, true, true, true, true] },
+    {
+      feature: "LinkedIn Optimization",
+      values: [true, true, true, true, true],
+    },
+    { feature: "UGC Influencers", values: ["1", "2", "2", "2", "4"] },
+    {
+      feature: "OOH & DOOH Ad Support",
+      values: [true, true, true, true, true],
+    },
+    {
+      feature: "Meta Awareness Campaigns",
+      values: ["1", "1", "1", "1", "Multi"],
+    },
+
+    {
+      feature: "Dedicated Account Manager",
+      values: [true, true, true, true, true],
+    },
+
+    { feature: "Branding Support", values: [true, true, true, true, true] },
+    {
+      feature: "Reputation Management",
+      values: [true, true, true, true, true],
+    },
+    {
+      feature: "Digital Platform Touchpoints",
+      values: ["6", "6", "6", "6", "6"],
+    },
+    {
+      feature: "LinkedIn Articles (per month)",
+      values: [false, "1", "1", "1", "2"],
+    },
+    { feature: "Content Shoots", values: [false, "2", "2", "2", "4"] },
+    { feature: "Team Training", values: [false, true, true, true, true] },
+    { feature: "Priority Support", values: [false, true, true, true, true] },
+    {
+      feature: "Specialties Covered",
+      values: [false, "3", "3", "3", "Multi"],
+    },
+    {
+      feature: "Assured Monthly Reach",
+      values: [false, false, "50,000", "1,00,000+", false],
+    },
+
+    {
+      feature: "Followers Gain (per month)",
+      values: [false, false, "200+", "400+", false],
+    },
+    {
+      feature: "YouTube Long Videos (per month)",
+      values: [false, false, false, false, "3"],
+    },
+    {
+      feature: "Google Awareness Campaigns",
+      values: [false, false, false, false, true],
+    },
+    {
+      feature: "Custom Landing Pages",
+      values: [false, false, false, false, true],
+    },
+    {
+      feature: "Dedicated Ad Specialist",
+      values: [false, false, false, false, true],
+    },
+  ];
+
+  const renderCompareValue = (value) => {
+    if (value === true) return <span className="cmp-tick">✓</span>;
+    if (value === false || value === null || value === undefined)
+      return <span className="cmp-dash">—</span>;
+    return <span className="cmp-num">{value}</span>;
+  };
+
+  const activeCompareIndex = Math.max(comparePlans.indexOf(activeCompare), 0);
 
   // const advancedPlans = plans.slice(3, 5);
 
   const fetchSubscriptionPlans = async () => {
     try {
-      const response = await fetch(
+       const response = await fetch(
         `${process.env.REACT_APP_PAYMENT_BACKEND_URL}/api/phonepe/plans`,
       );
       const data = await response.json();
@@ -154,22 +349,6 @@ const Pricing = () => {
     fetchSubscriptionPlans();
   }, []);
 
-  const getSelectedPlan = (name) => {
-    const plan = subscriptions.find((p) => p.plan_name === name);
-
-    if (!plan) return null;
-    return {
-      id: plan.id,
-      name: plan.plan_name,
-
-      monthlyPrice: Number(plan.quarterly_price) / 3,
-      quarterlyPrice: Number(plan.quarterly_price),
-      yearlyPrice: Number(plan.yearly_price),
-
-      quarterly: `₹${(Number(plan.quarterly_price) / 3).toLocaleString("en-IN")} × 3`,
-      annual: `₹${(Number(plan.yearly_price) / 10).toLocaleString("en-IN")} × 10`,
-    };
-  };
 
   return (
     <>
@@ -223,7 +402,6 @@ const Pricing = () => {
       </section>
 
       <section className="pricing-section" id="plans">
-        
         <div className="container">
           <div className="section-header">
             <div className="section-label">CareDesk360 Plans</div>
@@ -232,112 +410,104 @@ const Pricing = () => {
 
           {/* ===== TOP PRICING CARDS SECTION ===== */}
 
-          {/* Software Plan */}
-          <div className="lifetime-card">
-            <div className="free-price">
-              <h3>Software Plan</h3>
-              <div className="price-box">
-                <div className="free-text">FREE</div>
-                <span className="setup-tag">One Year CMS</span>
-              </div>
-            </div>
-            <div className="lifetime-card-btn">
-              <ul>
-                <li>
-                  <span style={{ color: "#0d2550" }}>✓</span> Clinic/Hospital
-                  Management Software
-                </li>
-              </ul>
-              <Box className="btn-div">
+          <div className="tp-section">
+            {/* Tabs */}
+            <div className="tp-plan-tabs">
+              {topPlans.map((plan) => (
                 <button
-                  onClick={() => {
-                    setSelectedPlan(getSelectedPlan("Free"));
-                    setPaymentOpen(true);
-                  }}
-                  className="lifetime-plan-btn"
+                  key={plan.id}
+                  type="button"
+                  className={activeTopPlan === plan.id ? "active" : ""}
+                  onClick={() => setActiveTopPlan(plan.id)}
                 >
-                  Get Started
+                  <span className="tp-full-text">{plan.label}</span>
+                  <span className="tp-short-text">{plan.shortLabel}</span>
                 </button>
-              </Box>
+              ))}
             </div>
-          </div>
 
-          {/* Website Plan */}
-          <div className="lifetime-card ">
-            <div className="free-price">
-              <h3>Website Plan</h3>
-              <div className="price-box">
-                <h2>₹10,000</h2>
-                <span className="setup-tag">One Year CMS Free</span>
+            {/* Single card - content changes with the active tab */}
+            <div key={activeTopPlan} className="tp-plan-content">
+              <div
+                className={`lifetime-card ${
+                  currentTopPlan.highlight ? "life-time" : ""
+                }`}
+              >
+                <div className="free-price">
+                  <h3>{currentTopPlan.label}</h3>
+                  <div className="price-box">
+                    {currentTopPlan.isFree ? (
+                      <div className="free-text">{currentTopPlan.price}</div>
+                    ) : (
+                      <h2>{currentTopPlan.price}</h2>
+                    )}
+                    <span className="setup-tag">{currentTopPlan.tag}</span>
+                  </div>
+                </div>
+
+                <div className="lifetime-card-btn">
+                  <ul>
+                    {currentTopPlan.features.map((feature, index) => (
+                      <li key={index}>
+                        <span style={{ color: "#0d2550" }}>✓</span> {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Box className="btn-div">
+                    <button
+                      onClick={() => {
+                        setSelectedPlan(
+                          resolvePlan(currentTopPlan.id, subscriptions),
+                        );
+                        setPaymentOpen(true);
+                      }}
+                      className="lifetime-plan-btn"
+                    >
+                      Get Started
+                    </button>
+                  </Box>
+                </div>
               </div>
-            </div>
-            <div className="lifetime-card-btn">
-              <ul>
-                <li>
-                  <span style={{ color: "#0d2550" }}>✓</span> Custom Advanced
-                  Website
-                </li>
-                <li>
-                  <span style={{ color: "#0d2550" }}>✓</span> Clinic/Hospital
-                  Management Software
-                </li>
-              </ul>
-              <Box className="btn-div">
-                <button
-                  onClick={() => {
-                    setSelectedPlan(getSelectedPlan("Website Plan"));
-                    setPaymentOpen(true);
-                  }}
-                  className="lifetime-plan-btn"
-                >
-                  Get Started
-                </button>
-              </Box>
-            </div>
-          </div>
-
-          {/* Lifetime Plan */}
-
-          <div className="lifetime-card life-time">
-            <div className="free-price">
-              <h3>Lifetime Plan</h3>
-              <div className="price-box">
-                <h2>₹10,000</h2>
-                <span className="setup-tag">
-                  Offer First 100 Clinics/Hospitals
-                </span>
-              </div>
-            </div>
-            <div className="lifetime-card-btn">
-              <ul>
-                <li>
-                  <span style={{ color: "#0d2550" }}>✓</span> Lifetime
-                  Clinic/Hospital Management Software (10yrs)
-                </li>
-                <li>
-                  <span style={{ color: "#0d2550" }}>✓</span> No Monthly or
-                  Annual Subscription Fees
-                </li>
-              </ul>
-
-              <Box className="btn-div">
-                <button
-                  onClick={() => {
-                    setSelectedPlan(getSelectedPlan("Lifetime Plan"));
-                    setPaymentOpen(true);
-                  }}
-                  className="lifetime-plan-btn"
-                >
-                  Get Started
-                </button>
-              </Box>
             </div>
           </div>
 
           {/* ===== PLANS SECTION ===== */}
 
-          {/* DESKTOP */}
-          <div className="plans-desktop">
+          {/* <div className="section-header pc-heading">
+            <div className="section-label">Growth Plans</div>
+            <h2 className="section-title">Choose the Plan That Fits You</h2>
+          </div> */}
+
+          {/* BILLING CYCLE TABS */}
+
+          <div className="pc-billing-tabs">
+            <span className="pc-full-text">
+              <b>Choose the Plan That Works Best for You</b>
+            </span>
+
+            <button
+              type="button"
+              className={billingCycle === "quarterly" ? "active" : ""}
+              onClick={() => setBillingCycle("quarterly")}
+            >
+              <span className="pc-full-text">Quarterly</span>
+            </button>
+            <button
+              type="button"
+              className={billingCycle === "annual" ? "active" : ""}
+              onClick={() => setBillingCycle("annual")}
+            >
+              <span className="pc-full-text">Annual</span>
+            </button>
+          </div>
+
+          {/* =====================================================
+              DESKTOP - VARIANT A : feature list scrolls inside card
+              Delete this whole block if you prefer Variant B.
+          ====================================================== */}
+
+          <div className="plans-desktop plans-row-5 pc-scroll">
             {basicPlans.map((plan) => (
               <div className="plan-card" key={plan.name}>
                 <div className="plan-header">
@@ -349,13 +519,16 @@ const Pricing = () => {
 
                   <h3>{plan.name}</h3>
 
-                  <h2>{plan.quarterly}</h2>
-                  <p>(Quarterly)</p>
-
-                  <hr />
-
-                  <h2>{plan.annual}</h2>
-                  <p>(Annually)</p>
+                  <h2 key={billingCycle}>
+                    {billingCycle === "quarterly"
+                      ? plan.quarterly
+                      : plan.annual}
+                  </h2>
+                  <p>
+                    {billingCycle === "quarterly"
+                      ? "(3 Months)"
+                      : "(12 Months)"}
+                  </p>
                 </div>
 
                 <ul className="plan-features">
@@ -366,7 +539,7 @@ const Pricing = () => {
 
                 <Box className="btn-box">
                   <button onClick={() => setOpen(true)} className="plan-btn">
-                    Book A Demo
+                    {plan.buttonName}
                   </button>
                 </Box>
               </div>
@@ -395,7 +568,7 @@ const Pricing = () => {
                   className="mobile-access-btn"
                   onClick={() => setOpen(true)}
                 >
-                  Book A Demo
+                  {plan.buttonName}
                 </button>
                 <button
                   className="mobile-feature-toggle"
@@ -421,6 +594,99 @@ const Pricing = () => {
             ))}
           </div>
 
+          {/* ===== FEATURE COMPARISON ===== */}
+          <div className="cmp-section">
+            <div className="section-header">
+              <h2 className="section-title">Feature Comparison</h2>
+            </div>
+
+            {/* DESKTOP TABLE */}
+            <div className="cmp-table-wrap">
+              <table className="cmp-table">
+                <thead>
+                  <tr>
+                    <th className="cmp-feature-col">Feature</th>
+                    {comparePlans.map((name) => (
+                      <th key={name}>{name}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {compareRows.map((row) => (
+                    <tr key={row.feature}>
+                      <td className="cmp-feature-col">{row.feature}</td>
+                      {row.values.map((value, index) => (
+                        <td key={index}>{renderCompareValue(value)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* MOBILE - plan tabs + scroll progress + single column */}
+            <div className="cmp-mobile">
+              <div className="cmp-plan-tabs" ref={cmpTabsRef}>
+                {comparePlans.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={activeCompare === name ? "active" : ""}
+                    onClick={(e) => {
+                      setActiveCompare(name);
+                      e.currentTarget.scrollIntoView({
+                        behavior: "smooth",
+                        inline: "center",
+                        block: "nearest",
+                      });
+                    }}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+
+              {/* horizontal scroll progress
+              <div className="cmp-tabs-progress" aria-hidden="true">
+                <span
+                  style={{
+                    width: `${tabIndicator.width}%`,
+                    left: `${tabIndicator.left}%`,
+                  }}
+                />
+              </div> */}
+              <p className="cmp-scroll-hint">Swipe to explore other plans →</p>
+
+              <ul key={activeCompare} className="cmp-mobile-list">
+                {compareRows.map((row) => {
+                  const value = row.values[activeCompareIndex];
+                  const included =
+                    value !== false && value !== null && value !== undefined;
+
+                  return (
+                    <li
+                      key={row.feature}
+                      className={included ? "" : "cmp-row-off"}
+                    >
+                      <span className="cmp-mobile-feature">
+                        {included && value !== true && (
+                          <span className="cmp-inline-value">{value}</span>
+                        )}
+                        {row.feature}
+                      </span>
+
+                      {included ? (
+                        <span className="cmp-tick">✓</span>
+                      ) : (
+                        <span className="cmp-dash">—</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+
           <div className="lifetime-card">
             <div className="free-price">
               <h3>Enterprise Starts From</h3>
@@ -432,11 +698,11 @@ const Pricing = () => {
             <div className="lifetime-card-btn">
               <ul>
                 <li>
-                  Suitable for clinics/hospitals with an Ad spend of minimum
+                  ✓ Suitable for clinics/hospitals with an Ad spend of minimum
                   40,000/Month.
                 </li>
                 <li>
-                  Pricing is customized based on your specific needs, features
+                  ✓ Pricing is customized based on your specific needs, features
                   required, scale of operations, and level of support.
                 </li>
               </ul>
@@ -473,6 +739,7 @@ const Pricing = () => {
           open={paymentopen}
           onClose={() => setPaymentOpen(false)}
           selectedPlan={selectedPlan}
+          defaultBillingCycle={billingCycle}
         />
       </section>
 

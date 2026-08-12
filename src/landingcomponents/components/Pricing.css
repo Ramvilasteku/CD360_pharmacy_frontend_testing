@@ -651,13 +651,9 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.lifetime-card li::before {
-  content: "✓";
-  position: absolute;
-  left: 90;
-  color: var(--navy);
-  font-weight: bold;
-}
+/* NOTE: the old `.lifetime-card li::before { content: "✓"; left: 90; }`
+   rule was removed. `left: 90` has no unit so the declaration was
+   invalid, and the ✓ is already rendered inside the <li> in Pricing.jsx. */
 
 .free-badge {
   display: inline-block;
@@ -1193,7 +1189,7 @@
     background: #ffffff;
     color: var(--white);
     border: 2px solid #222;
-    border-radius: 16px;
+    border-radius: 20px;
     text-align: center;
   }
 
@@ -1207,7 +1203,7 @@
     color: #000;
     font-size: 14px;
     font-weight: 700;
-    padding: 4px 18px;
+    padding: 4px 8px;
   }
 
   .mobile-plan-card h2 {
@@ -1310,8 +1306,7 @@
       0 0 10px rgba(34, 197, 94, 0.8),
       0 0 20px rgba(34, 197, 94, 0.7),
       0 0 35px rgba(34, 197, 94, 0.6),
-      0 0 55px rgba(34, 197, 94, 0.5),
-      /* 0 0 80px rgba(34, 197, 94, 0.4); */
+      0 0 55px rgba(34, 197, 94, 0.5);
   }
 }
 
@@ -1324,5 +1319,744 @@
 @media (max-width: 480px) {
   .free-text {
     font-size: 34px;
+  }
+}
+
+/* =========================================================
+   TOP PLANS TABS (Software / Website / Lifetime)
+   Same visual language as the Digital Visibility Plan tabs,
+   but with its own class names so the two can be styled
+   independently.
+========================================================= */
+
+.tp-section {
+  margin-top: 40px;
+  margin-bottom: 60px;
+}
+
+.tp-plan-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 40px auto 50px;
+  background: linear-gradient(
+    135deg,
+    rgba(31, 51, 102, 0.04) 0%,
+    rgba(31, 51, 102, 0.02) 100%
+  );
+  backdrop-filter: blur(10px);
+  border-radius: 60px;
+  padding: 14px 18px;
+  border: 1px solid rgba(31, 51, 102, 0.08);
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.tp-plan-tabs button {
+  border: none;
+  background: transparent;
+  padding: 14px 38px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 50px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  color: rgba(31, 51, 102, 0.6);
+  position: relative;
+  letter-spacing: 0.4px;
+  text-transform: capitalize;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+
+.tp-plan-tabs button:hover:not(.active) {
+  color: var(--navy);
+  background: rgba(31, 51, 102, 0.06);
+  transform: translateY(-1px);
+}
+
+.tp-plan-tabs button:focus-visible {
+  outline: 2px solid var(--navy);
+}
+
+.tp-plan-tabs button.active {
+  background: linear-gradient(
+    135deg,
+    var(--navy) 0%,
+    rgba(31, 51, 102, 0.95) 100%
+  );
+  color: #fff;
+  box-shadow:
+    0 8px 32px rgba(31, 51, 102, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.tp-plan-tabs button.active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 80%
+  );
+  border-radius: 50px;
+  pointer-events: none;
+}
+
+.tp-plan-tabs button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--navy) 0%,
+    rgba(31, 51, 102, 0.4) 100%
+  );
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(31, 51, 102, 0.2);
+  animation: tpSlideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes tpSlideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ---------- Card wrapper ---------- */
+
+.tp-plan-content {
+  animation: tpSlideIn 0.35s ease;
+}
+
+@keyframes tpSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* The card keeps the existing .lifetime-card look. These rules
+   restore the spacing the old :nth-child() selectors gave the
+   three top cards, now that the card sits inside .tp-section. */
+.tp-section .lifetime-card {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 35px 40px;
+  align-items: center;
+}
+
+/* Keeps the card from jumping when a plan has fewer bullets */
+@media (min-width: 993px) {
+  .tp-section .lifetime-card {
+    min-height: 240px;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+.tp-full-text {
+  display: inline;
+}
+
+.tp-short-text {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .tp-plan-tabs {
+    gap: 4px;
+    padding: 10px 8px;
+  }
+
+  .tp-plan-tabs button {
+    padding: 12px 16px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .tp-plan-tabs button.active::after {
+    bottom: -6px;
+    width: 20px;
+  }
+
+  .tp-section .lifetime-card {
+    padding: 25px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tp-plan-tabs {
+    margin: 30px auto 40px;
+  }
+
+  .tp-plan-tabs button {
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .tp-full-text {
+    display: none;
+  }
+
+  .tp-short-text {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-plan-content,
+  .tp-plan-tabs button,
+  .tp-plan-tabs button.active::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =========================================================
+   PLANS SECTION HEADING + BILLING CYCLE TABS
+========================================================= */
+
+.pc-heading {
+  margin-top: 30px;
+}
+
+.pc-heading-sub {
+  max-width: 620px;
+  margin: 14px auto 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  text-align: center;
+}
+
+.pc-billing-tabs,
+.cmp-plan-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 34px auto 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(31, 51, 102, 0.04) 0%,
+    rgba(31, 51, 102, 0.02) 100%
+  );
+  backdrop-filter: blur(10px);
+  border-radius: 60px;
+  padding: 12px 16px;
+  border: 1px solid rgba(31, 51, 102, 0.08);
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.pc-billing-tabs button,
+.cmp-plan-tabs button {
+  background: transparent;
+  padding: 10px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 50px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  color: rgba(31, 51, 102, 0.6);
+  border: solid 3px rgba(31, 51, 102, 0.6);
+  position: relative;
+  letter-spacing: 0.4px;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+
+.pc-billing-tabs button:hover:not(.active),
+.cmp-plan-tabs button:hover:not(.active) {
+  color: var(--navy);
+  background: rgba(31, 51, 102, 0.06);
+  transform: translateY(-1px);
+}
+
+.pc-billing-tabs button:focus-visible,
+.cmp-plan-tabs button:focus-visible {
+  outline: 2px solid var(--navy);
+}
+
+.pc-billing-tabs button.active,
+.cmp-plan-tabs button.active {
+  background: linear-gradient(
+    135deg,
+    var(--navy) 0%,
+    rgba(31, 51, 102, 0.95) 100%
+  );
+  color: #fff;
+  box-shadow:
+    0 8px 32px rgba(31, 51, 102, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.pc-short-text {
+  display: none;
+}
+
+/* Temporary label so you can tell the two desktop variants apart.
+   Delete this rule and the <p className="pc-variant-tag"> lines
+   once you have picked one. */
+.pc-variant-tag {
+  text-align: center;
+  margin: 40px 0 -10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(31, 51, 102, 0.35);
+}
+
+/* =========================================================
+   ALL FIVE PLANS IN ONE ROW (desktop only)
+========================================================= */
+
+.plans-row-5 {
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: stretch;
+  padding: 24px 0 10px;
+}
+
+.plans-row-5 .plan-card {
+  width: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  background: #fff;
+}
+
+/* Price header: one price at a time now, so it no longer needs 38vh */
+.plans-row-5 .plan-header {
+  height: auto;
+  min-height: 210px;
+  padding: 26px 14px;
+  margin-bottom: 14px;
+}
+
+.plans-row-5 .plan-header h3 {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.plans-row-5 .plan-header h2 {
+  font-size: 24px;
+  animation: pcPriceFade 0.35s ease;
+}
+
+.plans-row-5 .plan-header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+@keyframes pcPriceFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.plans-row-5 .plan-features li {
+  font-size: 13px;
+  margin: 0 14px;
+  padding-top: 14px;
+  padding-left: 18px;
+}
+
+.plans-row-5 .corner-ribbon {
+  width: 200px;
+  height: 100px;
+}
+
+.plans-row-5 .corner-ribbon span {
+  top: 22px;
+  left: -70px;
+  font-size: 10px;
+}
+
+/* =========================================================
+   VARIANT A - FEATURE LIST SCROLLS INSIDE THE CARD
+   Scrollbar stays visible at all times.
+
+   Chrome / Edge / Safari draw a permanent, non-overlay
+   scrollbar as soon as ::-webkit-scrollbar is customised, but
+   ONLY if scrollbar-width / scrollbar-color are NOT set on the
+   same element. So the webkit rules are the primary path here
+   and the standard properties are quarantined in the
+   Firefox-only @supports block below.
+
+   Do NOT add scrollbar-width or scrollbar-color to
+   `.pc-scroll .plan-features` outside that block - doing so
+   makes Chrome ignore every webkit rule and fall back to the
+   overlay scrollbar that fades out after the first render.
+========================================================= */
+
+.pc-scroll .plan-features {
+  max-height: 320px;
+  /* `scroll`, not `auto`: reserves the gutter permanently so the
+     card never reflows and the track shows even on short lists. */
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
+.pc-scroll .plan-features::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pc-scroll .plan-features::-webkit-scrollbar-track {
+  background: rgba(31, 51, 102, 0.1);
+  border-radius: 99px;
+  margin: 6px 0;
+}
+
+.pc-scroll .plan-features::-webkit-scrollbar-thumb {
+  background: var(--navy);
+  border-radius: 99px;
+  min-height: 40px;
+}
+
+.pc-scroll .plan-features::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 51, 102, 0.75);
+}
+
+/* Firefox only - it has no ::-webkit-scrollbar support */
+@supports not selector(::-webkit-scrollbar) {
+  .pc-scroll .plan-features {
+    scrollbar-width: thin;
+    scrollbar-color: var(--navy) rgba(31, 51, 102, 0.1);
+  }
+}
+
+/* Fade at the bottom of the list so it reads as "more below".
+   `right: 14px` keeps it clear of the scrollbar track. */
+.pc-scroll .plan-card {
+  position: relative;
+}
+
+.pc-scroll .plan-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 14px;
+  bottom: 78px; /* tune to sit just above .plan-btn */
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff);
+  pointer-events: none;
+}
+
+/* Tablet / small laptop: keep one row but let it swipe sideways */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .plans-row-5 {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 18px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .plans-row-5 .plan-card {
+    flex: 0 0 260px;
+    scroll-snap-align: start;
+  }
+}
+
+/* =========================================================
+   FEATURE COMPARISON (light theme)
+========================================================= */
+
+.cmp-section {
+  margin: 80px 0 40px;
+}
+
+.cmp-section .section-title {
+  margin-bottom: 10px;
+}
+
+.cmp-table-wrap {
+  margin-top: 36px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+}
+
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.cmp-table thead th {
+  background: #f7f9fc;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  padding: 18px 14px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.cmp-table thead th.cmp-feature-col {
+  text-align: left;
+}
+
+.cmp-table tbody td {
+  padding: 14px;
+  text-align: center;
+  border-bottom: 1px solid #f0f2f5;
+  color: #333;
+  vertical-align: middle;
+}
+
+.cmp-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cmp-table tbody tr:hover td {
+  background: rgba(31, 51, 102, 0.03);
+}
+
+.cmp-feature-col {
+  text-align: left !important;
+  width: 34%;
+  font-weight: 500;
+  color: var(--navy) !important;
+}
+
+.cmp-tick {
+  color: #1c9c4b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cmp-dash {
+  color: #b9c0cc;
+  font-size: 16px;
+}
+
+.cmp-num {
+  display: inline-block;
+  min-width: 34px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* --- Mobile version: plan tabs + single column --- */
+.cmp-mobile {
+  display: none;
+}
+
+.cmp-mobile-list {
+  list-style: none;
+  padding: 0;
+  margin: 26px 0 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  animation: cmpFade 0.3s ease;
+}
+
+@keyframes cmpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cmp-mobile-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.cmp-mobile-list li:last-child {
+  border-bottom: none;
+}
+
+.cmp-mobile-feature {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--navy);
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .cmp-table-wrap {
+    display: none;
+  }
+
+  .cmp-mobile {
+    display: block;
+  }
+
+  .cmp-section {
+    margin: 50px 0 30px;
+  }
+
+  /* plan-name tabs scroll sideways instead of wrapping */
+  .cmp-plan-tabs {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    border-radius: 40px;
+    gap: 4px;
+    padding: 8px;
+    scrollbar-width: none;
+  }
+
+  .cmp-plan-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cmp-plan-tabs button {
+    padding: 11px 18px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .pc-billing-tabs {
+    display: none;
+  }
+
+  .pc-billing-tabs button {
+    display: none;
+  }
+
+  .pc-heading-sub {
+    font-size: 15px;
+  }
+
+  /* the variant labels only describe desktop layouts */
+  .pc-variant-tag {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .pc-short-text {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plans-row-5 .plan-header h2,
+  .cmp-mobile-list,
+  .cmp-plan-tabs button {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =========================================================
+   MOBILE COMPARE: TAB SCROLL PROGRESS + INLINE VALUES
+========================================================= */
+
+.cmp-tabs-progress,
+.cmp-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .cmp-tabs-progress {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 4px;
+    margin: 10px 0 6px;
+    background: rgba(31, 51, 102, 0.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .cmp-tabs-progress span {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--navy) 0%,
+      rgba(31, 51, 102, 0.55) 100%
+    );
+    border-radius: 99px;
+    transition:
+      left 0.25s ease,
+      width 0.25s ease;
+  }
+
+  .cmp-scroll-hint {
+    display: block;
+    margin: 0 0 4px;
+    font-size: 12px;
+    color: rgba(31, 51, 102, 0.55);
+    text-align: center;
+  }
+
+  .cmp-mobile-list li {
+    align-items: flex-start;
+  }
+
+  .cmp-inline-value {
+    display: inline-block;
+    padding-right: 5px;
+    border-radius: 20px;
+    color: var(--navy);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .cmp-row-off .cmp-mobile-feature {
+    color: #9aa3b2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-tabs-progress span {
+    transition: none;
   }
 }
