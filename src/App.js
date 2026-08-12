@@ -54,7 +54,6 @@ import Payment from "./landingcomponents/components/payment";
 import PaymentStatus from "./payments/paymentstatus";
 import Comparison from "./landingcomponents/components/Comparison";
 import OurWork from "./landingcomponents/components/OurWork";
- 
 import PatientRegister from "./components/PatientRegister";
  
 function App() {
@@ -131,4 +130,3 @@ function App() {
 }
  
 export default App;
- 
