@@ -54,14 +54,18 @@ import Payment from "./landingcomponents/components/payment";
 import PaymentStatus from "./payments/paymentstatus";
 import Comparison from "./landingcomponents/components/Comparison";
 import OurWork from "./landingcomponents/components/OurWork";
+
 import PatientRegister from "./components/PatientRegister";
- 
+
+
+import CD360GroWth1 from "./LandingPages/CD360Growth1";
+
 function App() {
   const userId =
     localStorage.getItem("adminId") ||
     localStorage.getItem("userId") ||
     localStorage.getItem("id");
- 
+
   function LandingPage() {
     return (
       <div>
@@ -75,17 +79,17 @@ function App() {
       </div>
     );
   }
- 
+
   function ProtectedRoute({ children }) {
     const token = localStorage.getItem("token");
     return token ? children : <Navigate to="/admin" />;
   }
- 
+
   return (
     <BrowserRouter>
       {/* LISTEN FOR SOCKET EVENTS */}
       <NotificationListener />
- 
+
       {/* REQUIRED FOR TOASTS */}
       <ToastContainer position="top-right" autoClose={5000} />
       <SocketProvider userId={userId}>
@@ -110,7 +114,7 @@ function App() {
           <Route path="/AdminDashboard" element={<AdminDashboard />} />
           <Route path="/doctor/*" element={<AppRoutes />} />
           <Route path="/receptionist/*" element={<ReceptionistAppRoutes />} />
- 
+
           <Route path="/client" element={<Sidebar />}>
             <Route index element={<Navigate to="dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
@@ -121,12 +125,19 @@ function App() {
             <Route path="prescriptions" element={<ClientPrescriptions />} />
           </Route>
           <Route path="/" element={<Register />} />
- 
+
           <Route path="/payment/:registrationId" element={<Payment />} />
+
+
+
+          {/* Landing Pages */}
+            <Route path="/growth1" element={<CD360GroWth1/>}/>
+
+
         </Routes>
       </SocketProvider>
     </BrowserRouter>
   );
 }
- 
+
 export default App;
