@@ -50,7 +50,7 @@ export const PLANS = {
         lineItems: (api) => [
           {
             label: "Custom Advanced Website (1 year)",
-            amount: api?.yearly_price ?? 10000,
+            amount: 10000,
           },
           { label: "Clinic/Hospital Management Software", amount: 0 },
         ],
@@ -70,7 +70,7 @@ export const PLANS = {
         lineItems: (api) => [
           {
             label: "Lifetime Clinic/Hospital Management Software (10 years)",
-            amount: api?.yearly_price ?? 10000,
+            amount: 10000,
           },
         ],
       },
@@ -87,9 +87,7 @@ export const PLANS = {
         label: "Monthly",
         note: "(1 Month)",
         lineItems: (api) => {
-          const perMonth = api?.quarterly_price
-            ? Number(api.quarterly_price) / 3
-            : 4999;
+          const perMonth = 4999;
 
           return [
             { label: "Website & setup fee (1 year)", amount: 10000 },
@@ -105,7 +103,7 @@ export const PLANS = {
         label: "Quarterly",
         note: "(3 Months)",
         lineItems: (api) => {
-          const total = Number(api?.quarterly_price ?? 14997);
+          const total = Number(14997);
           return [
             {
               label: `Digital Visibility — ${inr(total / 3)} × 3 months`,
@@ -119,7 +117,7 @@ export const PLANS = {
         label: "Annual",
         note: "(12 Months)",
         lineItems: (api) => {
-          const total = Number(api?.yearly_price ?? 47988);
+          const total = Number(47988);
           return [
             {
               label: `Digital Visibility — ${inr(total / 12)} × 12 months`,
