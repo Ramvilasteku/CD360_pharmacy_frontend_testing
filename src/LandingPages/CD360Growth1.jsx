@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./CD360Growth1.css";
 import Logoimg from "./Assets/caredesk360  new logo-04.png";
+import Logowhite from "./Assets/caredesk360-logo-transparent.png";
 import founderImageSrc from "./Assets/nagaraju-tatipally1.jpg";
 
 
@@ -155,6 +156,14 @@ function Logo() {
   return (
     <span className="CDG1-logo">
      <img src={Logoimg} alt="" width={"50%"} />
+    </span>
+  );
+}
+
+function FooterLogo() {
+  return (
+    <span className="CDG1-logo">
+     <img src={Logowhite} alt="" width={"30%"} />
     </span>
   );
 }
@@ -501,7 +510,7 @@ export default function CD360GroWth1({
             <span className="CDG1-kicker">
               One partner. One connected growth stack.
             </span>
-            <h2>
+            <h2 style={{color:"white"}}>
               Everything your clinic needs to be seen, trusted and chosen.
             </h2>
             <p>
@@ -812,7 +821,7 @@ export default function CD360GroWth1({
         <div className="CDG1-book-inner">
           <div className="CDG1-book-copy">
             <span className="CDG1-kicker">Your next growth chapter</span>
-            <h2>Let&apos;s plan your clinic&apos;s next stage of growth.</h2>
+            <h2 style={{color:"white"}}>Let&apos;s plan your clinic&apos;s next stage of growth.</h2>
             <p>
               Share a convenient time to speak. Our healthcare growth team will
               understand your current needs and recommend the right technology,
@@ -1031,7 +1040,7 @@ export default function CD360GroWth1({
         <div className="CDG1-trust-inner CDG1-shell">
           <div className="CDG1-trust-head">
             <span className="CDG1-kicker">Trust by design</span>
-            <h2 id="trust-title">Built for trusted healthcare technology.</h2>
+            <h2 id="trust-title" style={{color:"white"}}>Built for trusted healthcare technology.</h2>
             <p>
               Standards-aware foundations for safer data exchange, connected
               care and responsible growth.
@@ -1097,7 +1106,7 @@ export default function CD360GroWth1({
 
       <footer>
         <div className="CDG1-footer-inner">
-          <Logo />
+          <FooterLogo />
           <p>Practice Growth · Patient Experience · Operational Excellence</p>
           <a href="https://caredesk360.com" target="_blank" rel="noreferrer">
             caredesk360.com <Arrow />
