@@ -59,6 +59,7 @@ import PatientRegister from "./components/PatientRegister";
 
 
 import CD360GroWth1 from "./LandingPages/CD360Growth1";
+import CareDesk360Landing from "./LandingPages/CD360Growth2";
 
 function App() {
   const userId =
@@ -132,7 +133,7 @@ function App() {
 
           {/* Landing Pages */}
             <Route path="/growth1" element={<CD360GroWth1/>}/>
-
+            <Route path="/growth2" element={<CareDesk360Landing/>}/>
 
         </Routes>
       </SocketProvider>
