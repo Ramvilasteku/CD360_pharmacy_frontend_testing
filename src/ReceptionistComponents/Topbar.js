@@ -13,6 +13,14 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationBell from '../NotificationBell';
 
+// 26 Oct 2026 — the role switch, shared with the pharmacy shell's top bar. It renders
+// nothing unless this staff member holds two or more active roles, so adding it here is
+// invisible to a receptionist with a single role. Switching posts to
+// /api/pharmacy/account/switch-role, which is guarded by loginAuth only (no pharmacy
+// module or permission check), so it works for any staff member; the server re-issues
+// the cookie and roleHome() sends them to the new role's own dashboard.
+import RoleSwitcher from "../pharmacy/shell/RoleSwitcher";
+
 export default function Topbar({ sidebarOpen, company }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -66,6 +74,7 @@ export default function Topbar({ sidebarOpen, company }) {
           }}
         >
 
+       <RoleSwitcher compact={isMobile} onDark />
        <NotificationBell />
         </Box>
       </Toolbar>

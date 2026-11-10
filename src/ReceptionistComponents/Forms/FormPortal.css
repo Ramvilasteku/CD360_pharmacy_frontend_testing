@@ -1,0 +1,169 @@
+/* ==========================================================
+   FormPortal.css
+   Mobile-first responsive styling for the QR "select a form" screen
+   ========================================================== */
+
+.fp-page {
+  min-height: 100vh;
+  background: #f4f7f8;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fp-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 20px rgba(20, 40, 45, 0.08);
+  overflow: hidden;
+}
+
+.fp-header {
+  background: linear-gradient(135deg, #3f6f7a 0%, #2c4e56 100%);
+  color: #ffffff;
+  padding: 26px 20px;
+  text-align: center;
+}
+
+.fp-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.fp-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.fp-body {
+  padding: 24px 20px 28px;
+}
+
+.fp-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #33484d;
+  margin-bottom: 8px;
+}
+
+.fp-select-wrap {
+  position: relative;
+}
+
+.fp-select {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 15px;
+  color: #274850;
+  background: #fafcfc;
+  border: 1px solid #dfe6e8;
+  border-radius: 10px;
+  padding: 13px 38px 13px 14px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.fp-select:focus {
+  border-color: #3f6f7a;
+  background: #ffffff;
+}
+
+.fp-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #708a90;
+  border-bottom: 2px solid #708a90;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+.fp-description {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7a7d;
+  background: #f7fafb;
+  border: 1px solid #eaf0f1;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.fp-continue-btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  background: #3f6f7a;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 13px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fp-continue-btn:hover:not(:disabled) {
+  background: #2c4e56;
+}
+
+.fp-continue-btn:disabled {
+  background: #e3eaeb;
+  color: #b0bcbe;
+  cursor: not-allowed;
+}
+
+.fp-state {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  color: #33484d;
+}
+
+/* ==========================================================
+   Tablet and up
+   ========================================================== */
+@media (min-width: 640px) {
+  .fp-header {
+    padding: 32px 32px;
+  }
+
+  .fp-header h2 {
+    font-size: 21px;
+  }
+
+  .fp-body {
+    padding: 30px 32px 34px;
+  }
+
+  .fp-continue-btn {
+    width: auto;
+    padding: 13px 40px;
+    float: right;
+  }
+}
+
+/* ==========================================================
+   Desktop
+   ========================================================== */
+@media (min-width: 1024px) {
+  .fp-card {
+    max-width: 520px;
+  }
+}

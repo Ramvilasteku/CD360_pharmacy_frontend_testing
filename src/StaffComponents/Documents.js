@@ -1278,7 +1278,7 @@ const sendOtp = async (doc, action) => {
   <DialogTitle>OTP Verification</DialogTitle>
   <DialogContent>
     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-      Enter the OTP sent to the patient's whatsapp.
+      Enter the OTP sent to the patient's email.
     </Typography>
     <TextField
       fullWidth

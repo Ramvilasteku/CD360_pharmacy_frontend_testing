@@ -10,9 +10,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { Autocomplete } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import debounce from "lodash.debounce";
-import { useMemo } from "react";
 
 const inputStyle = {
   width: "100%",
@@ -51,93 +48,65 @@ const normalizeWhen = (val) => {
 
 export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }) {
   const [dbMeds, setDbMeds] = useState([]);
+  const [medicineSearch, setMedicineSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState({ types: [], strengths: [], units: [], durations: [], when_to_take: [] });
   const [list, setList] = useState(initialMedicines);
   const [editIndex, setEditIndex] = useState(null);
   const [showForm, setShowForm] = useState(initialMedicines.length === 0);
   const [form, setForm] = useState(empty);
-  const [medicineLoading, setMedicineLoading] = useState(false);
-  const [medicineSearch, setMedicineSearch] = useState("");
   const [selectedMedicine, setSelectedMedicine] = useState(null);
-
   useEffect(() => {
     if (initialMedicines.length > 0) { setList(initialMedicines); setShowForm(false); }
   }, [initialMedicines]);
 
   const f = (k, v) => setForm((p) => ({ ...p, [k]: v }));
 
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_SITE_URL}/api/medicines/options`, {
-      credentials: "include",
-    })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) {
-          setOptions(d.options || {});
-        }
-      });
-  }, []);
+ useEffect(() => {
+  if (medicineSearch.trim().length < 2) {
+    setDbMeds([]);
+    return;
+  }
 
-  const searchMedicines = async (search = "") => {
+  const timer = setTimeout(async () => {
     try {
-      setMedicineLoading(true);
+      setLoading(true);
 
       const res = await fetch(
-        `${process.env.REACT_APP_SITE_URL}/api/medicines/search?search=${encodeURIComponent(
-          search
-        )}&page=1&limit=20`,
+        `${process.env.REACT_APP_SITE_URL}/api/medicines?search=${encodeURIComponent(
+          medicineSearch
+        )}&limit=20`,
         {
           credentials: "include",
         }
       );
 
       const data = await res.json();
-
+      console.log("medicine data is",data);
       if (data.success) {
         setDbMeds(data.data || []);
       }
+
     } catch (err) {
       console.error(err);
     } finally {
-      setMedicineLoading(false);
+      setLoading(false);
     }
-  };
+  }, 300);
 
-  const debouncedSearch = useMemo(
-    () => debounce(searchMedicines, 400),
-    []
-  );
+  return () => clearTimeout(timer);
 
-  useEffect(() => {
-    searchMedicines(""); // Load first 20 medicines
-  }, []);
+}, [medicineSearch]);
 
-  useEffect(() => {
-    return () => debouncedSearch.cancel();
-  }, [debouncedSearch]);
-
-  const selectMedicine = (medicine) => {
-    if (!medicine) {
-      setSelectedMedicine(null);
-      setForm(empty);
-      return;
-    }
-
-    setSelectedMedicine(medicine);
-
-    setForm((prev) => ({
-      ...prev,
-      medicine_id: medicine.id,
-      medicine_name: medicine.medicine_name,
-      type: medicine.type || "",
-      strength: medicine.strength || "",
-      unit: medicine.unit || "",
-      quantity: prev.quantity,
-      when_to_take: medicine.when_to_take || [],
-      duration: medicine.duration || "",
-      description: medicine.description || "",
-    }));
-  };
+  // const selectMedicine = (id) => {
+  //   const m = dbMeds.find((x) => x.id === Number(id));
+  //   if (!m) return;
+  //   setForm(prev => ({
+  //     ...prev, medicine_id: m.id, medicine_name: m.medicine_name,
+  //     type: m.type || "", strength: m.strength || "", unit: m.unit || "",
+  //     when_to_take: m.when_to_take || [], duration: m.duration || "", description: m.description || "",
+  //   }));
+  // };
 
   const toggleWhen = (value) => {
     const exists = form.when_to_take.includes(value);
@@ -153,8 +122,6 @@ export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }
       return newList;
     });
     setForm(empty); setEditIndex(null); setShowForm(false);
-    setSelectedMedicine(null);
-    setDbMeds([]);
   };
 
   const remove = (i) => {
@@ -199,8 +166,8 @@ export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }
                 <TableRow sx={{ backgroundColor: "#f0f7f9" }}>
                   <TableCell sx={thSx}>#</TableCell>
                   <TableCell sx={thSx}>Medicine</TableCell>
-                  {/* <TableCell sx={thSx}>Type</TableCell>
-                  <TableCell sx={thSx}>Strength</TableCell> */}
+                  <TableCell sx={thSx}>Type</TableCell>
+                  <TableCell sx={thSx}>Strength</TableCell>
                   <TableCell sx={thSx}>Qty</TableCell>
                   <TableCell sx={thSx}>When</TableCell>
                   <TableCell sx={thSx}>Duration</TableCell>
@@ -214,8 +181,8 @@ export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }
                     sx={{ "&:hover": { backgroundColor: "#f9fafb" }, backgroundColor: editIndex === i ? "#f0f9f8" : "inherit", transition: "background 0.15s" }}>
                     <TableCell sx={{ ...tdSx, color: "#9ca3af" }}>{i + 1}</TableCell>
                     <TableCell sx={{ ...tdSx, fontWeight: 600 }}>{m.medicine_name}</TableCell>
-                    {/* <TableCell sx={tdSx}>{m.type || "—"}</TableCell>
-                    <TableCell sx={tdSx}>{m.strength ? `${m.strength}${m.unit || ""}` : "—"}</TableCell> */}
+                    <TableCell sx={tdSx}>{m.type || "—"}</TableCell>
+                    <TableCell sx={tdSx}>{m.strength ? `${m.strength}${m.unit || ""}` : "—"}</TableCell>
                     <TableCell sx={tdSx}>{m.quantity}</TableCell>
                     <TableCell sx={tdSx}>{normalizeWhen(m.when_to_take)}</TableCell>
                     <TableCell sx={tdSx}>{m.duration || "—"}</TableCell>
@@ -250,84 +217,54 @@ export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }
             </Box>
 
             <Grid container spacing={2} alignItems="flex-start">
-              <Grid item
-                size={{
-                  xs: 12,
-                  sm: 12,
-                  md: 6,
-                  lg: 12,
-                  xl: 12,
-                }}
-              >
+              <Grid item xs={12} md={4}>
                 <Typography variant="caption" sx={{ color: "#6b7280", mb: 0.5, display: "block" }}>Medicine Name</Typography>
                 <Autocomplete
-                  fullWidth
-                  options={dbMeds}
-                  loading={medicineLoading}
-                  value={selectedMedicine}
-                  filterOptions={(x) => x}
-                  getOptionLabel={(option) => option?.medicine_name || ""}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  onChange={(event, value) => {
-                    selectMedicine(value);
-                  }}
-                  onOpen={() => {
-                    searchMedicines("");
-                  }}
-                  onInputChange={(event, value, reason) => {
-                    if (reason === "input") {
-                      debouncedSearch(value);
-                    }
-                  }}
-                  renderOption={(props, option) => (
-                    <li {...props} key={option.id}>
-                      <Box sx={{ py: 0.5 }}>
-                        <Typography fontWeight={600}>
-                          {option.medicine_name}
-                        </Typography>
+  loading={loading}
+  options={dbMeds}
+  value={selectedMedicine}
+  getOptionLabel={(option) => option.medicine_name || ""}
+  isOptionEqualToValue={(option, value) => option.id === value.id}
+  onInputChange={(event, value) => {
+    setMedicineSearch(value);
+  }}
+sx={{width:"200px "}}
+  onChange={(event, medicine) => {
+    setSelectedMedicine(medicine);
 
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                        >
-                          {option.type || ""}
+    if (!medicine) return;
 
-                          {option.strength
-                            ? ` • ${option.strength}${option.unit || ""}`
-                            : ""}
-                        </Typography>
-                      </Box>
-                    </li>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Search medicine..."
-                      sx={inputStyle}
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {medicineLoading && (
-                              <CircularProgress
-                                size={18}
-                                color="inherit"
-                              />
-                            )}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                />
+    setForm({
+    medicine_id: medicine.id,
+    medicine_name: medicine.medicine_name,
+    type: medicine.type || "",
+    strength: medicine.strength || "",
+    unit: medicine.unit || "",
+    quantity: medicine.quantity || 1,
+    when_to_take: medicine.when_to_take || [],
+    duration: medicine.duration || "",
+    description: medicine.description || "",
+});
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      placeholder="Search medicine..."
+      sx={inputStyle}
+    />
+  )}
+/>
               </Grid>
 
-              {/* <Grid item xs={6} md={2}>
+              <Grid item xs={6} md={2}>
                 <Typography variant="caption" sx={{ color: "#6b7280", mb: 0.5, display: "block" }}>Type</Typography>
                 <Select value={form.type} displayEmpty onChange={(e) => f("type", e.target.value)} sx={selectStyle}>
                   <MenuItem value="" sx={{ color: "#9ca3af", fontSize: "0.875rem" }}>Type</MenuItem>
-                  {options.types?.map(v => <MenuItem key={v} value={v} sx={{ fontSize: "0.875rem" }}>{v}</MenuItem>)}
+                  {form.type && (
+    <MenuItem value={form.type}>
+        {form.type}
+    </MenuItem>
+)}
                 </Select>
               </Grid>
 
@@ -336,16 +273,21 @@ export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }
                 <Autocomplete freeSolo options={options.strengths || []} value={form.strength || ""}
                   onChange={(e, v) => f("strength", v)} onInputChange={(e, v) => f("strength", v)}
                   renderInput={(params) => <TextField {...params} placeholder="Strength" sx={inputStyle} />}
-                  sx={{ "& .MuiAutocomplete-inputRoot": { padding: "0 !important" }, width: 70 }} />
+                  sx={{ "& .MuiAutocomplete-inputRoot": { padding: "0 !important" },width:70}} />
               </Grid>
 
               <Grid item xs={6} md={2}>
                 <Typography variant="caption" sx={{ color: "#6b7280", mb: 0.5, display: "block" }}>Unit</Typography>
                 <Select value={form.unit} displayEmpty onChange={(e) => f("unit", e.target.value)} sx={selectStyle}>
                   <MenuItem value="" sx={{ color: "#9ca3af", fontSize: "0.875rem" }}>Unit</MenuItem>
-                  {options.units?.map(v => <MenuItem key={v} value={v} sx={{ fontSize: "0.875rem" }}>{v}</MenuItem>)}
+                  
+{form.unit && (
+    <MenuItem value={form.unit}>
+        {form.unit}
+    </MenuItem>
+)}
                 </Select>
-              </Grid> */}
+              </Grid>
 
               <Grid item xs={6} md={2}>
                 <Typography variant="caption" sx={{ color: "#6b7280", mb: 0.5, display: "block" }}>Qty / Dose</Typography>
@@ -353,24 +295,56 @@ export default function AddMedicine({ onMedicinesChange, initialMedicines = [] }
               </Grid>
 
               <Grid item xs={12}>
-                <Typography variant="caption" sx={{ color: "#6b7280", mb: 1, display: "block" }}>When to Take</Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, p: 1.5, borderRadius: "8px", backgroundColor: "#f9fafb", border: "1px solid #d1d5db" }}>
-                  {options.when_to_take?.map(time => (
-                    <FormControlLabel key={time}
-                      label={<Typography sx={{ fontSize: "0.875rem", color: "#374151" }}>{time}</Typography>}
-                      control={<Checkbox checked={form.when_to_take.includes(time)} onChange={() => toggleWhen(time)} size="small"
-                        sx={{ color: "#d1d5db", "&.Mui-checked": { color: "#3f6f7a" } }} />}
-                      sx={{ mr: 1 }} />
-                  ))}
-                </Box>
-              </Grid>
+  <Typography
+    variant="caption"
+    sx={{ color: "#6b7280", mb: 1, display: "block" }}
+  >
+    When to Take
+  </Typography>
+
+  <Box
+    sx={{
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 1,
+      p: 1.5,
+      borderRadius: "8px",
+      backgroundColor: "#f9fafb",
+      border: "1px solid #d1d5db",
+    }}
+  >
+    {form.when_to_take?.map((time) => (
+      <FormControlLabel
+        key={time}
+        label={
+          <Typography sx={{ fontSize: "0.875rem", color: "#374151" }}>
+            {time}
+          </Typography>
+        }
+        control={
+          <Checkbox
+            checked
+            onChange={() => toggleWhen(time)}
+            size="small"
+            sx={{
+              color: "#d1d5db",
+              "&.Mui-checked": {
+                color: "#3f6f7a",
+              },
+            }}
+          />
+        }
+      />
+    ))}
+  </Box>
+</Grid>
 
               <Grid item xs={6} md={3}>
                 <Typography variant="caption" sx={{ color: "#6b7280", mb: 0.5, display: "block" }}>Duration</Typography>
                 <Autocomplete freeSolo options={options.durations || []} value={form.duration || ""}
                   onChange={(e, v) => f("duration", v || "")} onInputChange={(e, v) => f("duration", v)}
                   renderInput={(params) => <TextField {...params} placeholder="Select or type" sx={inputStyle} />}
-                  sx={{ "& .MuiAutocomplete-inputRoot": { padding: "0 !important" }, width: 150 }} />
+                  sx={{ "& .MuiAutocomplete-inputRoot": { padding: "0 !important" },width:150 }} />
               </Grid>
 
               <Grid item xs={6} md={3}>

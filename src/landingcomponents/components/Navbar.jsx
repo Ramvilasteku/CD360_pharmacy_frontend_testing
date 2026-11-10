@@ -28,7 +28,6 @@ const Navbar = () => {
         {/* Logo */}
         <HashLink smooth to="/#" className="navbar-logo">
           <div className="logo-icon">
-
             {/* <span className="logo-text">CareDesk</span> */}
             <img
               src={nameLogo}
@@ -57,7 +56,7 @@ const Navbar = () => {
           </li>
 
           <li>
-          <NavLink
+            <NavLink
               to="/aboutus"
               onClick={() => {
                 setMobileOpen(false);
@@ -93,7 +92,20 @@ const Navbar = () => {
               }}
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-                 Why Us
+              Why Us
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink
+              to="/clinic-growth-score"
+              onClick={() => {
+                setMobileOpen(false);
+                window.scrollTo(0, 0);
+              }}
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Chcek you score 
             </NavLink>
           </li>
 

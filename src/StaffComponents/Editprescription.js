@@ -4,15 +4,14 @@ import {
 } from "@mui/material";
 import AddMedicine from "./AddMedicine";
 import AddTest from "./AddTests";
-import AddConsultation from "./AddConsultation";
+import AddConsultation from "./AddConsultation";import "./PrescriptionPreview.css";
 import PrescriptionPreview from "./PrescriptionPreview";
- 
+  import "./PrescriptionPreview.css";
 /* ── Scoped styles ─────────────────────────────────────────────────────── */
 const STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap');
 
 .rx-edit-wrap *, .rx-edit-wrap *::before, .rx-edit-wrap *::after { box-sizing: border-box; }
- 
 .rx-edit-wrap {
   --blue:       #1a56db;
   --blue-dark:  #1341b0;
@@ -360,7 +359,6 @@ export default function EditPrescription({ prescriptionId, onClose, onSaved }) {
   chiefComplaint: "",
   treatmentPlan: "",
   doctorNotes: "",
-  diagnosis: "",
 });
   // Ref to scroll the right panel to top when switching sections
   const rightPanelRef = useRef(null);
@@ -419,7 +417,6 @@ export default function EditPrescription({ prescriptionId, onClose, onSaved }) {
       setNotes({
     chiefComplaint: rx.appointment?.purpose || "",
     treatmentPlan: rx.description || "",
-    diagnosis: rx.diagnosis || "",
     doctorNotes: rx.notes || "",
 });
  
@@ -623,33 +620,6 @@ export default function EditPrescription({ prescriptionId, onClose, onSaved }) {
                             setNotes({
                               ...notes,
                               chiefComplaint: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div style={{ marginBottom: 20 }}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 600, mb: 1 }}
-                        >
-                          Diagnosis (or) Investigation
-                        </Typography>
- 
-                        <textarea
-                          rows={4}
-                          style={{
-                            width: "100%",
-                            padding: "10px",
-                            borderRadius: "8px",
-                            border: "1px solid #d1d5db",
-                            resize: "vertical",
-                          }}
-                          value={notes.diagnosis}
-                          onChange={(e) =>
-                            setNotes({
-                              ...notes,
-                              diagnosis: e.target.value,
                             })
                           }
                         />

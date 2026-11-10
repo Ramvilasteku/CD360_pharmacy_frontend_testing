@@ -11,9 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Provider } from "react-redux";
 import { store } from "./ReceptionistComponents/IPD/redux/store";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root")
-);
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <Provider store={store}>
@@ -23,12 +21,16 @@ root.render(
       <ToastContainer
         position="top-right"
         autoClose={4000}
+        hideProgressBar={false}
         newestOnTop
-        pauseOnHover
         closeOnClick
+        pauseOnFocusLoss
+        pauseOnHover
+        draggable
+        theme="colored"
       />
     </>
-  </Provider>
+  </Provider>,
 );
 
 serviceWorkerRegistration.register();

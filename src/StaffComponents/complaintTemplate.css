@@ -1,0 +1,298 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Dynamic Rx pad — chief-complaint templates
+   Scoped with the "cct-" prefix so nothing in prescription.css changes.
+═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --cct-accent: #3f6f7a;
+  --cct-accent-soft: #e8f1f3;
+  --cct-border: #d6dee2;
+  --cct-text: #1f2d33;
+  --cct-muted: #6b7c84;
+  --cct-warn-bg: #fff8e6;
+  --cct-warn-border: #f0d48a;
+}
+
+/* card header with the "+ New" button */
+.cct-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cct-card-head h3 { margin: 0; }
+
+/* ── Chief complaint autocomplete ── */
+.cct-wrap { position: relative; width: 100%; }
+.cct-input { width: 100%; box-sizing: border-box; }
+
+.cct-list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--cct-border);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(31, 45, 51, 0.14);
+}
+
+.cct-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--cct-text);
+}
+.cct-item.active { background: var(--cct-accent-soft); }
+
+.cct-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cct-item-name { font-weight: 600; flex: 1; min-width: 0; }
+.cct-item-name mark {
+  background: transparent;
+  color: var(--cct-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cct-item-meta {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--cct-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cct-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1f3f4;
+  color: var(--cct-muted);
+  white-space: nowrap;
+}
+
+.cct-del {
+  border: 0;
+  background: transparent;
+  color: var(--cct-muted);
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cct-del:hover { background: #fdecec; color: #b42318; }
+.cct-del.confirm { background: #fdecec; color: #b42318; font-weight: 600; }
+
+.cct-note {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--cct-muted);
+}
+.cct-error { color: #b42318; }
+
+/* ── Status lines under the complaint box ── */
+.cct-hint {
+  font-size: 12px;
+  color: var(--cct-muted);
+  margin: -2px 0 2px;
+}
+
+.cct-applied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--cct-accent-soft);
+  color: var(--cct-accent);
+}
+
+.cct-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--cct-warn-bg);
+  border: 1px solid var(--cct-warn-border);
+  color: var(--cct-text);
+  font-size: 13px;
+}
+.cct-banner-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.cct-muted { color: var(--cct-muted); }
+
+/* ── Buttons ── */
+.cct-btn {
+  border: 1px solid var(--cct-accent);
+  background: #fff;
+  color: var(--cct-accent);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.cct-btn.solid { background: var(--cct-accent); color: #fff; }
+.cct-btn.ghost { border-color: var(--cct-border); color: var(--cct-muted); }
+.cct-btn:hover { filter: brightness(0.96); }
+
+.cct-link {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-left: auto;
+}
+
+/* ── Editable medicine / test rows ── */
+.cct-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cct-row {
+  border: 1px solid var(--cct-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fbfcfc;
+}
+.cct-row-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+}
+
+.cct-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cct-row-title { font-weight: 600; color: var(--cct-text); }
+.cct-row-sub { font-weight: 400; color: var(--cct-muted); }
+
+.cct-chip {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--cct-accent-soft);
+  color: var(--cct-accent);
+}
+
+.cct-icon-btn {
+  border: 0;
+  background: transparent;
+  color: var(--cct-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cct-icon-btn:hover { background: #fdecec; color: #b42318; }
+
+.cct-row-grid {
+  display: grid;
+  grid-template-columns: auto 1fr 80px;
+  gap: 8px 12px;
+  align-items: end;
+}
+.cct-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cct-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid var(--cct-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+}
+.cct-field input:focus {
+  outline: none;
+  border-color: var(--cct-accent);
+  box-shadow: 0 0 0 3px rgba(63, 111, 122, 0.15);
+}
+.cct-wide { grid-column: 1 / -1; }
+.cct-label { font-size: 11px; color: var(--cct-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.cct-slots { display: flex; align-items: center; gap: 4px; }
+.cct-slot {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--cct-border);
+  background: #fff;
+  color: var(--cct-muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+.cct-slot.on { background: var(--cct-accent); border-color: var(--cct-accent); color: #fff; }
+.cct-extras { font-size: 12px; color: var(--cct-muted); margin-left: 6px; }
+
+/* ── Remember checkbox ── */
+.cct-remember {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: var(--cct-text);
+  cursor: pointer;
+}
+.cct-remember input { margin-top: 2px; accent-color: var(--cct-accent); }
+
+@media (max-width: 520px) {
+  .cct-row-grid { grid-template-columns: 1fr 1fr; }
+  .cct-row-grid > .cct-field:first-child { grid-column: 1 / -1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Inside CreatePrescription's modal (left panel + right panel)
+   Matches the MUI selects there: #e2e8f0 border, 8px radius, .86rem.
+═══════════════════════════════════════════════════════════════════ */
+.cct-left-block { margin-top: 14px; }
+.cct-left-block .rx-left-label { margin-bottom: 8px; }
+
+.rx-left .cct-input {
+  width: 100%;
+  height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-size: 0.86rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.rx-left .cct-input:hover { border-color: #1a56db; }
+.rx-left .cct-input:focus { border-color: #1a56db; box-shadow: 0 0 0 1px #1a56db; }
+.rx-left .cct-list { max-height: 260px; }
+
+.cct-remember-sm { font-size: 12px; margin: 8px 0 0; color: #475569; }
+
+.rx-right .cct-banner,
+.rx-right .cct-applied { margin-bottom: 16px; }

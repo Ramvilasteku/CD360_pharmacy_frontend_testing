@@ -12,7 +12,7 @@ import ForgotPassword from "../Pages/ForgotPassword";
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import logo from "../images/caredesk360logonew.jpeg";
+import logo from "../images/caredesk360.png";
 import { useRef } from "react";
 import { useEffect } from "react";
 import axios from "axios";
@@ -20,8 +20,6 @@ import Fade from "@mui/material/Fade";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import IconButton from "@mui/material/IconButton";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import Link from "@mui/material/Link";
-import CreatePatientDialog from "./PatientRegister";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +27,6 @@ const Login = () => {
   const navigate = useNavigate();
   const [openForgot, setOpenForgot] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -98,7 +95,7 @@ const Login = () => {
 
       setSnackbar({
         open: true,
-        message: "Login successful. OTP has been sent to your whatsapp.",
+        message: "Login successful. OTP has been sent to your email.",
         severity: "success",
       });
 
@@ -238,7 +235,7 @@ const Login = () => {
         localStorage.setItem("adminName", data.name);
         localStorage.setItem("role", data.role);
         localStorage.setItem("modules", JSON.stringify(data.modules));
-        localStorage.setItem("branch", data.branch || "");
+          localStorage.setItem("branch", data.branch || "");
 
         navigate("/AdminDashboard");
       } else if (data.role === "doctor") {
@@ -246,9 +243,9 @@ const Login = () => {
         localStorage.setItem("userName", data.name);
         localStorage.setItem("role", data.role);
         localStorage.setItem("adminId", data.adminId);
-
+        
         localStorage.setItem("modules", JSON.stringify(data.modules));
-        localStorage.setItem("branch", data.branch || "");
+          localStorage.setItem("branch", data.branch || "");
 
         navigate("/doctor/dashboard");
       } else if (data.role === "receptionist") {
@@ -257,7 +254,7 @@ const Login = () => {
         localStorage.setItem("role", data.role);
         localStorage.setItem("adminId", data.adminId);
         localStorage.setItem("modules", JSON.stringify(data.modules));
-        localStorage.setItem("branch", data.branch || "");
+          localStorage.setItem("branch", data.branch || "");
 
         navigate("/receptionist/dashboard");
       } else if (data.role === "client") {
@@ -266,8 +263,8 @@ const Login = () => {
         localStorage.setItem("adminId", data.adminId);
         localStorage.setItem("role", data.role);
         localStorage.setItem("modules", JSON.stringify(data.modules));
-        localStorage.setItem("branch", data.branch || "");
-
+          localStorage.setItem("branch", data.branch || "");
+        
         navigate("/client");
       }
     } catch (error) {
@@ -354,7 +351,7 @@ const Login = () => {
                 zIndex: 2,
               }}
             >
-              {/* <Typography
+              <Typography
                 sx={{
                   color: "#fff",
                   fontWeight: 700,
@@ -380,8 +377,8 @@ const Login = () => {
                   },
                 }}
               >
-                Advancing Healthcare.Enchancing Lives
-              </Typography> */}
+                Practice Management Platform
+              </Typography>
             </Box>
           </Box>
 
@@ -525,34 +522,6 @@ const Login = () => {
                         "Login"
                       )}
                     </Button>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        mt: 2,
-                        textAlign: "center",
-                        color: "text.secondary",
-                      }}
-                    >
-                      Are you a new user?{"  "}
-                      <Link
-                        component="button"
-                        variant="body2"
-                        onClick={() => navigate("/register")}
-                        sx={{
-                          color: "primary.main",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        Register here
-                      </Link>
-                    </Typography>
-
-                    {/* <CreatePatientDialog
-                      open={open}
-                      onClose={() => setOpen(false)}
-                      onSuccess={() => {
-                      }}
-                    /> */}
                   </>
                 ) : (
                   <>

@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Box, Button, CircularProgress, Backdrop } from "@mui/material";
-import "./PrescriptionPreview.css";
+ import "./PrescriptionPreview.css";
 import {   Select, MenuItem } from "@mui/material";
-
 /* ─────────────────────────────────────────────────────────────────
    SCREEN CONSTANTS  (A4 card: 794×1123px @ 96dpi, pad 36v/48h)
 ───────────────────────────────────────────────────────────────── */
@@ -174,11 +173,10 @@ function buildPrintChunks({ consultations, medicines, tests, notes, description,
       </table>`);
   }
  
-  if (notes?.doctorNotes || notes?.diagnosis || description) {
+  if (notes?.doctorNotes || description) {
     chunks.push(`
       <div class="rx-notes">
         ${notes?.doctorNotes ? `<div><strong>Doctor Notes:</strong> ${notes.doctorNotes}</div>` : ""}
-        ${notes?.diagnosis ? `<div><strong>Diagnosis:</strong> ${notes.diagnosis}</div>` : ""}
         ${description        ? `<div><strong>Info:</strong> ${description}</div>`               : ""}
       </div>`);
   }
@@ -586,11 +584,6 @@ function Header({ clinic, branch, patient, doctor, appointment, notes, showBrand
               <div className="rx-label">Doctor Treatment Plan</div>
               <div>{notes?.treatmentPlan || "—"}</div>
             </div>
-
-            <div className="rx-meta-block">
-              <div className="rx-label">Diagnosis</div>
-              <div>{notes?.diagnosis || "—"}</div>
-            </div>
           </div>
         </>
       ) : (
@@ -638,7 +631,6 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
   if (consultations.length > 0) {
     chunks.push(`<div class="rx-section-title">Consultation Types</div>`);
     chunks.push(`
-      <div class="rx-table-wrapper">
       <table class="rx-table">
         <thead><tr><th>#</th><th>Consultation</th><th>Description</th></tr></thead>
         <tbody>
@@ -646,14 +638,12 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
             `<tr><td>${i + 1}</td><td>${c.name || "—"}</td><td>${c.description || "—"}</td></tr>`
           ).join("")}
         </tbody>
-      </table>
-      </div>`);
+      </table>`);
   }
  
   if (medicines.length > 0) {
     chunks.push(`<div class="rx-section-title">Medicines</div>`);
     chunks.push(`
-      <div class="rx-table-wrapper">
       <table class="rx-table">
         <thead>
           <tr><th>#</th><th>Medicine</th><th>Type</th><th>Strength</th>
@@ -673,14 +663,12 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
             </tr>`;
           }).join("")}
         </tbody>
-      </table>
-      </div>`);
+      </table>`);
   }
  
   if (tests.length > 0) {
     chunks.push(`<div class="rx-section-title">Tests</div>`);
     chunks.push(`
-      <div class="rx-table-wrapper">
       <table class="rx-table">
         <thead><tr><th>#</th><th>Test</th><th>Type</th><th>Notes</th></tr></thead>
         <tbody>
@@ -689,8 +677,7 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
             <td>${t.test_type || "—"}</td><td>${t.description || "—"}</td></tr>`
           ).join("")}
         </tbody>
-      </table>
-      </div>`);
+      </table>`);
   }
  
   if (notes?.doctorNotes) {
@@ -699,13 +686,6 @@ function buildChunks({ consultations, medicines, tests, notes, description, doct
         <div><strong>Doctor Notes:</strong> ${notes.doctorNotes}</div>
       </div>`);
   }
-
-  // if (notes?.diagnosis) {
-  //   chunks.push(`
-  //     <div class="rx-notes">
-  //       <div><strong>Diagnosis:</strong> ${notes.diagnosis}</div>
-  //     </div>`);
-  // }
  
   // ── Signature only shown here when header/footer branding is OFF ──
   if (!showBranding) {
@@ -769,8 +749,6 @@ function SaveOverlay({ status }) {
     </Backdrop>
   );
 }
-
-const BASE = process.env.REACT_APP_SITE_URL;
  
 /* ─────────────────────────────────────────────────────────────────
    MAIN COMPONENT
@@ -781,7 +759,6 @@ export default function PrescriptionPreview({
   onClose,
   saving        = false,
 }) {
-  const rx_id = data.id || "—";
   const consultations = data.consultations ?? [];
   const patient       = data.patient       ?? {};
   const doctor        = data.doctor        ?? {};
@@ -800,8 +777,7 @@ export default function PrescriptionPreview({
   const [pages, setPages]           = useState(null);
   const [saveStatus, setSaveStatus] = useState(null);
   const [saveError, setSaveError]   = useState("");
-  const [showBranding, setShowBranding] = useState(true); 
-  
+  const [showBranding, setShowBranding] = useState(true);
  
   /* ── Build screen pages ── */
   useEffect(() => {
@@ -849,23 +825,6 @@ export default function PrescriptionPreview({
     };
     setTimeout(tryPrint, 600);
   };
-
-
-  // Send through the whatsapp message to patient relative
-  const sharePrescription = async (prescriptionId, phone) => {
-  const res = await fetch(
-    `${BASE}/api/prescriptions/${prescriptionId}/share-whatsapp`,
-    {
-      method: "POST",
-      credentials: "include",          // ← sends the cookie
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ phone }),
-    }
-  );
-  return await res.json();
-};
  
   /* ── Save / send email ──
      Passes the current header preference through so the backend can
@@ -929,7 +888,6 @@ export default function PrescriptionPreview({
               ✖ Close
             </Button>
           )}
-          
           <Button variant="outlined" size="small" onClick={handlePrint} disabled={!!saveStatus}>
             🖨 Print / Save as PDF
           </Button>
@@ -981,7 +939,6 @@ export default function PrescriptionPreview({
           )}
         </div>
       </Box>
-       
     </>
   );
 }

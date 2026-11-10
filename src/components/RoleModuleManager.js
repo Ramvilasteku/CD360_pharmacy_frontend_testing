@@ -190,6 +190,7 @@ export default function RoleModuleManager() {
           >
             <option value="doctor">Doctor</option>
             <option value="receptionist">Receptionist</option>
+            <option value="client">Client</option>
           </select>
         </div>
 
