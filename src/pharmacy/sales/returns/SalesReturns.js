@@ -50,6 +50,13 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 /* ───────────────────────────── constants ───────────────────────────── */
 
+// N5 (10 Nov 2026): refund what the line was actually billed at — after its line
+// discount, with its GST — not the list rate. The server refuses anything above this.
+const billedUnit = (i) =>
+  i && i.total_amount != null && Number(i.quantity) > 0
+    ? Math.round((Number(i.total_amount) / Number(i.quantity)) * 100) / 100
+    : Number(i && i.unit_price) || 0;
+
 const API = process.env.REACT_APP_URL;
 
 const STATUS_TABS = [
@@ -309,7 +316,7 @@ function ReturnItemRow({ item, idx, canOverride, onQty }) {
   const locked = isQtyLocked(item, canOverride);
   const selected = item.return_quantity > 0;
   const max = item.remaining_qty ?? item.quantity;
-  const lineRefund = Number(item.unit_price) * item.return_quantity;
+  const lineRefund = billedUnit(item) * item.return_quantity;
   const expiry = parseDate(item.expiry_date);
 
   return (
@@ -329,7 +336,7 @@ function ReturnItemRow({ item, idx, canOverride, onQty }) {
             {item.medicine_name}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ ...numeric, display: { sm: "none" } }}>
-            {money(item.unit_price)} each
+            {money(billedUnit(item))} each
           </Typography>
         </Stack>
         <Typography variant="caption" color="text.secondary" component="div">
@@ -339,7 +346,7 @@ function ReturnItemRow({ item, idx, canOverride, onQty }) {
             `Sold ${item.quantity}`,
             item.already_returned > 0 && `${item.already_returned} returned earlier`,
           ].filter(Boolean).join(" · ")}
-          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}> · {money(item.unit_price)} each</Box>
+          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}> · {money(billedUnit(item))} each</Box>
         </Typography>
         <PolicyLine item={item} canOverride={canOverride} />
       </Box>
@@ -608,7 +615,7 @@ export default function SalesReturns({ title = "Sales returns", branchParams = {
       ? { ...i, return_quantity: i.remaining_qty ?? i.quantity } : i));
   const clearSelection = () => setReturnItems((prev) => prev.map((i) => ({ ...i, return_quantity: 0 })));
 
-  const refundAmount = returnItems.reduce((sum, i) => sum + Number(i.unit_price) * i.return_quantity, 0);
+  const refundAmount = Math.round(returnItems.reduce((sum, i) => sum + billedUnit(i) * i.return_quantity, 0) * 100) / 100;
   const selectedLines = returnItems.filter((i) => i.return_quantity > 0);
   const selectedUnits = selectedLines.reduce((n, i) => n + i.return_quantity, 0);
 
@@ -674,7 +681,7 @@ export default function SalesReturns({ title = "Sales returns", branchParams = {
             batch_id: i.batch_id,
             quantity: i.return_quantity,
             unit_price: i.unit_price,
-            total_amount: i.unit_price * i.return_quantity,
+            total_amount: Math.round(billedUnit(i) * i.return_quantity * 100) / 100,
             override_reason: !i.eligible && !i.hard_block && i.can_override ? overrideReason.trim() : undefined,
           })),
         },

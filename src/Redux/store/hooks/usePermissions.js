@@ -32,7 +32,7 @@ export function usePermission(permissionKey) {
  *   const canManageSales = useAnyPermission([
  *     "pharmacy.sales.edit",
  *     "pharmacy.sales.cancel",
- *     "pharmacy.sales.return"
+ *     "pharmacy.sales-returns.create"
  *   ]);
  */
 export function useAnyPermission(permissionKeys) {
@@ -105,7 +105,7 @@ export function useCanAccess(permission, feature) {
  */
 export function useCanEditSale(sale) {
   const canEdit = usePermission("pharmacy.sales.edit");
-  const canEditPaid = usePermission("pharmacy.sales.edit_paid");
+  const canEditPaid = usePermission("pharmacy.sales.edit"); // L7: the server has no sales.edit_paid key
   
   if (!canEdit || !sale) return false;
   if (sale.status !== "completed") return false;
@@ -139,7 +139,7 @@ export function useCanCancelSale(sale) {
  * Can user process return on this sale?
  */
 export function useCanReturnSale(sale) {
-  const canReturn = usePermission("pharmacy.sales.return");
+  const canReturn = usePermission("pharmacy.sales-returns.create"); // L7: the key the Returns routes check
   
   if (!canReturn || !sale) return false;
   if (sale.status !== "completed") return false;

@@ -83,16 +83,19 @@ console.log("[PharmacyDashboard] gates:", {
         axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/medicines?limit=1`, { withCredentials: true }),
         axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/sales/reports/today`, { withCredentials: true }),
         axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/sales/reports/month`, { withCredentials: true }),
-        axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/sales/get?limit=5&sort_by=created_at&sort_order=DESC`, { withCredentials: true }),
+        // M10: the sales list route is /sales/ — /sales/get was read as "sale with id get" and 404d
+        axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/sales/?limit=5&sort_by=created_at&sort_order=DESC`, { withCredentials: true }),
         axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/batches/expiring?days=90&limit=5`, { withCredentials: true }),
         axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/medicines/reports/reorder-list`, { withCredentials: true }),
+        // M10: sellable stock total (the today report has no unit count)
+        axios.get(`${process.env.REACT_APP_URL}/api/pharmacy/batches/stock-total`, { withCredentials: true }),
       ]);
 
-      const [medicines, todayR, monthR, recentR, expiringR, reorderR] = results;
+      const [medicines, todayR, monthR, recentR, expiringR, reorderR, stockR] = results;
 
       setData({
         activeMedicines: medicines.status === "fulfilled" ? (medicines.value.data.pagination?.total || 0) : 0,
-        unitsInStock: todayR.status === "fulfilled" ? (todayR.value.data.total_units || 0) : 0,
+        unitsInStock: stockR.status === "fulfilled" ? (stockR.value.data.total_units || 0) : 0,
         lowStockCount: reorderR.status === "fulfilled" ? (reorderR.value.data.total || 0) : 0,
         expiringCount: expiringR.status === "fulfilled" ? (expiringR.value.data.total || 0) : 0,
         todaySales: todayR.status === "fulfilled" ? (todayR.value.data.total_amount || 0) : 0,

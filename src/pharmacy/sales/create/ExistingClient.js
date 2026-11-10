@@ -441,9 +441,10 @@ const loadPrescription = async (rx) => {
   showMessage("Checking inventory for prescribed medicines…", "info");
 
   try {
+    // Stock is matched in the branch this sale is for (staff: their own branch).
     const res = await axios.get(
       `${API}/api/prescriptions/pharmacy/resolve/${rx.id}`,
-      { withCredentials: true }
+      { params: branchParams, withCredentials: true }
     );
     const resolved = res.data?.data || [];
     const summary = res.data?.summary || {};
@@ -840,25 +841,31 @@ const loadPrescription = async (rx) => {
     [patient, selectedPrescription]
   );
 
-  const onCheckoutSuccess = async (saleNumber, paid, paymentMethod = "cash", txnRef = null) => {
-    if (currentDraftId) {
+  // CheckoutDialog calls onSuccess(saleNumber, paid, saleId, data).
+  // N8: a resumed parked prescription is billed by CheckoutDialog as a normal sale (stock
+  // and payment are taken there), so the draft is only CLOSED here — finalize with
+  // sale_id never moves stock a second time.
+  const onCheckoutSuccess = async (saleNumber, paid, saleId = null) => {
+    let draftLeftOpen = false;
+    if (currentDraftId && saleId) {
       try {
         await axios.put(
           `${API}/api/pharmacy/dispensing/${currentDraftId}/finalize`,
-          {
-            payment_method: paymentMethod,
-            paid_amount: Number(paid) || 0,
-            transaction_reference: txnRef,
-            payment_notes: notes || null,
-          },
+          { sale_id: saleId },
           { withCredentials: true }
         );
       } catch (err) {
-        console.warn("Finalize draft failed:", err.message);
+        // The sale itself went through; only the parked copy is still open.
+        draftLeftOpen = true;
+        showMessage(
+          `Billed as ${saleNumber}, but ${currentDraftNumber || "the parked sale"} is still in Parked — discard it there.`,
+          "warning"
+        );
+        console.warn("Closing parked prescription failed:", err.message);
       }
     }
     setCheckoutOpen(false);
-    showMessage(`✓ Collected ₹${Number(paid).toFixed(2)}`, "success");
+    if (!draftLeftOpen) showMessage(`✓ Collected ₹${Number(paid).toFixed(2)}`, "success");
     resetAll();
   };
 
@@ -1967,11 +1974,13 @@ const loadPrescription = async (rx) => {
             subtotal={netAfterDiscount}
             taxAmount={gstAmount}
             grandTotal={grandTotal}
-            discountAmount={discountAmount + perItemDiscountTotal}
+            discountAmount={discountAmount /* order-level only; line discounts travel on the items */}
+            overallGstPercent={Number(saleGstPercent) || 0}
             discountType={discountType}
             discountValue={discountValue}
             saleGstPercent={saleGstPercent}
             currentDraftId={currentDraftId}
+            draftKind="dispensing"
             onSuccess={onCheckoutSuccess}
             embedded
           />

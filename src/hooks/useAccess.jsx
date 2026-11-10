@@ -203,7 +203,7 @@ const SWITCH_SIGNAL = "caredesk:role-switched";
  *
  *   await switchRole({ role_id: 4 });
  *
- * `payload` is passed to POST /api/switch-role untouched, so whatever your
+ * `payload` is passed to POST /api/pharmacy/account/switch-role untouched, so whatever your
  * endpoint expects (role_id, role_key, …) is what you send.
  *
  * WHY IT RELOADS BY DEFAULT
@@ -221,7 +221,8 @@ const SWITCH_SIGNAL = "caredesk:role-switched";
  *     if (dirty && !window.confirm("Switch role? Unsaved changes will be lost.")) return;
  */
 export async function switchRole(payload, { reload = true } = {}) {
-  const r = await axios.post(`${API_BASE}/api/switch-role`, payload, { withCredentials: true });
+  // L8: /api/switch-role never existed; the live role switcher (RoleSwitcher.jsx) uses this route.
+  const r = await axios.post(`${API_BASE}/api/pharmacy/account/switch-role`, payload, { withCredentials: true });
 
   cache = null;
   inflight = null;

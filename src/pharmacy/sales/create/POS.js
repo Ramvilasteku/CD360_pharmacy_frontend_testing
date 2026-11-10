@@ -397,6 +397,7 @@ export default function POS({ branchState, branchParams = {} }) {
         })),
         subtotal: itemsSubtotal,
         discount_amount: safeDiscountAmount,
+        overall_gst_percent: overallGstNum,   // N3: server recomputes the total from these
         tax_amount: taxAmount,
         grand_total: grandTotal,
         status: "draft",
@@ -1211,6 +1212,7 @@ export default function POS({ branchState, branchParams = {} }) {
         notes={buildNotes()}
         subtotal={itemsSubtotal}
         discountAmount={safeDiscountAmount}
+        overallGstPercent={overallGstNum}
         taxAmount={taxAmount}
         grandTotal={grandTotal}
         currentDraftId={currentDraftId}

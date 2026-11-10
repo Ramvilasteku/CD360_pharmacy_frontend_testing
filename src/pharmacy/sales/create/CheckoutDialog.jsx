@@ -66,7 +66,17 @@ export default function CheckoutDialog({
   subtotal,
   taxAmount,
   grandTotal,
+  // N3: the server recomputes the bill from the lines, so it needs the two bill-level
+  // inputs too — the order discount in ₹ (NOT the per-line discounts) and the
+  // "GST on whole bill" % (0 = each line's own GST).
+  discountAmount = 0,
+  overallGstPercent = 0,
   currentDraftId,
+  // "sale" = a parked POS bill (pharmacy_sales draft) → PATCH /sales/drafts/:id/complete.
+  // "dispensing" = a parked prescription from Existing patient. Those live in
+  // pharmacy_dispensing, so they are billed as a NEW sale with the cart as it is now;
+  // the parent then closes the dispensing draft (N8, 10 Nov 2026).
+  draftKind = "sale",
   onSuccess,
   branchParams = {},
 }) {
@@ -115,7 +125,7 @@ export default function CheckoutDialog({
     try {
       let res;
 
-      if (currentDraftId) {
+      if (currentDraftId && draftKind === "sale") {
         // ── Resuming a parked draft → PATCH complete endpoint ──
         res = await axios.patch(
           `${API}/api/pharmacy/sales/drafts/${currentDraftId}/complete`,
@@ -145,9 +155,10 @@ export default function CheckoutDialog({
 
           // Totals — backend recomputes line totals but stamps these on header
           subtotal,
-          discount_amount: 0,
+          discount_amount: Math.max(0, Number(discountAmount) || 0),
+          overall_gst_percent: Math.max(0, Number(overallGstPercent) || 0),
           tax_amount: taxAmount,
-          grand_total: grandTotal,
+          grand_total: grandTotal,   // the server checks it matches its own sum
 
           // Payment
           payment_method: method,
