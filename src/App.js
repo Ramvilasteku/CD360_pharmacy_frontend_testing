@@ -62,11 +62,6 @@ import { usePermissionPolling } from "./Redux/store/hooks/usePermissionPolling";
 import GrowthQuest from "./landingcomponents/components/growthQuest/GrowthQuest";
 
 /* ═══════════════════════════════════════════════════════════════════
-   ⭐ SERVICE AGREEMENT GENERATOR
-   ═══════════════════════════════════════════════════════════════════ */
-import ServiceAgreementGenerator from "./service-agreement/ServiceAgreementGenerator.jsx";
-
-/* ═══════════════════════════════════════════════════════════════════
    ⭐ NEW REDUX IMPORTS
    ═══════════════════════════════════════════════════════════════════ */
 import { PersistGate } from "redux-persist/integration/react";
@@ -114,13 +109,7 @@ const queryClient = new QueryClient({
    CRA uses process.env.PUBLIC_URL (Vite's import.meta.env.BASE_URL
    does not exist in a CRA build).
    ═══════════════════════════════════════════════════════════════════ */
-const AGREEMENT_ASSET_BASE = `/agreement-assets`;
 
-const ServiceAgreementPage = () => (
-  <main style={{ maxWidth: 1440, margin: "0 auto", padding: "24px 20px 48px" }}>
-    <ServiceAgreementGenerator assetBase={AGREEMENT_ASSET_BASE} />
-  </main>
-);
 
 /* ═══════════════════════════════════════════════════════════════════
    ⭐ LOADING COMPONENT - Shown during Redux rehydration
@@ -219,9 +208,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/otp-verify" element={<OtpVerification />} />
 
-          {/* ⭐ Service Agreement Generator */}
-          <Route path="/agreement" element={<ServiceAgreementPage />} />
-
+       
           {/* ⭐ Admin — single wildcard, AdminDashboard handles content internally */}
           <Route path="/AdminDashboard/*" element={<AdminDashboard />} />
 
